@@ -1,7 +1,6 @@
 package kz.halykacademy.bookstore.provider;
 
 import kz.halykacademy.bookstore.provider.providable.Providable;
-import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
