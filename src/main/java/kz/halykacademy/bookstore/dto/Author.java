@@ -1,6 +1,9 @@
 package kz.halykacademy.bookstore.dto;
 
+import kz.halykacademy.bookstore.provider.providable.ShopProvidable;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -13,7 +16,9 @@ import java.util.List;
  * Поля у автора: id, фамилия, имя, отчество, дата рождения, список написанных книг
  */
 @Data
-public class Author implements Serializable {
+@NoArgsConstructor
+@AllArgsConstructor
+public class Author implements Serializable, ShopProvidable {
     private Long id;
     private String name;
     private String surname;
