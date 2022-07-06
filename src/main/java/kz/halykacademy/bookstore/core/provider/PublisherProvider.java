@@ -1,4 +1,4 @@
-package kz.halykacademy.bookstore.provider;
+package kz.halykacademy.bookstore.core.provider;
 
 import kz.halykacademy.bookstore.dto.Publisher;
 

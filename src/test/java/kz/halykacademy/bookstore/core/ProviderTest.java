@@ -1,12 +1,12 @@
 package kz.halykacademy.bookstore.core;
 
+import kz.halykacademy.bookstore.core.provider.AuthorProvider;
+import kz.halykacademy.bookstore.core.provider.BaseProvider;
+import kz.halykacademy.bookstore.core.provider.BookProvider;
+import kz.halykacademy.bookstore.core.provider.PublisherProvider;
 import kz.halykacademy.bookstore.dto.Author;
 import kz.halykacademy.bookstore.dto.Book;
 import kz.halykacademy.bookstore.dto.Publisher;
-import kz.halykacademy.bookstore.provider.AuthorProvider;
-import kz.halykacademy.bookstore.provider.BaseProvider;
-import kz.halykacademy.bookstore.provider.BookProvider;
-import kz.halykacademy.bookstore.provider.PublisherProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

@@ -1,6 +1,6 @@
 package kz.halykacademy.bookstore.dto;
 
-import kz.halykacademy.bookstore.provider.providable.ShopProvidable;
+import kz.halykacademy.bookstore.core.provider.providable.ShopProvidable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

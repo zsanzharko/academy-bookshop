@@ -1,6 +1,6 @@
-package kz.halykacademy.bookstore.provider;
+package kz.halykacademy.bookstore.core.provider;
 
-import kz.halykacademy.bookstore.provider.providable.Providable;
+import kz.halykacademy.bookstore.core.provider.providable.Providable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,12 +22,6 @@ public abstract class BaseProvider<T extends Providable> implements Provider<T> 
     public BaseProvider(T items) {
         this.items = List.of(items);
         format();
-    }
-
-
-    @Override
-    public List<T> getItems() {
-        return items;
     }
 
     @Override

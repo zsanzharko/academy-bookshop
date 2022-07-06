@@ -1,14 +1,11 @@
-package kz.halykacademy.bookstore.provider;
+package kz.halykacademy.bookstore.core.provider;
 
 import java.util.List;
 
 /**
- * @version 0.1
  * @author Sanzhar
+ * @version 0.1
  */
 public interface Provider<T> {
-
-    List<T> getItems();
-
     List<T> getAll();
 }
