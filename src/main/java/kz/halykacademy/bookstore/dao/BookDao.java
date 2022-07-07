@@ -8,6 +8,7 @@ import kz.halykacademy.bookstore.entity.BookEntity;
 import kz.halykacademy.bookstore.repository.BookRepository;
 import kz.halykacademy.bookstore.service.BookService;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.IterableUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@Slf4j
 public class BookDao implements BookService, Provider<Book> {
     @Getter
     private final BookRepository bookRepository;

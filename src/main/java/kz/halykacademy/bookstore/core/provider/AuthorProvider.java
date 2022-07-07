@@ -6,10 +6,6 @@ import java.util.List;
 
 public class AuthorProvider extends BaseProvider<Author> {
 
-    public AuthorProvider() {
-        super();
-    }
-
     public AuthorProvider(Author author) {
         super(author);
     }

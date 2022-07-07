@@ -6,9 +6,6 @@ import java.util.List;
 
 public class BookProvider extends BaseProvider<Book> {
 
-    public BookProvider() {
-        super();
-    }
 
     public BookProvider(List<Book> bookList) {
         super(bookList);

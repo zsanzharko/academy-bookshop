@@ -1,6 +1,7 @@
 package kz.halykacademy.bookstore.entity;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -19,6 +20,7 @@ import java.util.Set;
 @Table(name = "books")
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
 public class BookEntity implements Serializable, Entitiable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -6,10 +6,6 @@ import java.util.List;
 
 public class PublisherProvider extends BaseProvider<Publisher>{
 
-    public PublisherProvider() {
-        super();
-    }
-
     public PublisherProvider(List<Publisher> items) {
         super(items);
     }
