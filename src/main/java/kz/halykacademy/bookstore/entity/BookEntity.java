@@ -1,13 +1,13 @@
 package kz.halykacademy.bookstore.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -20,12 +20,10 @@ import java.util.Set;
 @Table(name = "books")
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-public class BookEntity implements Serializable, Entitiable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false, unique = true)
-    private Long id;
+@Getter
+@Setter
+@ToString
+public class BookEntity extends AbstractEntity implements Serializable, Entitiable {
     @Column(name = "price")
     private BigDecimal price;
     @ManyToMany
@@ -34,6 +32,7 @@ public class BookEntity implements Serializable, Entitiable {
             joinColumns = @JoinColumn(name = "book_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "author_id", referencedColumnName = "id")
     )
+    @ToString.Exclude
     private Set<AuthorEntity> authors;
     @ManyToOne
     @JoinColumn(name = "publisher_id", referencedColumnName = "id", nullable = false)
@@ -44,5 +43,18 @@ public class BookEntity implements Serializable, Entitiable {
     private Integer numberOfPage;
     @Column(name = "release_date")
     private Date releaseDate;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        BookEntity that = (BookEntity) o;
+        return getId() != null && Objects.equals(getId(), that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }
 

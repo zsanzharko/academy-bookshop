@@ -1,13 +1,13 @@
 package kz.halykacademy.bookstore.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Set;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Sanzhar
@@ -19,12 +19,10 @@ import java.util.Set;
 @Table(name = "authors")
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-public class AuthorEntity implements Serializable, Entitiable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false, unique = true)
-    private Long id;
+@Getter
+@Setter
+@ToString
+public class AuthorEntity extends AbstractEntity implements Serializable, Entitiable {
     @Column(name = "name")
     private String name;
     @Column(name = "surname")
@@ -33,6 +31,20 @@ public class AuthorEntity implements Serializable, Entitiable {
     private String patronymic;
     @Column(name = "birthday")
     private Date birthday;
-    @ManyToMany(mappedBy = "authors")
-    private Set<BookEntity> writtenBookList;
+    @ManyToMany(mappedBy = "authors", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private List<BookEntity> writtenBookList;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        AuthorEntity that = (AuthorEntity) o;
+        return getId() != null && Objects.equals(getId(), that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

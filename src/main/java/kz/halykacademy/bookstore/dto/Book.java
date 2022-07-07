@@ -1,9 +1,10 @@
 package kz.halykacademy.bookstore.dto;
 
-import kz.halykacademy.bookstore.core.provider.providable.ShopProvidable;
+import kz.halykacademy.bookstore.provider.providable.ShopProvidable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -23,6 +24,7 @@ public class Book implements Serializable, ShopProvidable {
     private Long id;
     private BigDecimal price;
     private List<Author> authors;
+    @ToString.Exclude
     private Publisher publisher;
     private String title;
     private Integer numberOfPage;
