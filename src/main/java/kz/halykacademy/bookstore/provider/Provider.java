@@ -93,7 +93,7 @@ public interface Provider<T extends Providable> {
         // todo add exception
         List<D> mappers = new ArrayList<>(sources.size());
         for (var s : sources) {
-            getModelMap(s, destinationType);
+            mappers.add(getModelMap(s, destinationType));
         }
         return mappers;
     }

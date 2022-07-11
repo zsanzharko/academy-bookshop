@@ -1,15 +1,17 @@
 package kz.halykacademy.bookstore.entity;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.Hibernate;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+
+import static javax.persistence.CascadeType.ALL;
 
 
 /**
@@ -21,16 +23,25 @@ import java.util.Objects;
 @Entity
 @Table(name = "publishers")
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 @ToString
 public class PublisherEntity extends AbstractEntity implements Serializable, Entitiable {
     @Column(name = "title")
     private String title;
-    @OneToMany
+    @OneToMany(mappedBy = "publisher", cascade = ALL, fetch = FetchType.EAGER)
     @ToString.Exclude
-    private List<BookEntity> bookList;
+    private Set<BookEntity> bookList;
+
+    public PublisherEntity(String title, Set<BookEntity> bookList) {
+        this.title = title;
+        this.bookList = bookList;
+    }
+
+    public PublisherEntity(String title) {
+        this.title = title;
+        this.bookList = null;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -44,12 +55,4 @@ public class PublisherEntity extends AbstractEntity implements Serializable, Ent
     public int hashCode() {
         return getClass().hashCode();
     }
-
-//    @Override
-//    public String toString() {
-//        return "PublisherEntity{" +
-//                "title='" + title + '\'' +
-//                ", bookList=" + bookList.stream().map((b) -> b.getTitle() + " ") +
-//                '}';
-//    }
 }

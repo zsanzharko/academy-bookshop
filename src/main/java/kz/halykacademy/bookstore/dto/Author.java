@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Sanzhar
@@ -24,5 +26,53 @@ public class Author implements Serializable, ShopProvidable {
     private String surname;
     private String patronymic;
     private Date birthday;
-    private List<Book> readed;
+    private Set<Book> writtenBooks;
+
+    public Author(String name, String surname, String patronymic, Date birthday, Set<Book> writtenBooks) {
+        this.name = name;
+        this.surname = surname;
+        this.patronymic = patronymic;
+        this.birthday = birthday;
+        this.writtenBooks = writtenBooks;
+    }
+
+    public Author(String name, String surname, String patronymic, Date birthday) {
+        this.name = name;
+        this.surname = surname;
+        this.patronymic = patronymic;
+        this.birthday = birthday;
+        this.writtenBooks = new HashSet<>();
+    }
+
+    public Author(String name, String surname, Date birthday) {
+        this.name = name;
+        this.surname = surname;
+        this.patronymic = "";
+        this.birthday = birthday;
+        this.writtenBooks = new HashSet<>();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Author author)) return false;
+        return getId().equals(author.getId()) &&
+                getName().equals(author.getName()) &&
+                Objects.equals(getSurname(), author.getSurname()) &&
+                Objects.equals(getPatronymic(), author.getPatronymic()) &&
+                Objects.equals(getBirthday(), author.getBirthday()) &&
+                (getWrittenBooks() != null && getWrittenBooks().equals(author.getWrittenBooks()))
+                ||
+                getId().equals(author.getId()) &&
+                        getName().equals(author.getName()) &&
+                        Objects.equals(getSurname(), author.getSurname()) &&
+                        Objects.equals(getPatronymic(), author.getPatronymic()) &&
+                        Objects.equals(getBirthday(), author.getBirthday()) &&
+                        (getWrittenBooks() == null || getWrittenBooks().equals(author.getWrittenBooks()));
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getName(), getBirthday(), getWrittenBooks());
+    }
 }

@@ -6,8 +6,9 @@ import org.hibernate.Hibernate;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Sanzhar
@@ -23,7 +24,7 @@ import java.util.Objects;
 @Setter
 @ToString
 public class AuthorEntity extends AbstractEntity implements Serializable, Entitiable {
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String name;
     @Column(name = "surname")
     private String surname;
@@ -31,9 +32,30 @@ public class AuthorEntity extends AbstractEntity implements Serializable, Entiti
     private String patronymic;
     @Column(name = "birthday")
     private Date birthday;
-    @ManyToMany(mappedBy = "authors", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "written_book",
+            joinColumns = @JoinColumn(name = "book_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "author_id", referencedColumnName = "id"))
     @ToString.Exclude
-    private List<BookEntity> writtenBookList;
+    private Set<BookEntity> writtenBookList;
+
+    public AuthorEntity(String name, String surname, Date birthday) {
+        this.name = name;
+        this.surname = surname;
+        this.patronymic = "";
+        this.birthday = birthday;
+        this.writtenBookList = new HashSet<>();
+    }
+
+    public AuthorEntity(String name, String surname, String patronymic, Date birthday) {
+        this.name = name;
+        this.surname = surname;
+        this.patronymic = patronymic;
+        this.birthday = birthday;
+        this.writtenBookList = new HashSet<>();
+    }
 
     @Override
     public boolean equals(Object o) {

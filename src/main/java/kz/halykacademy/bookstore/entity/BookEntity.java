@@ -1,12 +1,16 @@
 package kz.halykacademy.bookstore.entity;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -19,22 +23,16 @@ import java.util.Set;
 @Entity
 @Table(name = "books")
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 @ToString
 public class BookEntity extends AbstractEntity implements Serializable, Entitiable {
     @Column(name = "price")
     private BigDecimal price;
-    @ManyToMany
-    @JoinTable(
-            name = "written_book",
-            joinColumns = @JoinColumn(name = "book_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "author_id", referencedColumnName = "id")
-    )
+    @ManyToMany(mappedBy = "writtenBookList", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @ToString.Exclude
     private Set<AuthorEntity> authors;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "publisher_id", referencedColumnName = "id", nullable = false)
     private PublisherEntity publisher;
     @Column(name = "title")
@@ -43,6 +41,24 @@ public class BookEntity extends AbstractEntity implements Serializable, Entitiab
     private Integer numberOfPage;
     @Column(name = "release_date")
     private Date releaseDate;
+
+    public BookEntity(BigDecimal price, Set<AuthorEntity> authors, PublisherEntity publisher, String title, Integer numberOfPage, Date releaseDate) {
+        this.price = price;
+        this.authors = authors;
+        this.publisher = publisher;
+        this.title = title;
+        this.numberOfPage = numberOfPage;
+        this.releaseDate = releaseDate;
+    }
+
+    public BookEntity(BigDecimal price, PublisherEntity publisher, String title, Date releaseDate) {
+        this.price = price;
+        this.publisher = publisher;
+        this.title = title;
+        this.releaseDate = releaseDate;
+        this.numberOfPage = 0;
+        this.authors = new HashSet<>();
+    }
 
     @Override
     public boolean equals(Object o) {

@@ -6,7 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 
 /**
@@ -21,5 +22,28 @@ import java.util.List;
 public class Publisher implements Serializable, ShopProvidable {
     private Long id;
     private String title;
-    private List<Book> bookList;
+    private Set<Book> bookList;
+
+    public Publisher(String title, Set<Book> bookList) {
+        this.title = title;
+        this.bookList = bookList;
+    }
+
+    public Publisher(String title) {
+        this.title = title;
+        this.bookList = null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Publisher publisher = (Publisher) o;
+        return Objects.equals(getId(), publisher.getId()) && getTitle().equals(publisher.getTitle()) && Objects.equals(getBookList(), publisher.getBookList());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getTitle());
+    }
 }
