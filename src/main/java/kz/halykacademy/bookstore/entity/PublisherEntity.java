@@ -1,12 +1,17 @@
 package kz.halykacademy.bookstore.entity;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.Set;
+
+import static javax.persistence.CascadeType.ALL;
 
 
 /**
@@ -18,27 +23,32 @@ import java.util.Set;
 @Entity
 @Table(name = "publishers")
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 @ToString
-public class PublisherEntity implements Serializable, Entitiable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false, unique = true)
-    private Long id;
+public class PublisherEntity extends AbstractEntity implements Serializable, Entitiable {
     @Column(name = "title")
     private String title;
-    @OneToMany
+    @OneToMany(mappedBy = "publisher", cascade = ALL, fetch = FetchType.EAGER)
     @ToString.Exclude
     private Set<BookEntity> bookList;
+
+    public PublisherEntity(String title, Set<BookEntity> bookList) {
+        this.title = title;
+        this.bookList = bookList;
+    }
+
+    public PublisherEntity(String title) {
+        this.title = title;
+        this.bookList = null;
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         PublisherEntity that = (PublisherEntity) o;
-        return id != null && Objects.equals(id, that.id);
+        return getId() != null && Objects.equals(getId(), that.getId());
     }
 
     @Override

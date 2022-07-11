@@ -1,38 +1,36 @@
-package kz.halykacademy.bookstore.repository;
-
+package kz.halykacademy.bookstore.provider;
 
 import kz.halykacademy.bookstore.config.ApplicationContextProvider;
-import kz.halykacademy.bookstore.core.provider.providable.Providable;
 import kz.halykacademy.bookstore.entity.Entitiable;
+import kz.halykacademy.bookstore.provider.providable.AccountProvidable;
+import kz.halykacademy.bookstore.provider.providable.Providable;
+import kz.halykacademy.bookstore.provider.providable.ShopProvidable;
 import org.modelmapper.ModelMapper;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @param <E> Entity
- * @param <P> Provider model
  * @author Sanzhar
- * @version 1.1
- * @apiNote Main repository handler that can to implement entity to model or reverse.
+ * @version 0.2
+ * @apiNote Main service that can to implement entity to model or reverse.
+ * @since 0.2
  */
-public interface RepositoryHandler<
-        E extends Entitiable,
-        P extends Providable> {
+public interface Provider<T extends Providable> {
 
     /**
      * @param entity Entity from database
      * @return Providable DTO object
      * @apiNote Save entity to database.
      */
-    P save(E entity);
+    T save(T entity);
 
     /**
      * @param entities Entity from database
      * @return Providable DTO object
      * @apiNote Save entities to database.
      */
-    List<P> saveAll(List<E> entities);
+    List<T> saveAll(List<T> entities);
 
     /**
      * @param source          object, who need to map
@@ -51,31 +49,30 @@ public interface RepositoryHandler<
         var modelMapper = ApplicationContextProvider.getApplicationContext().getBean(ModelMapper.class);
         boolean desCor = false;
         boolean sourCor = false;
+        for (var s : source.getClass().getInterfaces()) {
+            if (s.getName().equals(Providable.class.getName()) ||
+                    s.getName().equals(Entitiable.class.getName()) ||
+                    s.getName().equals(ShopProvidable.class.getName()) ||
+                    s.getName().equals(AccountProvidable.class.getName())
+            ) {
+                sourCor = true;
 
-        var i =  source.getClass().getInterfaces();
-
-
+                break;
+            }
+        }
         for (var d : destinationType.getInterfaces()) {
             if (d.getName().equals(Providable.class.getName()) ||
-                    d.getName().equals(Entitiable.class.getName())) {
+                    d.getName().equals(Entitiable.class.getName()) ||
+                    d.getName().equals(ShopProvidable.class.getName()) ||
+                    d.getName().equals(AccountProvidable.class.getName())
+            ) {
                 desCor = true;
 
                 break;
             }
         }
 
-        for (var s : source.getClass().getInterfaces()) {
-            if (s.getName().equals(Providable.class.getName()) ||
-                    s.getName().equals(Entitiable.class.getName())) {
-                sourCor = true;
-
-                break;
-            }
-        }
-
-        if (desCor && sourCor) {
-            return modelMapper.map(source, destinationType);
-        }
+        if (desCor && sourCor) return modelMapper.map(source, destinationType);
 
         return null;
     }
@@ -96,7 +93,7 @@ public interface RepositoryHandler<
         // todo add exception
         List<D> mappers = new ArrayList<>(sources.size());
         for (var s : sources) {
-            getModelMap(s, destinationType);
+            mappers.add(getModelMap(s, destinationType));
         }
         return mappers;
     }
@@ -107,29 +104,42 @@ public interface RepositoryHandler<
      * @return Providable DTO object
      * @apiNote Update entity in database. Can work with JPA
      */
-    P saveAndFlush(E entity);
+    T saveAndFlush(T entity);
 
     /**
      * @param entities Entity from database
      * @return Providable DTO object
      * @apiNote Update entities in database. Can work with JPA
      */
-    List<P> saveAllAndFlush(List<E> entities);
+    List<T> saveAllAndFlush(List<T> entities);
 
     /**
      * @param entity Entity from database
      * @apiNote Removing entity
      */
-    void remove(E entity);
+    void remove(T entity);
 
     /**
      * @param entities List of entities
      * @apiNote Removing entities
      */
-    void removeAll(List<E> entities);
+    void removeAll(List<T> entities);
 
     /**
      * @apiNote Remove all entities in database
      */
     void removeAll();
+
+    /**
+     * @param id Long-identifier in database
+     * @return DTO pbject
+     */
+    T findById(Long id);
+
+    /**
+     * @param id Long-Identification in entity
+     */
+    void removeById(Long id);
+
+    List<T> getAll();
 }

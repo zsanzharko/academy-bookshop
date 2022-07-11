@@ -1,4 +1,4 @@
-package kz.halykacademy.bookstore.core.provider.providable;
+package kz.halykacademy.bookstore.provider.providable;
 
 public interface AccountProvidable extends Providable {
 
