@@ -6,11 +6,44 @@ import kz.halykacademy.bookstore.repository.PublisherRepository;
 import kz.halykacademy.bookstore.service.PublisherService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class PublisherProvider extends BaseProvider<Publisher, PublisherEntity, PublisherRepository>
         implements PublisherService {
 
     public PublisherProvider(PublisherRepository repository) {
         super(PublisherEntity.class, Publisher.class, repository);
+    }
+
+    @Override
+    public List<Publisher> findPublisherByName(String name) {
+        var publisherList = repository.findAllByTitle(name);
+        return getModelMap(publisherList, Publisher.class);
+    }
+
+    @Override
+    public Publisher create(Publisher entity) {
+        return save(entity);
+    }
+
+    @Override
+    public List<Publisher> read() {
+        return getAll();
+    }
+
+    @Override
+    public Publisher read(Long id) {
+        return findById(id);
+    }
+
+    @Override
+    public Publisher update(Publisher entity) {
+        return saveAndFlush(entity);
+    }
+
+    @Override
+    public void delete(Publisher entity) {
+        remove(entity);
     }
 }

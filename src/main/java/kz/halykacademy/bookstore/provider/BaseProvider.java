@@ -68,7 +68,6 @@ public abstract class BaseProvider<
      */
     @Override
     public P saveAndFlush(P entity) {
-        var s = getModelMap(entity, entityClass);
         var model = repository.saveAndFlush(getModelMap(entity, entityClass));
         return getModelMap(model, provideClass);
     }

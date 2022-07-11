@@ -42,4 +42,35 @@ public class BookProvider extends BaseProvider<Book, BookEntity, BookRepository>
 
         return super.saveAll(entities);
     }
+
+    @Override
+    public List<Book> findBookByName(String name) {
+        var model = repository.findAllByTitle(name);
+        return getModelMap(model, Book.class);
+    }
+
+    @Override
+    public Book create(Book entity) {
+        return save(entity);
+    }
+
+    @Override
+    public List<Book> read() {
+        return getAll();
+    }
+
+    @Override
+    public Book read(Long id) {
+        return findById(id);
+    }
+
+    @Override
+    public Book update(Book entity) {
+        return saveAndFlush(entity);
+    }
+
+    @Override
+    public void delete(Book entity) {
+        remove(entity);
+    }
 }
