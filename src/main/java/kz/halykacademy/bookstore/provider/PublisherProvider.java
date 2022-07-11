@@ -13,9 +13,4 @@ public class PublisherProvider extends BaseProvider<Publisher, PublisherEntity, 
     public PublisherProvider(PublisherRepository repository) {
         super(PublisherEntity.class, Publisher.class, repository);
     }
-
-    @Override
-    protected void format() {
-
-    }
 }

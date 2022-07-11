@@ -6,7 +6,6 @@ import kz.halykacademy.bookstore.repository.CommonRepository;
 import org.springframework.lang.NonNull;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @param <P> Providable objects, need to access working with base provider
@@ -27,14 +26,16 @@ public abstract class BaseProvider<
     private final Class<P> provideClass;
     protected final R repository;
 
-    protected final List<E> items; // providable items
-
+    /**
+     * @param entityClass Entity
+     * @param provideClass Provide class
+     * @param repository repository for provider
+     */
     public BaseProvider(@NonNull Class<E> entityClass,
                         @NonNull Class<P> provideClass,
                         @NonNull R repository) {
         this.entityClass = entityClass;
         this.provideClass = provideClass;
-        this.items = repository.findAll();
         this.repository = repository;
     }
 
@@ -110,9 +111,9 @@ public abstract class BaseProvider<
 
     @Override
     public P findById(Long id) {
-        return getModelMap(Objects.requireNonNull(
-                repository.findById(id).orElse(null)),
-                provideClass);
+        var model = repository.findById(id).orElse(null);
+        if (model != null) return getModelMap(model, provideClass);
+        return null;
     }
 
     @Override
@@ -122,9 +123,7 @@ public abstract class BaseProvider<
 
     @Override
     public List<P> getAll() {
-        format();
+        var items = repository.findAll();
         return getModelMap(items, provideClass);
     }
-
-    protected abstract void format();
 }

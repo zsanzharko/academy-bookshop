@@ -13,8 +13,4 @@ public class BookProvider extends BaseProvider<Book, BookEntity, BookRepository>
         super(BookEntity.class, Book.class, repository);
     }
 
-    @Override
-    protected void format() {
-
-    }
 }

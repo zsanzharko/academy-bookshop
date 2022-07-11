@@ -14,9 +14,4 @@ public class AuthorProvider extends BaseProvider<Author, AuthorEntity, AuthorRep
     public AuthorProvider(AuthorRepository repository) {
         super(AuthorEntity.class, Author.class, repository);
     }
-
-    @Override
-    protected void format() {
-
-    }
 }
