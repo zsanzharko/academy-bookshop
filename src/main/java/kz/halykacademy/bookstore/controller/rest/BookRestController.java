@@ -43,7 +43,12 @@ public class BookRestController implements CRUDService<Book> {
     }
 
     @Override
-    public void delete(Book entity) {
-        provider.delete(entity);
+    public void delete(Long id) {
+        provider.delete(id);
+    }
+
+    @Override
+    public void deleteAll() {
+
     }
 }

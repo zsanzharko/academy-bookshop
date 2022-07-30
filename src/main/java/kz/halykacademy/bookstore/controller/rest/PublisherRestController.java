@@ -42,7 +42,12 @@ public class PublisherRestController implements CRUDService<Publisher> {
     }
 
     @Override
-    public void delete(Publisher entity) {
-        provider.delete(entity);
+    public void delete(Long id) {
+        provider.delete(id);;
+    }
+
+    @Override
+    public void deleteAll() {
+
     }
 }

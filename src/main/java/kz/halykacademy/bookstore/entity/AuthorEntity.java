@@ -33,7 +33,7 @@ public class AuthorEntity extends AbstractEntity implements Serializable, Entiti
     @Column(name = "birthday")
     private Date birthday;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "written_book",
             joinColumns = @JoinColumn(name = "book_id", referencedColumnName = "id"),

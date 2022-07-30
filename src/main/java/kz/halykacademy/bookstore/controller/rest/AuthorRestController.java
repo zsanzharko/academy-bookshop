@@ -41,7 +41,12 @@ public class AuthorRestController implements CRUDService<Author> {
     }
 
     @Override
-    public void delete(Author entity) {
-        provider.delete(entity);
+    public void delete(Long id) {
+        provider.delete(id);
+    }
+
+    @Override
+    public void deleteAll() {
+        provider.deleteAll();
     }
 }

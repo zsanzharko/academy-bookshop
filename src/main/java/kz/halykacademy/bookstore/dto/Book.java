@@ -1,5 +1,7 @@
 package kz.halykacademy.bookstore.dto;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import kz.halykacademy.bookstore.provider.providable.ShopProvidable;
 import lombok.*;
 
@@ -18,6 +20,10 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id"
+)
 public class Book implements Serializable, ShopProvidable {
     private Long id;
     private BigDecimal price;

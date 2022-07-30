@@ -14,5 +14,7 @@ public interface CRUDService<T extends Providable> {
 
     T update(T entity);
 
-    void delete(T entity);
+    void delete(Long id);
+
+    void deleteAll();
 }

@@ -43,7 +43,12 @@ public class PublisherProvider extends BaseProvider<Publisher, PublisherEntity, 
     }
 
     @Override
-    public void delete(Publisher entity) {
-        remove(entity);
+    public void delete(Long id) {
+        removeById(id);
+    }
+
+    @Override
+    public void deleteAll() {
+        removeAll();
     }
 }
