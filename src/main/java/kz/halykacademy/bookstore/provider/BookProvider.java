@@ -21,10 +21,12 @@ public class BookProvider extends BaseProvider<Book, BookEntity, BookRepository>
      * @apiNote Save entity to database.
      */
     @Override
-    public Book save(Book entity) {
+    protected Book save(Book entity) {
         assert entity != null;
-        if (entity.getPublisher() != null && entity.getPublisher().getId() == null) return null;
-        return super.save(entity);
+        if (entity.getPublisher() != null && entity.getPublisher().getId() == null)
+            return null;
+        else
+            return super.save(entity);
     }
 
     /**
@@ -33,7 +35,7 @@ public class BookProvider extends BaseProvider<Book, BookEntity, BookRepository>
      * @apiNote Save entities to database.
      */
     @Override
-    public List<Book> saveAll(List<Book> entities) {
+    protected List<Book> saveAll(List<Book> entities) {
         assert entities != null;
 
         for (var entity : entities)
@@ -41,5 +43,41 @@ public class BookProvider extends BaseProvider<Book, BookEntity, BookRepository>
                 return null;
 
         return super.saveAll(entities);
+    }
+
+    @Override
+    public List<Book> findBookByName(String name) {
+        var model = repository.findAllByTitle(name);
+        return getModelMap(model, Book.class);
+    }
+
+    @Override
+    public Book create(Book entity) {
+        return save(entity);
+    }
+
+    @Override
+    public List<Book> read() {
+        return getAll();
+    }
+
+    @Override
+    public Book read(Long id) {
+        return findById(id);
+    }
+
+    @Override
+    public Book update(Book entity) {
+        return saveAndFlush(entity);
+    }
+
+    @Override
+    public void delete(Long id) {
+        removeById(id);
+    }
+
+    @Override
+    public void deleteAll() {
+        removeAll();
     }
 }

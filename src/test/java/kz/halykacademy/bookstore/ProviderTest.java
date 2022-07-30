@@ -65,14 +65,14 @@ public class ProviderTest {
 
 
         // pre-operation
-        var dbPublisher = publisherProvider.save(publisher);
+        var dbPublisher = publisherProvider.create(publisher);
 
         dbPublisher.setBookList(Set.of(book));
 
         book.setPublisher(dbPublisher);
 
         // operation
-        var dbBook = bookProvider.save(book);
+        var dbBook = bookProvider.create(book);
 
         book.setId(dbBook.getId());
 
@@ -96,7 +96,7 @@ public class ProviderTest {
         deleteEntityById(dbBook.getId(), bookProvider);
 
         // operation
-        var dbAuthor = authorProvider.save(author);
+        var dbAuthor = authorProvider.create(author);
         author.setId(dbAuthor.getId());
 
         // assertion
@@ -117,7 +117,13 @@ public class ProviderTest {
             for (var provider :
                     providers) {
                 log.info(String.format("Provider: %s", provider.getClass().getName()));
-                provider.removeAll();
+                if (provider instanceof BookProvider p) {
+                    p.deleteAll();
+                } else if (provider instanceof AuthorProvider p) {
+                    p.deleteAll();
+                } else if (provider instanceof PublisherProvider p) {
+                    p.deleteAll();
+                }
             }
 
             log.info("Cleaning is done!");
@@ -135,7 +141,15 @@ public class ProviderTest {
                                           provider) {
         log.info(String.format("Deleting database author (id=%s)...", id));
         try {
-            provider.removeById(id);
+
+            if (provider instanceof BookProvider p) {
+                p.delete(id);
+            } else if (provider instanceof AuthorProvider p) {
+                p.delete(id);
+            } else if (provider instanceof PublisherProvider p) {
+                p.delete(id);
+            }
+
             log.info("Deleted");
         } catch (Exception e) {
             log.info(CLEAN_TAG, e);
@@ -152,7 +166,7 @@ public class ProviderTest {
 
         // operation
         Author author = new Author("Name", "Surname", "Patronymic", new Date(), null);
-        var dbAuthor = authorProvider.save(author);
+        var dbAuthor = authorProvider.create(author);
         author.setId(dbAuthor.getId());
 
         var dbEntities = authorProvider.getAll();
@@ -185,11 +199,11 @@ public class ProviderTest {
         deleteAllEntities(List.of(publisherProvider, bookProvider, authorProvider));
 
         // operation
-        var publisher = publisherProvider.save(new Publisher("Publisher title"));
-        publisher = publisherProvider.findById(publisher.getId());
+        var publisher = publisherProvider.create(new Publisher("Publisher title"));
+        publisher = publisherProvider.read(publisher.getId());
         var book = new Book(new BigDecimal(990), publisher, "Book title", new Date());
         book.setPublisher(publisher);
-        var dbBook = bookProvider.save(book);
+        var dbBook = bookProvider.create(book);
         book.setId(dbBook.getId());
         publisher.setBookList(dbBook.getPublisher().getBookList());
 
@@ -209,14 +223,14 @@ public class ProviderTest {
         deleteAllEntities(List.of(publisherProvider, bookProvider, authorProvider));
 
         // operation
-        var publisher = publisherProvider.save(new Publisher("Publisher title"));
-        publisher = publisherProvider.findById(publisher.getId());
-        var dbBook = bookProvider.save(new Book(new BigDecimal(990), publisher, "Book title", new Date()));
+        var publisher = publisherProvider.create(new Publisher("Publisher title"));
+        publisher = publisherProvider.read(publisher.getId());
+        var dbBook = bookProvider.create(new Book(new BigDecimal(990), publisher, "Book title", new Date()));
 
         var author = new Author("Sanzhar", "aaa", new Date());
 
         dbBook.setAuthors(Set.of(author));
-        dbBook = bookProvider.saveAndFlush(dbBook);
+        dbBook = bookProvider.update(dbBook);
 
         for (var a : dbBook.getAuthors())
             if (author.getName().equals(a.getName()))
@@ -239,12 +253,12 @@ public class ProviderTest {
 
         // operation
         var publisher = new Publisher("Sanzhar");
-        var dbPublisher = publisherProvider.save(publisher);
+        var dbPublisher = publisherProvider.create(publisher);
         var book = new Book(new BigDecimal(5000), dbPublisher, "Minecraft", new Date());
         dbPublisher.setBookList(Set.of(book));
         publisher.setBookList(dbPublisher.getBookList());
 
-        dbPublisher = publisherProvider.saveAndFlush(dbPublisher);
+        dbPublisher = publisherProvider.update(dbPublisher);
         for (var b : dbPublisher.getBookList()) {
             if (b.getTitle().equals(book.getTitle()))
                 book.setId(b.getId());
@@ -266,7 +280,7 @@ public class ProviderTest {
 
         // operation
         Publisher publisher = new Publisher("Publisher title");
-        var dbPublisher = publisherProvider.save(publisher);
+        var dbPublisher = publisherProvider.create(publisher);
         publisher.setId(dbPublisher.getId());
 
         //assertion
