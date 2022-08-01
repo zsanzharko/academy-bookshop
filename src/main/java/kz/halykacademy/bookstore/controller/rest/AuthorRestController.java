@@ -4,8 +4,7 @@ import kz.halykacademy.bookstore.dto.Author;
 import kz.halykacademy.bookstore.provider.AuthorProvider;
 import kz.halykacademy.bookstore.service.CRUDService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,32 +20,42 @@ public class AuthorRestController implements CRUDService<Author> {
     }
 
     @Override
-    public Author create(Author entity) {
+    @PostMapping
+    public Author create(@RequestBody Author entity) {
         return provider.create(entity);
     }
 
     @Override
+    @GetMapping
     public List<Author> read() {
         return provider.read();
     }
 
     @Override
-    public Author read(Long id) {
+    @GetMapping("/{id}")
+    public Author read(@PathVariable Long id) {
         return provider.read(id);
     }
 
     @Override
-    public Author update(Author entity) {
+    @PostMapping("/update")
+    public Author update(@RequestBody Author entity) {
         return provider.update(entity);
     }
 
     @Override
-    public void delete(Long id) {
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
         provider.delete(id);
     }
 
     @Override
     public void deleteAll() {
         provider.deleteAll();
+    }
+
+    @Override
+    public void deleteAll(List<Long> ids) {
+        provider.deleteAll(ids);
     }
 }

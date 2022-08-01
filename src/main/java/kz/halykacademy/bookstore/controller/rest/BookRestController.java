@@ -4,9 +4,7 @@ import kz.halykacademy.bookstore.dto.Book;
 import kz.halykacademy.bookstore.provider.BookProvider;
 import kz.halykacademy.bookstore.service.CRUDService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,7 +20,8 @@ public class BookRestController implements CRUDService<Book> {
     }
 
     @Override
-    public Book create(Book entity) {
+    @PostMapping
+    public Book create(@RequestBody Book entity) {
         return provider.create(entity);
     }
 
@@ -33,22 +32,30 @@ public class BookRestController implements CRUDService<Book> {
     }
 
     @Override
-    public Book read(Long id) {
+    @GetMapping("/{id}")
+    public Book read(@PathVariable Long id) {
         return provider.read(id);
     }
 
     @Override
-    public Book update(Book entity) {
+    @PostMapping("/update")
+    public Book update(@RequestBody Book entity) {
         return provider.update(entity);
     }
 
     @Override
-    public void delete(Long id) {
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
         provider.delete(id);
     }
 
     @Override
     public void deleteAll() {
 
+    }
+
+    @Override
+    public void deleteAll(List<Long> ids) {
+        provider.deleteAll(ids);
     }
 }

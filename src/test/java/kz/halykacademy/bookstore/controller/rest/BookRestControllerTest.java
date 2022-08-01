@@ -149,7 +149,7 @@ class BookRestControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    @DisplayName("Delete book by entity")
+    @DisplayName("Delete book by id")
     public void delete() throws Exception {
         Book book = bookProvider.create(new Book(new BigDecimal(990), publisherProvider.create(new Publisher("Mojang")), "Adventure Minecraft", new Date()));
 
@@ -166,6 +166,7 @@ class BookRestControllerTest extends AbstractControllerTest {
         var removedBook = bookProvider.read(book.getId());
 
         log.info(marker, String.format("Removed book: %b", removedBook == null));
-        Assertions.assertNull(removedBook);
+        Assertions.assertNull(removedBook, "Book did not removed in repository. Have problem with entity or " +
+                "connections in jpa");
     }
 }

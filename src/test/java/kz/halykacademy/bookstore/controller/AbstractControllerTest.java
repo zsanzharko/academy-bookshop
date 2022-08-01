@@ -3,6 +3,7 @@ package kz.halykacademy.bookstore.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kz.halykacademy.bookstore.BookstoreApplication;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParseException;
@@ -19,12 +20,11 @@ import java.io.IOException;
 @SpringBootTest(classes = BookstoreApplication.class)
 @WebAppConfiguration
 public class AbstractControllerTest {
-
-    protected MockMvc mvc;
-
     @Autowired
     WebApplicationContext webApplicationContext;
+    protected MockMvc mvc;
 
+    @BeforeEach
     protected void setUp() {
         mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     }

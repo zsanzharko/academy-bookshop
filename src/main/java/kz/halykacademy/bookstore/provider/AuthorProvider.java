@@ -53,4 +53,9 @@ public class AuthorProvider extends BaseProvider<Author, AuthorEntity, AuthorRep
         removeAll();
     }
 
+    @Override
+    public void deleteAll(List<Long> ids) {
+
+    }
+
 }

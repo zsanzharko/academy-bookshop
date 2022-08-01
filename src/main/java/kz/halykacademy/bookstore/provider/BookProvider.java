@@ -4,6 +4,7 @@ import kz.halykacademy.bookstore.dto.Book;
 import kz.halykacademy.bookstore.entity.BookEntity;
 import kz.halykacademy.bookstore.repository.BookRepository;
 import kz.halykacademy.bookstore.service.BookService;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,12 +22,9 @@ public class BookProvider extends BaseProvider<Book, BookEntity, BookRepository>
      * @apiNote Save entity to database.
      */
     @Override
-    protected Book save(Book entity) {
-        assert entity != null;
-        if (entity.getPublisher() != null && entity.getPublisher().getId() == null)
-            return null;
-        else
-            return super.save(entity);
+    protected Book save(@NonNull Book entity) {
+        return (entity.getPublisher() != null && entity.getPublisher().getId() == null) ?
+                null : super.save(entity);
     }
 
     /**
@@ -35,9 +33,7 @@ public class BookProvider extends BaseProvider<Book, BookEntity, BookRepository>
      * @apiNote Save entities to database.
      */
     @Override
-    protected List<Book> saveAll(List<Book> entities) {
-        assert entities != null;
-
+    protected List<Book> saveAll(@NonNull List<Book> entities) {
         for (var entity : entities)
             if (entity.getPublisher() != null && entity.getPublisher().getId() == null)
                 return null;
@@ -47,8 +43,7 @@ public class BookProvider extends BaseProvider<Book, BookEntity, BookRepository>
 
     @Override
     public List<Book> findBookByName(String name) {
-        var model = repository.findAllByTitle(name);
-        return getModelMap(model, Book.class);
+        return getModelMap(repository.findAllByTitle(name), Book.class);
     }
 
     @Override
@@ -79,5 +74,10 @@ public class BookProvider extends BaseProvider<Book, BookEntity, BookRepository>
     @Override
     public void deleteAll() {
         removeAll();
+    }
+
+    @Override
+    public void deleteAll(List<Long> ids) {
+        removeAll(ids);
     }
 }

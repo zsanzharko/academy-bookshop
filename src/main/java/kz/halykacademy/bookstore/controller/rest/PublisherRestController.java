@@ -4,8 +4,7 @@ import kz.halykacademy.bookstore.dto.Publisher;
 import kz.halykacademy.bookstore.provider.PublisherProvider;
 import kz.halykacademy.bookstore.service.CRUDService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,34 +19,43 @@ public class PublisherRestController implements CRUDService<Publisher> {
         this.provider = provider;
     }
 
-
     @Override
-    public Publisher create(Publisher entity) {
+    @PostMapping
+    public Publisher create(@RequestBody Publisher entity) {
         return provider.create(entity);
     }
 
     @Override
+    @GetMapping
     public List<Publisher> read() {
         return provider.read();
     }
 
     @Override
-    public Publisher read(Long id) {
+    @GetMapping("/{id}")
+    public Publisher read(@PathVariable Long id) {
         return provider.read(id);
     }
 
     @Override
-    public Publisher update(Publisher entity) {
+    @PostMapping("/update")
+    public Publisher update(@RequestBody Publisher entity) {
         return provider.update(entity);
     }
 
     @Override
-    public void delete(Long id) {
-        provider.delete(id);;
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
+        provider.delete(id);
     }
 
     @Override
     public void deleteAll() {
+        provider.deleteAll();
+    }
 
+    @Override
+    public void deleteAll(List<Long> ids) {
+        provider.deleteAll(ids);
     }
 }

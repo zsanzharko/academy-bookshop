@@ -51,4 +51,9 @@ public class PublisherProvider extends BaseProvider<Publisher, PublisherEntity, 
     public void deleteAll() {
         removeAll();
     }
+
+    @Override
+    public void deleteAll(List<Long> ids) {
+        removeAll(ids);
+    }
 }

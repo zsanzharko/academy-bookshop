@@ -1,16 +1,12 @@
 package kz.halykacademy.bookstore.entity;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -23,6 +19,7 @@ import java.util.Set;
 @Entity
 @Table(name = "books")
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @ToString
@@ -41,24 +38,6 @@ public class BookEntity extends AbstractEntity implements Serializable, Entitiab
     private Integer numberOfPage;
     @Column(name = "release_date")
     private Date releaseDate;
-
-    public BookEntity(BigDecimal price, Set<AuthorEntity> authors, PublisherEntity publisher, String title, Integer numberOfPage, Date releaseDate) {
-        this.price = price;
-        this.authors = authors;
-        this.publisher = publisher;
-        this.title = title;
-        this.numberOfPage = numberOfPage;
-        this.releaseDate = releaseDate;
-    }
-
-    public BookEntity(BigDecimal price, PublisherEntity publisher, String title, Date releaseDate) {
-        this.price = price;
-        this.publisher = publisher;
-        this.title = title;
-        this.releaseDate = releaseDate;
-        this.numberOfPage = 0;
-        this.authors = new HashSet<>();
-    }
 
     @Override
     public boolean equals(Object o) {
