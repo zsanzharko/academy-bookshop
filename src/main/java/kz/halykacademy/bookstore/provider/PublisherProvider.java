@@ -28,6 +28,11 @@ public class PublisherProvider extends BaseProvider<Publisher, PublisherEntity, 
     }
 
     @Override
+    public List<Publisher> create(List<Publisher> entities) {
+        return saveAll(entities);
+    }
+
+    @Override
     public List<Publisher> read() {
         return getAll();
     }

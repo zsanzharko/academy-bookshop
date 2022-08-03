@@ -26,6 +26,11 @@ public class AuthorRestController implements CRUDService<Author> {
     }
 
     @Override
+    public List<Author> create(List<Author> entities) {
+        return provider.create(entities);
+    }
+
+    @Override
     @GetMapping
     public List<Author> read() {
         return provider.read();

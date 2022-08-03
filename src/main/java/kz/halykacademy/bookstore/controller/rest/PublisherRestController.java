@@ -26,6 +26,11 @@ public class PublisherRestController implements CRUDService<Publisher> {
     }
 
     @Override
+    public List<Publisher> create(List<Publisher> entities) {
+        return provider.create(entities);
+    }
+
+    @Override
     @GetMapping
     public List<Publisher> read() {
         return provider.read();

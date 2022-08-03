@@ -1,5 +1,6 @@
 package kz.halykacademy.bookstore.provider;
 
+import kz.halykacademy.bookstore.config.ApplicationContextProvider;
 import kz.halykacademy.bookstore.dto.Book;
 import kz.halykacademy.bookstore.entity.BookEntity;
 import kz.halykacademy.bookstore.repository.BookRepository;
@@ -7,6 +8,7 @@ import kz.halykacademy.bookstore.service.BookService;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -23,8 +25,13 @@ public class BookProvider extends BaseProvider<Book, BookEntity, BookRepository>
      */
     @Override
     protected Book save(@NonNull Book entity) {
-        return (entity.getPublisher() != null && entity.getPublisher().getId() == null) ?
-                null : super.save(entity);
+        if (entity.getPublisher() == null) {
+            return null;
+        } else if (entity.getPublisher().getId() == null) {
+            var publisherProvider = ApplicationContextProvider.getApplicationContext().getBean(PublisherProvider.class);
+            entity.setPublisher(publisherProvider.create(entity.getPublisher()));
+        }
+        return super.save(entity);
     }
 
     /**
@@ -34,11 +41,13 @@ public class BookProvider extends BaseProvider<Book, BookEntity, BookRepository>
      */
     @Override
     protected List<Book> saveAll(@NonNull List<Book> entities) {
-        for (var entity : entities)
-            if (entity.getPublisher() != null && entity.getPublisher().getId() == null)
-                return null;
-
-        return super.saveAll(entities);
+        List<Book> result = new ArrayList<>(entities.size());
+        for (var entity : entities) {
+            var res = save(entity);
+            if (res == null) return null;
+            result.add(res);
+        }
+        return result;
     }
 
     @Override
@@ -49,6 +58,11 @@ public class BookProvider extends BaseProvider<Book, BookEntity, BookRepository>
     @Override
     public Book create(Book entity) {
         return save(entity);
+    }
+
+    @Override
+    public List<Book> create(List<Book> entities) {
+        return saveAll(entities);
     }
 
     @Override
