@@ -1,50 +1,51 @@
 package kz.halykacademy.bookstore.controller.rest;
 
-import kz.halykacademy.bookstore.dto.Publisher;
-import kz.halykacademy.bookstore.provider.PublisherProvider;
-import kz.halykacademy.bookstore.service.CRUDService;
+import kz.halykacademy.bookstore.dto.Genre;
+import kz.halykacademy.bookstore.provider.GenreProvider;
+import kz.halykacademy.bookstore.service.GenreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/publishers")
-public class PublisherRestController implements CRUDService<Publisher> {
+@RequestMapping(name = "/genre")
+public class GenreRestController implements GenreService {
 
-    private final PublisherProvider provider;
+    private final GenreProvider provider;
 
     @Autowired
-    public PublisherRestController(PublisherProvider provider) {
+    public GenreRestController(GenreProvider provider) {
         this.provider = provider;
     }
 
+
     @Override
     @PostMapping
-    public Publisher create(@RequestBody Publisher entity) {
+    public Genre create(@RequestBody Genre entity) {
         return provider.create(entity);
     }
 
     @Override
-    public List<Publisher> create(List<Publisher> entities) {
+    public List<Genre> create(List<Genre> entities) {
         return provider.create(entities);
     }
 
     @Override
     @GetMapping
-    public List<Publisher> read() {
+    public List<Genre> read() {
         return provider.read();
     }
 
     @Override
     @GetMapping("/{id}")
-    public Publisher read(@PathVariable Long id) {
+    public Genre read(@PathVariable Long id) {
         return provider.read(id);
     }
 
     @Override
     @PostMapping("/update")
-    public Publisher update(@RequestBody Publisher entity) {
+    public Genre update(@RequestBody Genre entity) {
         return provider.update(entity);
     }
 
@@ -55,14 +56,12 @@ public class PublisherRestController implements CRUDService<Publisher> {
     }
 
     @Override
-    @DeleteMapping("/delete")
     public void deleteAll() {
         provider.deleteAll();
     }
 
     @Override
-    @DeleteMapping
-    public void deleteAll(@RequestBody List<Long> ids) {
+    public void deleteAll(List<Long> ids) {
         provider.deleteAll(ids);
     }
 }

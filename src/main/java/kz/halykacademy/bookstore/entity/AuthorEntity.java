@@ -33,6 +33,10 @@ public class AuthorEntity extends AbstractEntity implements Serializable, Entiti
     @Column(name = "birthday")
     private Date birthday;
 
+    @OneToMany
+    @ToString.Exclude
+    private Set<GenreEntity> genres;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "written_book",

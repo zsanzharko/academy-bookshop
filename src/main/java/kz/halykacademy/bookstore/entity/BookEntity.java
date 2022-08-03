@@ -39,6 +39,10 @@ public class BookEntity extends AbstractEntity implements Serializable, Entitiab
     @Column(name = "release_date")
     private Date releaseDate;
 
+    @OneToMany(mappedBy = "book")
+    @ToString.Exclude
+    private Set<GenreEntity> genres;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

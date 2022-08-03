@@ -14,6 +14,9 @@ import java.util.List;
 @Service
 public class BookProvider extends BaseProvider<Book, BookEntity, BookRepository> implements BookService {
 
+    /**
+     * @param repository   repository for provider
+     */
     public BookProvider(BookRepository repository) {
         super(BookEntity.class, Book.class, repository);
     }
