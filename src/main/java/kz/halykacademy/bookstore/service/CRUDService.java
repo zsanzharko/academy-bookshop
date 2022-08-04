@@ -17,4 +17,6 @@ public interface CRUDService<T extends Providable> {
     void delete(Long id);
 
     void deleteAll();
+
+    void deleteAll(List<Long> ids);
 }

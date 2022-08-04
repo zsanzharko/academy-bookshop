@@ -29,7 +29,7 @@ public class PublisherProvider extends BaseProvider<Publisher, PublisherEntity, 
 
     @Override
     public List<Publisher> read() {
-        return getAll();
+        return super.getAll();
     }
 
     @Override
@@ -50,5 +50,10 @@ public class PublisherProvider extends BaseProvider<Publisher, PublisherEntity, 
     @Override
     public void deleteAll() {
         removeAll();
+    }
+
+    @Override
+    public void deleteAll(List<Long> ids) {
+        removeAll(ids);
     }
 }

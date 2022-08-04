@@ -10,7 +10,7 @@ import kz.halykacademy.bookstore.repository.CommonRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.lang.NonNull;
 
-import javax.transaction.Transactional;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,7 +50,7 @@ public abstract class BaseProvider<
      * @return Providable DTO object
      * @apiNote Save entity to database.
      */
-    protected P save(P entity) {
+    protected P save(@NonNull P entity) {
         return getModelMap(repository.save(getModelMap(entity, entityClass)),
                 provideClass);
     }
@@ -60,7 +60,7 @@ public abstract class BaseProvider<
      * @return Providable DTO object
      * @apiNote Save entities to database.
      */
-    protected List<P> saveAll(List<P> entities) {
+    protected List<P> saveAll(@NonNull List<P> entities) {
         var model = repository.saveAll(getModelMap(entities, entityClass));
         return getModelMap(model, provideClass);
     }
@@ -70,7 +70,7 @@ public abstract class BaseProvider<
      * @return Providable DTO object
      * @apiNote Update entity in database. Can work with JPA
      */
-    protected P saveAndFlush(P entity) {
+    protected P saveAndFlush(@NonNull P entity) {
         var model = repository.saveAndFlush(getModelMap(entity, entityClass));
         return getModelMap(model, provideClass);
     }
@@ -80,38 +80,44 @@ public abstract class BaseProvider<
      * @return Providable DTO object
      * @apiNote Update entities in database. Can work with JPA
      */
-    protected List<P> saveAllAndFlush(List<P> entities) {
+    protected List<P> saveAllAndFlush(@NonNull List<P> entities) {
         var model = repository.saveAllAndFlush(getModelMap(entities, entityClass));
         return getModelMap(model, provideClass);
     }
 
     /**
-     * @param entities List of entities
+     * @param ids List of id entities
      * @apiNote Removing entities
      */
-    protected void removeAll(List<P> entities) {
-        repository.deleteAll(getModelMap(entities, entityClass));
+    protected void removeAll(@NonNull List<Long> ids) {
+        var models = repository.findAllById(ids);
+        models.forEach(m -> m.setRemoved(new Date(System.currentTimeMillis())));
+        repository.saveAllAndFlush(models);
     }
 
     /**
      * @apiNote Remove all entities in database
      */
     protected void removeAll() {
-        repository.deleteAll();
+        var models = repository.findAll();
+        models.forEach(m -> m.setRemoved(new Date(System.currentTimeMillis())));
+        repository.saveAllAndFlush(models);
     }
 
-    protected P findById(Long id) {
+    protected void removeById(@NonNull Long id) {
         var model = repository.findById(id).orElse(null);
-        if (model != null) return getModelMap(model, provideClass);
+        if (model == null) return;
+        model.setRemoved(new Date(System.currentTimeMillis()));
+        repository.saveAndFlush(model);
+    }
+
+    protected P findById(@NonNull Long id) {
+        var model = repository.findById(id).orElse(null);
+        if (model != null && model.getRemoved() == null) return getModelMap(model, provideClass);
         return null;
     }
 
-    @Transactional
-    protected void removeById(Long id) {
-        repository.deleteById(id);
-    }
-
-    public List<P> getAll() {
+    protected List<P> getAll() {
         var items = repository.findAll();
         return getModelMap(items, provideClass);
     }
@@ -128,7 +134,7 @@ public abstract class BaseProvider<
      * @see ModelMapper
      * @see ApplicationContextProvider
      */
-    protected  <D> D getModelMap(Object source, Class<D> destinationType) {
+    protected  <D> D getModelMap(@NonNull Object source, Class<D> destinationType) {
         // todo add exception
         var modelMapper = ApplicationContextProvider.getApplicationContext().getBean(ModelMapper.class);
         boolean desCor = false;
@@ -173,7 +179,7 @@ public abstract class BaseProvider<
      * @see ModelMapper
      * @see ApplicationContextProvider
      */
-    protected <D> List<D> getModelMap(List<?> sources, Class<D> destinationType) {
+    protected <D> List<D> getModelMap(@NonNull List<?> sources, Class<D> destinationType) {
         // todo add exception
         List<D> mappers = new ArrayList<>(sources.size());
         for (var s : sources) {
