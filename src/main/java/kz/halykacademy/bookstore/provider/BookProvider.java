@@ -53,7 +53,7 @@ public class BookProvider extends BaseProvider<Book, BookEntity, BookRepository>
 
     @Override
     public List<Book> read() {
-        return getAll();
+        return super.getAll();
     }
 
     @Override
