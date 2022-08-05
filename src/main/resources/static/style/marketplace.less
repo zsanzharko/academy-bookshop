@@ -1,0 +1,57 @@
+@import "config/config";
+@import "config/colors";
+
+@import "main_style.css";
+
+.container {
+  background-color: @primary-light;
+}
+
+.productCards {
+  display: flex;
+  justify-content: start;
+  flex-wrap: wrap;
+}
+
+.productCard {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  max-width: 250px;
+
+  text-align: center;
+  font-family: arial, serif;
+  position: relative;
+  margin: 1rem;
+
+  .productInformation {
+    background-color: @background-light;
+    padding: 1rem;
+    border-radius: @border-radius-standard;
+    //opacity: 0.5;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+
+    button {
+      border: none;
+      outline: 0;
+      padding: 12px;
+      color: white;
+      background-color: #000;
+      text-align: center;
+      cursor: pointer;
+      width: 100%;
+      font-size: 18px;
+
+      &:hover {
+        opacity: 0.7;
+      }
+    }
+
+    .price {
+      color: grey;
+      font-size: 22px;
+    }
+  }
+}

@@ -1,0 +1,99 @@
+@import "config/colors";
+@import "config/config";
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+#image() {
+  .not-allow-image {
+    pointer-events: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+}
+
+#error() {
+  .error-item-center {
+    display: flex;
+    justify-content: center;
+    flex-wrap: nowrap;
+  }
+}
+
+.main_header {
+  width: 100%;
+  height: 7vw;
+  background-color: @background-light;
+
+  display: flex;
+  justify-content: center;
+}
+
+.header_place {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  background-color: @primary-light;
+
+  .header_text_place {
+    text-align: center;
+    color: @primary-color;
+    margin: auto;
+
+    .header_text_links {
+      color: @primary-color;
+      text-decoration: none;
+      text-transform: uppercase;
+
+      &:hover {
+        color: @primary-bold-color;
+        transition: all @delay-standard ease-in-out;
+      }
+    }
+  }
+}
+
+.basic-container {
+  margin: @margin-standard;
+  //padding: @padding-standard;
+
+  //width: 100%;
+  //height: 100%;
+}
+
+.error-item-place {
+  padding: @padding-standard;
+  min-width: 400px;
+  min-height: 200px;
+
+  .error-center-container {
+    margin: auto;
+    width: 50%;
+  }
+
+  .error-item-image {
+    #error.error-item-center();
+    #image.not-allow-image();
+  }
+
+  .error-item-message {
+    text-align: center;
+    font-size: 24px;
+    font-max-size: 16px;
+    color: @primary-bold-color;
+  }
+
+  .error-item-functions {
+    #error.error-item-center();
+  }
+}
+
+.text-decor-off {
+  text-decoration: none;
+}
