@@ -26,6 +26,11 @@ public class BookRestController implements CRUDService<Book> {
     }
 
     @Override
+    public List<Book> create(List<Book> entities) {
+        return provider.create(entities);
+    }
+
+    @Override
     @GetMapping
     public List<Book> read() {
         return provider.read();

@@ -25,7 +25,14 @@ public class AuthorProvider extends BaseProvider<Author, AuthorEntity, AuthorRep
 
     @Override
     public Author create(Author entity) {
+        if (entity == null) return null;
         return save(entity);
+    }
+
+    @Override
+    public List<Author> create(List<Author> entities) {
+        if (entities == null || entities.isEmpty()) return null;
+        return saveAll(entities);
     }
 
     @Override

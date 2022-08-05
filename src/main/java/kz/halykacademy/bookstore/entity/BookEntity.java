@@ -1,14 +1,15 @@
 package kz.halykacademy.bookstore.entity;
 
 import lombok.*;
-import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.Objects;
 import java.util.Set;
+
+import static javax.persistence.CascadeType.*;
+import static javax.persistence.FetchType.LAZY;
 
 /**
  * @author Sanzhar
@@ -16,7 +17,7 @@ import java.util.Set;
  * @apiNote DTO object for sending to rest.
  * Поля у книги: id, цена, список авторов, издатель, название, количество страниц, год выпуска
  */
-@Entity
+@Entity(name = "Book")
 @Table(name = "books")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,14 +25,6 @@ import java.util.Set;
 @Setter
 @ToString
 public class BookEntity extends AbstractEntity implements Serializable, Entitiable {
-    @Column(name = "price")
-    private BigDecimal price;
-    @ManyToMany(mappedBy = "writtenBookList", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @ToString.Exclude
-    private Set<AuthorEntity> authors;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "publisher_id", referencedColumnName = "id", nullable = false)
-    private PublisherEntity publisher;
     @Column(name = "title")
     private String title;
     @Column(name = "number_of_page")
@@ -39,17 +32,27 @@ public class BookEntity extends AbstractEntity implements Serializable, Entitiab
     @Column(name = "release_date")
     private Date releaseDate;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        BookEntity that = (BookEntity) o;
-        return getId() != null && Objects.equals(getId(), that.getId());
-    }
+    @Column(name = "price")
+    private BigDecimal price;
 
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
+
+    @ManyToMany(mappedBy = "writtenBookList", cascade = {
+            MERGE,
+            REFRESH,
+            REMOVE,
+            DETACH
+    }, targetEntity = AuthorEntity.class)
+    @ToString.Exclude
+    private Set<AuthorEntity> authors;
+
+    @ManyToOne(fetch = LAZY, cascade = {
+            MERGE,
+            REFRESH,
+            REMOVE,
+            DETACH,
+            PERSIST}, targetEntity = PublisherEntity.class)
+    @JoinColumn(name = "publisher_id", referencedColumnName = "id")
+    @ToString.Exclude
+    private PublisherEntity publisher;
 }
 
