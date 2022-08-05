@@ -39,7 +39,7 @@ public class PublisherProvider extends BaseProvider<Publisher, PublisherEntity, 
 
     @Override
     public Publisher read(Long id) {
-        return findById(id);
+        return super.findById(id);
     }
 
     @Override

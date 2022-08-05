@@ -69,6 +69,7 @@ class PublisherProviderTest {
         Assertions.assertEquals(publisherWithBooks.getTitle(), dbPublisherWithBooks.getTitle());
 
         for (var book : publisherWithBooks.getBookList()) {
+            Assertions.assertNotNull(dbPublisherWithBooks.getBookList());
             for (var dbBook : dbPublisherWithBooks.getBookList())
                 if (book.getTitle().equals(dbBook.getTitle()))
                     book.setId(dbBook.getId());

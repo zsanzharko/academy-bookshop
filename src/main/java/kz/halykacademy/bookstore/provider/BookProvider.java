@@ -1,6 +1,5 @@
 package kz.halykacademy.bookstore.provider;
 
-import kz.halykacademy.bookstore.config.ApplicationContextProvider;
 import kz.halykacademy.bookstore.dto.Book;
 import kz.halykacademy.bookstore.entity.BookEntity;
 import kz.halykacademy.bookstore.repository.BookRepository;
@@ -25,12 +24,6 @@ public class BookProvider extends BaseProvider<Book, BookEntity, BookRepository>
      */
     @Override
     protected Book save(@NonNull Book entity) {
-        if (entity.getPublisher() == null) {
-            return null;
-        } else if (entity.getPublisher().getId() == null) {
-            var publisherProvider = ApplicationContextProvider.getApplicationContext().getBean(PublisherProvider.class);
-            entity.setPublisher(publisherProvider.create(entity.getPublisher()));
-        }
         return super.save(entity);
     }
 
@@ -44,7 +37,6 @@ public class BookProvider extends BaseProvider<Book, BookEntity, BookRepository>
         List<Book> result = new ArrayList<>(entities.size());
         for (var entity : entities) {
             var res = save(entity);
-            if (res == null) return null;
             result.add(res);
         }
         return result;

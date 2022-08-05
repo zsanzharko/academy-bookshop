@@ -1,11 +1,8 @@
-package kz.halykacademy.bookstore;
+package kz.halykacademy.bookstore.provider;
 
 import kz.halykacademy.bookstore.dto.Author;
 import kz.halykacademy.bookstore.dto.Book;
 import kz.halykacademy.bookstore.dto.Publisher;
-import kz.halykacademy.bookstore.provider.AuthorProvider;
-import kz.halykacademy.bookstore.provider.BookProvider;
-import kz.halykacademy.bookstore.provider.PublisherProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -72,9 +69,14 @@ public class ProviderTest {
 
         book.setId(dbBook.getId());
 
+        var dbPublisherWithBooks = publisherProvider.findPublisherByName(publisher.getTitle());
+
         // assertion
         Assertions.assertNotNull(dbBook);
         Assertions.assertEquals(dbBook, book);
+
+        // assertion
+        Assertions.assertNotNull(dbPublisherWithBooks);
 
         // clean
         deleteEntityById(dbBook.getId(), bookProvider);
@@ -177,6 +179,8 @@ public class ProviderTest {
         dbBook.setAuthors(Set.of(author));
         dbBook = bookProvider.update(dbBook);
 
+        Assertions.assertNotNull(dbBook.getAuthors());
+
         for (var a : dbBook.getAuthors())
             if (author.getName().equals(a.getName()))
                 author.setId(a.getId());
@@ -197,21 +201,33 @@ public class ProviderTest {
         deleteAllEntities(List.of(publisherProvider, bookProvider, authorProvider));
 
         // operation
-        var publisher = new Publisher("Sanzhar");
+        final var changeTitle = "Other Sanzhar";
+        var publisher = new Publisher("Sanzhar", null);
+
         var dbPublisher = publisherProvider.create(publisher);
-        var book = new Book(new BigDecimal(5000), dbPublisher, "Minecraft", new Date());
-        dbPublisher.setBookList(Set.of(book));
-        publisher.setBookList(dbPublisher.getBookList());
+
+        Assertions.assertNotNull(dbPublisher);
+
+        dbPublisher.setTitle(changeTitle);
 
         dbPublisher = publisherProvider.update(dbPublisher);
-        for (var b : dbPublisher.getBookList()) {
-            if (b.getTitle().equals(book.getTitle()))
-                book.setId(b.getId());
-        }
 
-        // assertion
         Assertions.assertNotNull(dbPublisher);
-        Assertions.assertEquals(Set.of(book), dbPublisher.getBookList());
+        Assertions.assertEquals(changeTitle, dbPublisher.getTitle(),
+                "Don't changed title in database after saving");
+
+        var book = new Book(new BigDecimal(5000), dbPublisher, "Minecraft", new Date());
+
+        var dbBook = bookProvider.create(book);
+
+        Assertions.assertNotNull(dbBook);
+        Assertions.assertEquals(book.getPublisher(), dbPublisher);
+
+        dbPublisher = publisherProvider.findById(dbPublisher.getId());
+
+        Assertions.assertNotNull(dbPublisher);
+        Assertions.assertNotNull(dbPublisher.getBookList());
+        Assertions.assertFalse(dbPublisher.getBookList().isEmpty());
 
         // clean database
         deleteAllEntities(List.of(publisherProvider, bookProvider, authorProvider));
