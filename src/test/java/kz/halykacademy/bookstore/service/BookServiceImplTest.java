@@ -1,8 +1,11 @@
-package kz.halykacademy.bookstore.serviceImpl;
+package kz.halykacademy.bookstore.service;
 
 import kz.halykacademy.bookstore.config.ApplicationContextProvider;
 import kz.halykacademy.bookstore.dto.Book;
 import kz.halykacademy.bookstore.dto.Publisher;
+import kz.halykacademy.bookstore.serviceImpl.AuthorServiceImpl;
+import kz.halykacademy.bookstore.serviceImpl.BookServiceImpl;
+import kz.halykacademy.bookstore.serviceImpl.PublisherServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -87,7 +90,7 @@ class BookServiceImplTest extends ServiceTestTools {
     void removeAll() {
         bookService.deleteAll();
 
-        var books = bookService.getAll();
+        var books = bookService.read();
 
         assertFalse(books.isEmpty());
     }
@@ -103,7 +106,7 @@ class BookServiceImplTest extends ServiceTestTools {
 
         bookService.delete(dbBook.getId());
 
-        assertNull(bookService.findById(dbBook.getId()));
+        assertNull(bookService.read(dbBook.getId()));
     }
 
     @Test
@@ -115,7 +118,7 @@ class BookServiceImplTest extends ServiceTestTools {
 
         assertNotNull(dbBook);
 
-        var secondDbBook = bookService.findById(dbBook.getId());
+        var secondDbBook = bookService.read(dbBook.getId());
 
         assertNotNull(secondDbBook);
         assertEquals(dbBook.getId(), secondDbBook.getId());
@@ -130,7 +133,7 @@ class BookServiceImplTest extends ServiceTestTools {
 
         assertNotNull(dbBook);
 
-        var allBooks = bookService.getAll();
+        var allBooks = bookService.read();
 
         assertNotNull(allBooks);
     }

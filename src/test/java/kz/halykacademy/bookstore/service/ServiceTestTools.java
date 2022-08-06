@@ -1,7 +1,8 @@
-package kz.halykacademy.bookstore.serviceImpl;
+package kz.halykacademy.bookstore.service;
 
 import kz.halykacademy.bookstore.entity.AbstractEntity;
 import kz.halykacademy.bookstore.repository.CommonRepository;
+import kz.halykacademy.bookstore.serviceImpl.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -12,9 +13,9 @@ public class ServiceTestTools {
     private static final String CLEAN_TAG = "CLEANER";
 
     public static void deleteAllEntities(List<BaseService<
-                ? extends DTOs,
-                ? extends AbstractEntity,
-                ? extends CommonRepository<? extends AbstractEntity>>> providers) {
+                    ? extends DTOs,
+                    ? extends AbstractEntity,
+                    ? extends CommonRepository<? extends AbstractEntity>>> providers) {
 
         log.warn("Clean all entity in database...");
         try {

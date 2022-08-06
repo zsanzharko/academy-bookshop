@@ -10,6 +10,7 @@ import org.springframework.lang.NonNull;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @param <P> DTOs objects, need to access working with base provider
@@ -140,24 +141,18 @@ public abstract class BaseService<
         boolean desCor = false;
         boolean sourCor = false;
         for (var s : source.getClass().getInterfaces()) {
-            if (s.getName().equals(DTOs.class.getName()) ||
-                    s.getName().equals(Entitiable.class.getName())) {
+            if (Objects.equals(s, DTOs.class) || Objects.equals(s, Entitiable.class)) {
                 sourCor = true;
-
                 break;
             }
         }
         for (var d : destinationType.getInterfaces()) {
-            if (d.getName().equals(DTOs.class.getName()) ||
-                    d.getName().equals(Entitiable.class.getName())) {
+            if (Objects.equals(d, DTOs.class) || Objects.equals(d, Entitiable.class)) {
                 desCor = true;
-
                 break;
             }
         }
-
         if (desCor && sourCor) return modelMapper.map(source, destinationType);
-
         return null;
     }
 

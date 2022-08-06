@@ -1,8 +1,11 @@
-package kz.halykacademy.bookstore.serviceImpl;
+package kz.halykacademy.bookstore.service;
 
 import kz.halykacademy.bookstore.dto.Author;
 import kz.halykacademy.bookstore.dto.Book;
 import kz.halykacademy.bookstore.dto.Publisher;
+import kz.halykacademy.bookstore.serviceImpl.AuthorServiceImpl;
+import kz.halykacademy.bookstore.serviceImpl.BookServiceImpl;
+import kz.halykacademy.bookstore.serviceImpl.PublisherServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -15,9 +18,6 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-
-import static kz.halykacademy.bookstore.serviceImpl.ServiceTestTools.deleteAllEntities;
-import static kz.halykacademy.bookstore.serviceImpl.ServiceTestTools.deleteEntityById;
 
 @SpringBootTest
 @Slf4j
@@ -43,7 +43,7 @@ public class ServiceTest {
     @Transactional
     public void saveALLEntitiesToDB() {
         // clean database
-        deleteAllEntities(List.of(publisherServiceImpl, bookServiceImpl, authorServiceImpl));
+        ServiceTestTools.deleteAllEntities(List.of(publisherServiceImpl, bookServiceImpl, authorServiceImpl));
 
         // create objects
         Author author;
@@ -60,7 +60,7 @@ public class ServiceTest {
         // pre-operation
         var dbPublisher = publisherServiceImpl.create(publisher);
 
-        dbPublisher.setBookList(Set.of(book));
+        dbPublisher.setBookList(List.of(book));
 
         book.setPublisher(dbPublisher);
 
@@ -79,7 +79,7 @@ public class ServiceTest {
         Assertions.assertNotNull(dbPublisherWithBooks);
 
         // clean
-        deleteEntityById(dbBook.getId(), bookServiceImpl);
+        ServiceTestTools.deleteEntityById(dbBook.getId(), bookServiceImpl);
 
         // operation
         publisher.setId(dbPublisher.getId());
@@ -91,7 +91,7 @@ public class ServiceTest {
         Assertions.assertEquals(dbPublisher.getBookList(), Set.of(book));
 
         // clean
-        deleteEntityById(dbBook.getId(), bookServiceImpl);
+        ServiceTestTools.deleteEntityById(dbBook.getId(), bookServiceImpl);
 
         // operation
         var dbAuthor = authorServiceImpl.create(author);
@@ -102,14 +102,14 @@ public class ServiceTest {
         Assertions.assertEquals(author, dbAuthor);
 
         // clean
-        deleteEntityById(dbBook.getId(), bookServiceImpl);
+        ServiceTestTools.deleteEntityById(dbBook.getId(), bookServiceImpl);
     }
 
     @Test
     @DisplayName("Save author entity")
     public void saveAuthorEntityToDB() {
         // clean database
-        deleteAllEntities(List.of(publisherServiceImpl, bookServiceImpl, authorServiceImpl));
+        ServiceTestTools.deleteAllEntities(List.of(publisherServiceImpl, bookServiceImpl, authorServiceImpl));
 
         // operation
         Author author = new Author("Name", "Surname", "Patronymic", new Date(), null);
@@ -136,14 +136,14 @@ public class ServiceTest {
         log.info(String.format("DB entity: %s", dbAuthor));
 
         // clean database
-        deleteEntityById(dbAuthor.getId(), authorServiceImpl);
+        ServiceTestTools.deleteEntityById(dbAuthor.getId(), authorServiceImpl);
     }
 
     @Test
     @DisplayName("Save book entity")
     public void saveBookEntityToDB() {
         // clean database
-        deleteAllEntities(List.of(publisherServiceImpl, bookServiceImpl, authorServiceImpl));
+        ServiceTestTools.deleteAllEntities(List.of(publisherServiceImpl, bookServiceImpl, authorServiceImpl));
 
         // operation
         var publisher = publisherServiceImpl.create(new Publisher("Publisher title"));
@@ -160,14 +160,14 @@ public class ServiceTest {
         Assertions.assertEquals(publisher, dbBook.getPublisher());
 
         // clean database
-        deleteEntityById(dbBook.getId(), bookServiceImpl);
+        ServiceTestTools.deleteEntityById(dbBook.getId(), bookServiceImpl);
     }
 
     @Test
     @DisplayName("Update book entity")
     public void updateBookEntityToDB() {
         // clean database
-        deleteAllEntities(List.of(publisherServiceImpl, bookServiceImpl, authorServiceImpl));
+        ServiceTestTools.deleteAllEntities(List.of(publisherServiceImpl, bookServiceImpl, authorServiceImpl));
 
         // operation
         var publisher = publisherServiceImpl.create(new Publisher("Publisher title"));
@@ -191,14 +191,14 @@ public class ServiceTest {
         Assertions.assertEquals(Set.of(author), dbBook.getAuthors());
 
         // clean database
-        deleteAllEntities(List.of(publisherServiceImpl, bookServiceImpl, authorServiceImpl));
+        ServiceTestTools.deleteAllEntities(List.of(publisherServiceImpl, bookServiceImpl, authorServiceImpl));
     }
 
     @Test
     @DisplayName("Update publisher entity")
     public void updatePublisherEntityToDB() {
         // clean database
-        deleteAllEntities(List.of(publisherServiceImpl, bookServiceImpl, authorServiceImpl));
+        ServiceTestTools.deleteAllEntities(List.of(publisherServiceImpl, bookServiceImpl, authorServiceImpl));
 
         // operation
         final var changeTitle = "Other Sanzhar";
@@ -223,21 +223,21 @@ public class ServiceTest {
         Assertions.assertNotNull(dbBook);
         Assertions.assertEquals(book.getPublisher(), dbPublisher);
 
-        dbPublisher = publisherServiceImpl.findById(dbPublisher.getId());
+        dbPublisher = publisherServiceImpl.read(dbPublisher.getId());
 
         Assertions.assertNotNull(dbPublisher);
         Assertions.assertNotNull(dbPublisher.getBookList());
         Assertions.assertFalse(dbPublisher.getBookList().isEmpty());
 
         // clean database
-        deleteAllEntities(List.of(publisherServiceImpl, bookServiceImpl, authorServiceImpl));
+        ServiceTestTools.deleteAllEntities(List.of(publisherServiceImpl, bookServiceImpl, authorServiceImpl));
     }
 
     @Test
     @DisplayName("Save publisher entity")
     public void savePublisherEntityToDB() {
         // clean database
-        deleteAllEntities(List.of(publisherServiceImpl, bookServiceImpl, authorServiceImpl));
+        ServiceTestTools.deleteAllEntities(List.of(publisherServiceImpl, bookServiceImpl, authorServiceImpl));
 
         // operation
         Publisher publisher = new Publisher("Publisher title");
@@ -253,6 +253,6 @@ public class ServiceTest {
         log.info(String.format("DB entity: %s", dbPublisher));
 
         // clean database
-        deleteEntityById(dbPublisher.getId(), publisherServiceImpl);
+        ServiceTestTools.deleteEntityById(dbPublisher.getId(), publisherServiceImpl);
     }
 }

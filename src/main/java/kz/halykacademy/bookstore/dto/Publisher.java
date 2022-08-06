@@ -9,9 +9,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 
 /**
@@ -31,16 +31,16 @@ import java.util.Set;
 public class Publisher implements Serializable, DTOs {
     private Long id;
     private String title;
-    private Set<Book> bookList;
+    private List<Book> bookList;
 
-    public Publisher(String title, Set<Book> bookList) {
+    public Publisher(String title, List<Book> bookList) {
         this.title = title;
         this.bookList = bookList;
     }
 
     public Publisher(String title) {
         this.title = title;
-        this.bookList = new HashSet<>();
+        this.bookList = new ArrayList<Book>(4);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class Publisher implements Serializable, DTOs {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Publisher publisher = (Publisher) o;
-        return Objects.equals(getId(), publisher.getId()) && getTitle().equals(publisher.getTitle()) && Objects.equals(getBookList(), publisher.getBookList());
+        return Objects.equals(getId(), publisher.getId()) && Objects.equals(getBookList(), publisher.getBookList());
     }
 
     @Override

@@ -1,6 +1,7 @@
-package kz.halykacademy.bookstore.serviceImpl;
+package kz.halykacademy.bookstore.service;
 
 import kz.halykacademy.bookstore.dto.Author;
+import kz.halykacademy.bookstore.serviceImpl.AuthorServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.Date;
 import java.util.List;
 
-import static kz.halykacademy.bookstore.serviceImpl.ServiceTestTools.deleteAllEntities;
+import static kz.halykacademy.bookstore.service.ServiceTestTools.deleteAllEntities;
 
 @SpringBootTest
 @Slf4j

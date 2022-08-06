@@ -34,7 +34,6 @@ public class BookEntity extends AbstractEntity implements Serializable, Entitiab
     private Integer numberOfPage;
     @Column(name = "release_date")
     private Date releaseDate;
-
     @Column(name = "price")
     private BigDecimal price;
 

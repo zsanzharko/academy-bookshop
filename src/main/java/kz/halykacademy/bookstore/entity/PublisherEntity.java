@@ -7,7 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.io.Serializable;
-import java.util.Set;
+import java.util.List;
 
 import static javax.persistence.CascadeType.ALL;
 import static javax.persistence.FetchType.LAZY;
@@ -29,10 +29,9 @@ import static javax.persistence.FetchType.LAZY;
 public class PublisherEntity extends AbstractEntity implements Serializable, Entitiable {
     @Column(name = "title")
     private String title;
-
     @OneToMany(cascade = {ALL}, fetch = LAZY, mappedBy = "publisher", targetEntity = BookEntity.class)
     @ToString.Exclude
-    private Set<BookEntity> books;
+    private List<BookEntity> books;
 
     public void addBook(BookEntity book) {
         books.add(book);
