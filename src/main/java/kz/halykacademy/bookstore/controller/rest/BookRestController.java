@@ -1,57 +1,57 @@
 package kz.halykacademy.bookstore.controller.rest;
 
 import kz.halykacademy.bookstore.dto.Book;
-import kz.halykacademy.bookstore.provider.BookProvider;
-import kz.halykacademy.bookstore.service.CRUDService;
+import kz.halykacademy.bookstore.service.BookService;
+import kz.halykacademy.bookstore.serviceImpl.BookServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/books")
-public class BookRestController implements CRUDService<Book> {
+@RequestMapping("/api/books")
+public class BookRestController implements BookService {
 
-    private final BookProvider provider;
+    private final BookServiceImpl service;
 
     @Autowired
-    public BookRestController(BookProvider provider) {
-        this.provider = provider;
+    public BookRestController(BookServiceImpl service) {
+        this.service = service;
     }
 
     @Override
     @PostMapping
-    public Book create(@RequestBody Book entity) {
-        return provider.create(entity);
+    public Book create(@RequestBody Book book) {
+        return service.create(book);
     }
 
     @Override
-    public List<Book> create(List<Book> entities) {
-        return provider.create(entities);
+    public List<Book> create(List<Book> books) {
+        return service.create(books);
     }
 
     @Override
     @GetMapping
     public List<Book> read() {
-        return provider.read();
+        return service.read();
     }
 
     @Override
     @GetMapping("/{id}")
     public Book read(@PathVariable Long id) {
-        return provider.read(id);
+        return service.read(id);
     }
 
     @Override
     @PostMapping("/update")
-    public Book update(@RequestBody Book entity) {
-        return provider.update(entity);
+    public Book update(@RequestBody Book book) {
+        return service.update(book);
     }
 
     @Override
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        provider.delete(id);
+        service.delete(id);
     }
 
     @Override
@@ -61,6 +61,11 @@ public class BookRestController implements CRUDService<Book> {
 
     @Override
     public void deleteAll(List<Long> ids) {
-        provider.deleteAll(ids);
+        service.deleteAll(ids);
+    }
+
+    @Override
+    public List<Book> findBookByName(String name) {
+        return service.findBookByName(name);
     }
 }
