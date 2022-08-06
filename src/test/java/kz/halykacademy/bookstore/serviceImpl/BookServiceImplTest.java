@@ -19,18 +19,18 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Slf4j
-class BookServiceImplTest extends ProviderTestTools {
+class BookServiceImplTest extends ServiceTestTools {
 
     @Autowired
-    private BookServiceImpl provider;
+    private BookServiceImpl bookService;
     @Autowired
-    private PublisherServiceImpl publisherServiceImpl;;
+    private PublisherServiceImpl publisherService;;
     @Autowired
-    private AuthorServiceImpl authorServiceImpl;
+    private AuthorServiceImpl authorService;
 
     @BeforeEach
     void setUp() {
-        assertNotNull(provider, "Provider did not autowired in test");
+        assertNotNull(bookService, "Provider did not autowired in test");
     }
 
 
@@ -45,7 +45,7 @@ class BookServiceImplTest extends ProviderTestTools {
 
         Book book = new Book(null, new BigDecimal(990), null, null, "Title", 100, new Date());
 
-        var dbBook = provider.create(book);
+        var dbBook = bookService.create(book);
 
         assertNotNull(dbBook);
     }
@@ -59,7 +59,7 @@ class BookServiceImplTest extends ProviderTestTools {
                 new Book(null, new BigDecimal(990), null, null, "Title 3", 100, new Date())
         );
 
-        var dbBooks = provider.create(books);
+        var dbBooks = bookService.create(books);
 
         assertNotNull(dbBooks);
     }
@@ -69,13 +69,13 @@ class BookServiceImplTest extends ProviderTestTools {
     void saveAndFlush() {
         Book book = new Book(null, new BigDecimal(990), null, null, "Title 4", 100, new Date());
 
-        var dbBook = provider.create(book);
+        var dbBook = bookService.create(book);
 
         assertNotNull(dbBook);
 
         dbBook.setNumberOfPage(150);
 
-        dbBook = provider.update(dbBook);
+        dbBook = bookService.update(dbBook);
 
         assertNotNull(dbBook);
         assertEquals(150, dbBook.getNumberOfPage());
@@ -85,9 +85,9 @@ class BookServiceImplTest extends ProviderTestTools {
     @Test
     @DisplayName("Remove all books")
     void removeAll() {
-        provider.deleteAll();
+        bookService.deleteAll();
 
-        var books = provider.getAll();
+        var books = bookService.getAll();
 
         assertFalse(books.isEmpty());
     }
@@ -97,13 +97,13 @@ class BookServiceImplTest extends ProviderTestTools {
     void removeById() {
         Book book = new Book(null, new BigDecimal(990), null, null, "Title 4", 100, new Date());
 
-        var dbBook = provider.create(book);
+        var dbBook = bookService.create(book);
 
         assertNotNull(dbBook);
 
-        provider.delete(dbBook.getId());
+        bookService.delete(dbBook.getId());
 
-        assertNull(provider.findById(dbBook.getId()));
+        assertNull(bookService.findById(dbBook.getId()));
     }
 
     @Test
@@ -111,11 +111,11 @@ class BookServiceImplTest extends ProviderTestTools {
     void findById() {
         Book book = new Book(null, new BigDecimal(990), null, null, "Title 4", 100, new Date());
 
-        var dbBook = provider.create(book);
+        var dbBook = bookService.create(book);
 
         assertNotNull(dbBook);
 
-        var secondDbBook = provider.findById(dbBook.getId());
+        var secondDbBook = bookService.findById(dbBook.getId());
 
         assertNotNull(secondDbBook);
         assertEquals(dbBook.getId(), secondDbBook.getId());
@@ -126,11 +126,11 @@ class BookServiceImplTest extends ProviderTestTools {
     void getAll() {
         Book book = new Book(null, new BigDecimal(990), null, null, "Title 4", 100, new Date());
 
-        var dbBook = provider.create(book);
+        var dbBook = bookService.create(book);
 
         assertNotNull(dbBook);
 
-        var allBooks = provider.getAll();
+        var allBooks = bookService.getAll();
 
         assertNotNull(allBooks);
     }
@@ -138,11 +138,11 @@ class BookServiceImplTest extends ProviderTestTools {
     @Test
     @DisplayName("Save book with publisher, but publisher didn't save")
     void saveWithOtherEntity() {
-        var publisher = publisherServiceImpl.create(new Publisher("Publisher title", null));
+        var publisher = publisherService.create(new Publisher("Publisher title", null));
 
         var book = new Book(null, new BigDecimal(990), null, publisher, "Title 4", 100, new Date());
 
-        var dbBook = provider.create(book);
+        var dbBook = bookService.create(book);
 
         assertNotNull(dbBook);
         assertNotNull(dbBook.getPublisher());

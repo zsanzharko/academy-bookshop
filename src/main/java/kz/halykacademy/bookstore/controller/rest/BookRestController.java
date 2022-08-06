@@ -12,46 +12,46 @@ import java.util.List;
 @RequestMapping("/api/books")
 public class BookRestController implements BookService {
 
-    private final BookServiceImpl provider;
+    private final BookServiceImpl service;
 
     @Autowired
-    public BookRestController(BookServiceImpl provider) {
-        this.provider = provider;
+    public BookRestController(BookServiceImpl service) {
+        this.service = service;
     }
 
     @Override
     @PostMapping
     public Book create(@RequestBody Book entity) {
-        return provider.create(entity);
+        return service.create(entity);
     }
 
     @Override
     public List<Book> create(List<Book> entities) {
-        return provider.create(entities);
+        return service.create(entities);
     }
 
     @Override
     @GetMapping
     public List<Book> read() {
-        return provider.read();
+        return service.read();
     }
 
     @Override
     @GetMapping("/{id}")
     public Book read(@PathVariable Long id) {
-        return provider.read(id);
+        return service.read(id);
     }
 
     @Override
     @PostMapping("/update")
     public Book update(@RequestBody Book entity) {
-        return provider.update(entity);
+        return service.update(entity);
     }
 
     @Override
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        provider.delete(id);
+        service.delete(id);
     }
 
     @Override
@@ -61,11 +61,11 @@ public class BookRestController implements BookService {
 
     @Override
     public void deleteAll(List<Long> ids) {
-        provider.deleteAll(ids);
+        service.deleteAll(ids);
     }
 
     @Override
     public List<Book> findBookByName(String name) {
-        return provider.findBookByName(name);
+        return service.findBookByName(name);
     }
 }

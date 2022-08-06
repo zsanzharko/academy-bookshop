@@ -12,18 +12,18 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.Date;
 import java.util.List;
 
-import static kz.halykacademy.bookstore.serviceImpl.ProviderTestTools.deleteAllEntities;
+import static kz.halykacademy.bookstore.serviceImpl.ServiceTestTools.deleteAllEntities;
 
 @SpringBootTest
 @Slf4j
 class AuthorServiceImplTest {
 
     @Autowired
-    private AuthorServiceImpl provider;
+    private AuthorServiceImpl service;
 
     @BeforeEach
     void setUp() {
-        Assertions.assertNotNull(provider, "Provider did not autowired in test");
+        Assertions.assertNotNull(service, "Provider did not autowired in test");
     }
 
     @Test
@@ -33,13 +33,13 @@ class AuthorServiceImplTest {
         // save without books
 
         // clean database
-        deleteAllEntities(List.of(provider));
+        deleteAllEntities(List.of(service));
 
         // Create object to save
         var author = new Author("Sanzhar", "Zhanibekov", new Date());
 
         // operation
-        var dbAuthor = provider.create(author);
+        var dbAuthor = service.create(author);
 
         // assertions
         Assertions.assertNotNull(dbAuthor);
@@ -60,7 +60,7 @@ class AuthorServiceImplTest {
 //        // operation
 //        authorWithBook.setWrittenBooks(Set.of(book));
 //
-//        var dbAuthorWithBook = provider.create(authorWithBook);
+//        var dbAuthorWithBook = service.create(authorWithBook);
 //
 //        // assertion
 //        Assertions.assertNotNull(dbAuthorWithBook);

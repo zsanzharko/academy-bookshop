@@ -12,60 +12,60 @@ import java.util.List;
 @RequestMapping("/api/publishers")
 public class PublisherRestController implements PublisherService {
 
-    private final PublisherServiceImpl provider;
+    private final PublisherServiceImpl service;
 
     @Autowired
-    public PublisherRestController(PublisherServiceImpl provider) {
-        this.provider = provider;
+    public PublisherRestController(PublisherServiceImpl service) {
+        this.service = service;
     }
 
     @Override
     @PostMapping
     public Publisher create(@RequestBody Publisher entity) {
-        return provider.create(entity);
+        return service.create(entity);
     }
 
     @Override
     public List<Publisher> create(List<Publisher> entities) {
-        return provider.create(entities);
+        return service.create(entities);
     }
 
     @Override
     @GetMapping
     public List<Publisher> read() {
-        return provider.read();
+        return service.read();
     }
 
     @Override
     @GetMapping("/{id}")
     public Publisher read(@PathVariable Long id) {
-        return provider.read(id);
+        return service.read(id);
     }
 
     @Override
     @PostMapping("/update")
     public Publisher update(@RequestBody Publisher entity) {
-        return provider.update(entity);
+        return service.update(entity);
     }
 
     @Override
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        provider.delete(id);
+        service.delete(id);
     }
 
     @Override
     public void deleteAll() {
-        provider.deleteAll();
+        service.deleteAll();
     }
 
     @Override
     public void deleteAll(List<Long> ids) {
-        provider.deleteAll(ids);
+        service.deleteAll(ids);
     }
 
     @Override
     public List<Publisher> findPublisherByName(String name) {
-        return provider.findPublisherByName(name);
+        return service.findPublisherByName(name);
     }
 }

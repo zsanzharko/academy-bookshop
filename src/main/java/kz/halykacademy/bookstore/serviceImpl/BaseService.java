@@ -26,19 +26,19 @@ public abstract class BaseService<
         R extends CommonRepository<E>> {
 
     private final Class<E> entityClass;
-    private final Class<P> provideClass;
+    private final Class<P> dtoClass;
     protected final R repository;
 
     /**
      * @param entityClass Entity
-     * @param provideClass Provide class
+     * @param dtoClass DTO class
      * @param repository repository for provider
      */
     public BaseService(@NonNull Class<E> entityClass,
-                       @NonNull Class<P> provideClass,
+                       @NonNull Class<P> dtoClass,
                        @NonNull R repository) {
         this.entityClass = entityClass;
-        this.provideClass = provideClass;
+        this.dtoClass = dtoClass;
         this.repository = repository;
     }
 
@@ -49,7 +49,7 @@ public abstract class BaseService<
      */
     protected P save(@NonNull P entity) {
         return getModelMap(repository.save(getModelMap(entity, entityClass)),
-                provideClass);
+                dtoClass);
     }
 
     /**
@@ -59,7 +59,7 @@ public abstract class BaseService<
      */
     protected List<P> saveAll(@NonNull List<P> entities) {
         var model = repository.saveAll(getModelMap(entities, entityClass));
-        return getModelMap(model, provideClass);
+        return getModelMap(model, dtoClass);
     }
 
     /**
@@ -69,7 +69,7 @@ public abstract class BaseService<
      */
     protected P saveAndFlush(@NonNull P entity) {
         var model = repository.saveAndFlush(getModelMap(entity, entityClass));
-        return getModelMap(model, provideClass);
+        return getModelMap(model, dtoClass);
     }
 
     /**
@@ -79,7 +79,7 @@ public abstract class BaseService<
      */
     protected List<P> saveAllAndFlush(@NonNull List<P> entities) {
         var model = repository.saveAllAndFlush(getModelMap(entities, entityClass));
-        return getModelMap(model, provideClass);
+        return getModelMap(model, dtoClass);
     }
 
     /**
@@ -110,13 +110,13 @@ public abstract class BaseService<
 
     protected P findById(@NonNull Long id) {
         var model = repository.findById(id).orElse(null);
-        if (model != null && model.getRemoved() == null) return getModelMap(model, provideClass);
+        if (model != null && model.getRemoved() == null) return getModelMap(model, dtoClass);
         return null;
     }
 
     protected List<P> getAll() {
         var items = repository.findAll();
-        return getModelMap(items, provideClass);
+        return getModelMap(items, dtoClass);
     }
 
     /**

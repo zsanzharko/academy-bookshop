@@ -16,18 +16,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static kz.halykacademy.bookstore.serviceImpl.ProviderTestTools.deleteAllEntities;
+import static kz.halykacademy.bookstore.serviceImpl.ServiceTestTools.deleteAllEntities;
 
 @SpringBootTest
 @Slf4j
 class PublisherServiceImplTest {
 
     @Autowired
-    private PublisherServiceImpl provider;
+    private PublisherServiceImpl service;
 
     @BeforeEach
     void setUp() {
-        Assertions.assertNotNull(provider, "Provider did not autowired in test");
+        Assertions.assertNotNull(service, "Provider did not autowired in test");
     }
 
     @Test
@@ -37,13 +37,13 @@ class PublisherServiceImplTest {
         // save without books
 
         // clean database
-        deleteAllEntities(List.of(provider));
+        deleteAllEntities(List.of(service));
 
         // Create object to save
         var publisher = new Publisher("Publisher test save");
 
         // operation
-        var dbPublisher = provider.create(publisher);
+        var dbPublisher = service.create(publisher);
 
         // assertions
         Assertions.assertNotNull(dbPublisher);
@@ -62,7 +62,7 @@ class PublisherServiceImplTest {
         publisherWithBooks.setBookList(books);
 
         // operation
-        var dbPublisherWithBooks = provider.create(publisherWithBooks);
+        var dbPublisherWithBooks = service.create(publisherWithBooks);
 
         // assertions
         Assertions.assertNotNull(dbPublisherWithBooks);
@@ -87,7 +87,7 @@ class PublisherServiceImplTest {
         // save without books
 
         // clean database
-        deleteAllEntities(List.of(provider));
+        deleteAllEntities(List.of(service));
 
 
         // Create object to save
@@ -99,7 +99,7 @@ class PublisherServiceImplTest {
         );
 
         // operation
-        var dbPublishers = provider.create(publishersTestSave);
+        var dbPublishers = service.create(publishersTestSave);
 
         var publishersListTitles = publishersTestSave.stream().map(Publisher::getTitle).toList();
         var dbPublishersListTitles = dbPublishers.stream().map(Publisher::getTitle).toList();
@@ -134,7 +134,7 @@ class PublisherServiceImplTest {
         publishersTestSave2.get(1).setBookList(books2);
 
         // operation
-        var dbPublishersTestSave2 = provider.create(publishersTestSave2);
+        var dbPublishersTestSave2 = service.create(publishersTestSave2);
 
         // assertion
         Assertions.assertNotNull(dbPublishersTestSave2);
@@ -159,17 +159,17 @@ class PublisherServiceImplTest {
         // update  without books
 
         // clean database
-        deleteAllEntities(List.of(provider));
+        deleteAllEntities(List.of(service));
 
         // Create object to save
         var publisher = new Publisher("Publisher test flush update");
 
-        var dbPublisher = provider.create(publisher);
+        var dbPublisher = service.create(publisher);
 
         dbPublisher.setTitle(changeTitle);
 
         // operation
-        dbPublisher = provider.saveAndFlush(dbPublisher);
+        dbPublisher = service.saveAndFlush(dbPublisher);
 
         // assertion
         Assertions.assertNotNull(dbPublisher);
@@ -184,7 +184,7 @@ class PublisherServiceImplTest {
         publisher2.setBookList(Set.of(new Book(
                 new BigDecimal(1990), publisher2, "Old Book in Publisher", new Date())));
 
-        var dbPublisher2 = provider.create(publisher2);
+        var dbPublisher2 = service.create(publisher2);
 
         // operation
         final var changeBooks = Set.of(
@@ -193,7 +193,7 @@ class PublisherServiceImplTest {
 
         dbPublisher2.setBookList(changeBooks);
 
-        dbPublisher2 = provider.update(dbPublisher2);
+        dbPublisher2 = service.update(dbPublisher2);
 
         // assertion
 
@@ -204,94 +204,94 @@ class PublisherServiceImplTest {
                 dbPublisher2.getBookList().stream().toList().get(0).getTitle());
 
         // clean database
-        deleteAllEntities(List.of(provider));
+        deleteAllEntities(List.of(service));
     }
 
     @Test
     @DisplayName("Remove all publishers")
     void removeAll() {
         // clean database
-        deleteAllEntities(List.of(provider));
+        deleteAllEntities(List.of(service));
 
         final String testTitle1 = ("Publisher test save1");
         final String testTitle2 = ("Publisher test save2");
         final String testTitle3 = ("Publisher test save3");
 
         // operation
-        var dbPublisher1 = provider.create(new Publisher(testTitle1));
-        var dbPublisher2 = provider.create(new Publisher(testTitle2));
-        var dbPublisher3 = provider.create(new Publisher(testTitle3));
+        var dbPublisher1 = service.create(new Publisher(testTitle1));
+        var dbPublisher2 = service.create(new Publisher(testTitle2));
+        var dbPublisher3 = service.create(new Publisher(testTitle3));
 
 
-        provider.removeAll();
+        service.removeAll();
 
-        Assertions.assertNull(provider.findById(dbPublisher1.getId()));
-        Assertions.assertNull(provider.findById(dbPublisher2.getId()));
-        Assertions.assertNull(provider.findById(dbPublisher3.getId()));
+        Assertions.assertNull(service.findById(dbPublisher1.getId()));
+        Assertions.assertNull(service.findById(dbPublisher2.getId()));
+        Assertions.assertNull(service.findById(dbPublisher3.getId()));
 
         // clean database
-        deleteAllEntities(List.of(provider));
+        deleteAllEntities(List.of(service));
     }
 
     @Test
     @DisplayName("Remove publisher by id")
     void removeById() {
         // clean database
-        deleteAllEntities(List.of(provider));
+        deleteAllEntities(List.of(service));
 
         final String testTitle1 = ("Publisher test save1");
 
         // operation
-        var dbPublisher1 = provider.create(new Publisher(testTitle1));
+        var dbPublisher1 = service.create(new Publisher(testTitle1));
 
-        provider.removeById(dbPublisher1.getId());
+        service.removeById(dbPublisher1.getId());
 
         // clean database
-        deleteAllEntities(List.of(provider));
+        deleteAllEntities(List.of(service));
     }
 
     @Test
     @DisplayName("Find publisher by id")
     void findById() {
         // clean database
-        deleteAllEntities(List.of(provider));
+        deleteAllEntities(List.of(service));
 
         final String testTitle1 = ("Publisher test find by id");
 
         // operation
-        var dbPublisher1 = provider.create(new Publisher(testTitle1, new HashSet<>()));
+        var dbPublisher1 = service.create(new Publisher(testTitle1, new HashSet<>()));
 
-        var entityById = provider.findById(dbPublisher1.getId());
+        var entityById = service.findById(dbPublisher1.getId());
 
         // assertion
         Assertions.assertNotNull(entityById);
         Assertions.assertEquals(dbPublisher1, entityById);
 
         // clean database
-        deleteAllEntities(List.of(provider));
+        deleteAllEntities(List.of(service));
     }
 
     @Test
     @DisplayName("Get all publishers")
     void getAll() {
         // clean database
-        deleteAllEntities(List.of(provider));
+        deleteAllEntities(List.of(service));
 
         final String testTitle1 = ("Publisher test save1");
         final String testTitle2 = ("Publisher test save2");
         final String testTitle3 = ("Publisher test save3");
 
-        var dbPublisher1 = provider.create(new Publisher(testTitle1, new HashSet<>()));
-        var dbPublisher2 = provider.create(new Publisher(testTitle2, new HashSet<>()));
-        var dbPublisher3 = provider.create(new Publisher(testTitle3, new HashSet<>()));
+        var dbPublisher1 = service.create(new Publisher(testTitle1, new HashSet<>()));
+        var dbPublisher2 = service.create(new Publisher(testTitle2, new HashSet<>()));
+        var dbPublisher3 = service.create(new Publisher(testTitle3, new HashSet<>()));
 
         // operation
-        List<Publisher> publishers = provider.getAll();
+        List<Publisher> publishers = service.getAll();
 
         Assertions.assertNotNull(publishers);
         Assertions.assertEquals(List.of(dbPublisher3, dbPublisher2, dbPublisher1), publishers);
 
         // clean database
-        deleteAllEntities(List.of(provider));
+        deleteAllEntities(List.of(service));
     }
 }

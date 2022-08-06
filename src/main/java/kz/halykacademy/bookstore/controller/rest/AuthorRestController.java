@@ -12,56 +12,56 @@ import java.util.List;
 @RequestMapping("/api/authors")
 public class AuthorRestController implements AuthorService {
 
-    private final AuthorServiceImpl provider;
+    private final AuthorServiceImpl service;
 
     @Autowired
     public AuthorRestController(AuthorServiceImpl provider) {
-        this.provider = provider;
+        this.service = provider;
     }
 
     @Override
     @PostMapping
     public Author create(@RequestBody Author entity) {
-        return provider.create(entity);
+        return service.create(entity);
     }
 
     @Override
     public List<Author> create(List<Author> entities) {
-        return provider.create(entities);
+        return service.create(entities);
     }
 
     @Override
     @GetMapping
     public List<Author> read() {
-        return provider.read();
+        return service.read();
     }
 
     @Override
     @GetMapping("/{id}")
     public Author read(@PathVariable Long id) {
-        return provider.read(id);
+        return service.read(id);
     }
 
     @Override
     @PostMapping("/update")
     public Author update(@RequestBody Author entity) {
-        return provider.update(entity);
+        return service.update(entity);
     }
 
     @Override
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        provider.delete(id);
+        service.delete(id);
     }
 
     @Override
     public void deleteAll() {
-        provider.deleteAll();
+        service.deleteAll();
     }
 
     @Override
     public void deleteAll(List<Long> ids) {
-        provider.deleteAll(ids);
+        service.deleteAll(ids);
     }
 
     @Override

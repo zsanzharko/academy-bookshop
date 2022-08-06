@@ -16,12 +16,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import static kz.halykacademy.bookstore.serviceImpl.ProviderTestTools.deleteAllEntities;
-import static kz.halykacademy.bookstore.serviceImpl.ProviderTestTools.deleteEntityById;
+import static kz.halykacademy.bookstore.serviceImpl.ServiceTestTools.deleteAllEntities;
+import static kz.halykacademy.bookstore.serviceImpl.ServiceTestTools.deleteEntityById;
 
 @SpringBootTest
 @Slf4j
-public class ProviderTest {
+public class ServiceTest {
 
     @Autowired
     private AuthorServiceImpl authorServiceImpl;
