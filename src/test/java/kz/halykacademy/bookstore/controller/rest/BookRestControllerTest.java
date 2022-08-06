@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class BookRestControllerTest extends AbstractControllerTest {
 
     private final Marker marker = MarkerFactory.getMarker("BookRestControllerTest");
-    private final String uri = "http://localhost:8080/books";
+    private final String uri = "http://localhost:8080/api/books";
     private final String contentType = "application/json";
 
     @Autowired
@@ -151,7 +151,8 @@ class BookRestControllerTest extends AbstractControllerTest {
     @Test
     @DisplayName("Delete book by id")
     public void delete() throws Exception {
-        Book book = bookProvider.create(new Book(new BigDecimal(990), publisherProvider.create(new Publisher("Mojang")), "Adventure Minecraft", new Date()));
+        Book book = bookProvider.create(new Book(new BigDecimal(990),
+                new Publisher("Mojang"), "Adventure Minecraft", new Date()));
 
         Assertions.assertNotNull(book);
 

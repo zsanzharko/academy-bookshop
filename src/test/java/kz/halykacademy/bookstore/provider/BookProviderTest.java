@@ -1,8 +1,10 @@
 package kz.halykacademy.bookstore.provider;
 
+import kz.halykacademy.bookstore.config.ApplicationContextProvider;
 import kz.halykacademy.bookstore.dto.Book;
 import kz.halykacademy.bookstore.dto.Publisher;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,9 +33,16 @@ class BookProviderTest extends ProviderTestTools {
         assertNotNull(provider, "Provider did not autowired in test");
     }
 
+
+    @AfterAll
+    public static void clean() {
+        var provider = ApplicationContextProvider.getApplicationContext().getBean(BookProvider.class);
+        provider.deleteAll();
+    }
     @Test
     @DisplayName("Save book")
     void save() {
+
         Book book = new Book(null, new BigDecimal(990), null, null, "Title", 100, new Date());
 
         var dbBook = provider.create(book);
@@ -44,7 +53,6 @@ class BookProviderTest extends ProviderTestTools {
     @Test
     @DisplayName("Save all books")
     void saveAll() {
-
         var books = List.of(
                 new Book(null, new BigDecimal(990), null, null, "Title 1", 100, new Date()),
                 new Book(null, new BigDecimal(990), null, null, "Title 2", 100, new Date()),
@@ -130,7 +138,7 @@ class BookProviderTest extends ProviderTestTools {
     @Test
     @DisplayName("Save book with publisher, but publisher didn't save")
     void saveWithOtherEntity() {
-        var publisher = new Publisher("Publisher title", null);
+        var publisher = publisherProvider.create(new Publisher("Publisher title", null));
 
         var book = new Book(null, new BigDecimal(990), null, publisher, "Title 4", 100, new Date());
 

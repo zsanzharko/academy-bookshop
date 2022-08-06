@@ -11,7 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class BookProvider extends BaseProvider<Book, BookEntity, BookRepository> implements BookService {
+public class BookProvider extends BaseProvider<Book, BookEntity, BookRepository>
+        implements BookService {
 
     public BookProvider(BookRepository repository) {
         super(BookEntity.class, Book.class, repository);

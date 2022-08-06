@@ -2,7 +2,7 @@ package kz.halykacademy.bookstore.controller.rest;
 
 import kz.halykacademy.bookstore.dto.Publisher;
 import kz.halykacademy.bookstore.provider.PublisherProvider;
-import kz.halykacademy.bookstore.service.CRUDService;
+import kz.halykacademy.bookstore.service.PublisherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/publishers")
-public class PublisherRestController implements CRUDService<Publisher> {
+public class PublisherRestController implements PublisherService {
 
     private final PublisherProvider provider;
 
@@ -62,5 +62,10 @@ public class PublisherRestController implements CRUDService<Publisher> {
     @Override
     public void deleteAll(List<Long> ids) {
         provider.deleteAll(ids);
+    }
+
+    @Override
+    public List<Publisher> findPublisherByName(String name) {
+        return provider.findPublisherByName(name);
     }
 }

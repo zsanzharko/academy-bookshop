@@ -10,7 +10,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class AuthorProvider extends BaseProvider<Author, AuthorEntity, AuthorRepository> implements AuthorService {
+public class AuthorProvider extends BaseProvider<Author, AuthorEntity, AuthorRepository>
+        implements AuthorService {
 
     @Autowired
     public AuthorProvider(AuthorRepository repository) {

@@ -4,7 +4,7 @@ import kz.halykacademy.bookstore.provider.providable.Providable;
 
 import java.util.List;
 
-public interface CRUDService<T extends Providable> {
+public interface BaseCRUDOperation<T extends Providable> {
 
     T create(T entity);
 

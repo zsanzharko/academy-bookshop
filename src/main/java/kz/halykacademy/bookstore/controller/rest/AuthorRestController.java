@@ -2,7 +2,7 @@ package kz.halykacademy.bookstore.controller.rest;
 
 import kz.halykacademy.bookstore.dto.Author;
 import kz.halykacademy.bookstore.provider.AuthorProvider;
-import kz.halykacademy.bookstore.service.CRUDService;
+import kz.halykacademy.bookstore.service.AuthorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/authors")
-public class AuthorRestController implements CRUDService<Author> {
+public class AuthorRestController implements AuthorService {
 
     private final AuthorProvider provider;
 
@@ -62,5 +62,10 @@ public class AuthorRestController implements CRUDService<Author> {
     @Override
     public void deleteAll(List<Long> ids) {
         provider.deleteAll(ids);
+    }
+
+    @Override
+    public List<Author> findAuthorByFIO(String name, String surname, String patronymic) {
+        return null;
     }
 }
