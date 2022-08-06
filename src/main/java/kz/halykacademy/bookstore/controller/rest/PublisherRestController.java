@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/publishers")
+@RequestMapping("/api/publishers")
 public class PublisherRestController implements CRUDService<Publisher> {
 
     private final PublisherProvider provider;
