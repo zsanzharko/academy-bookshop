@@ -1,4 +1,4 @@
-package kz.halykacademy.bookstore.provider;
+package kz.halykacademy.bookstore.serviceImpl;
 
 import kz.halykacademy.bookstore.dto.Publisher;
 import kz.halykacademy.bookstore.entity.PublisherEntity;
@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class PublisherProvider extends BaseProvider<Publisher, PublisherEntity, PublisherRepository>
+public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity, PublisherRepository>
         implements PublisherService {
 
-    public PublisherProvider(PublisherRepository repository) {
+    public PublisherServiceImpl(PublisherRepository repository) {
         super(PublisherEntity.class, Publisher.class, repository);
     }
 

@@ -1,4 +1,4 @@
-package kz.halykacademy.bookstore.provider;
+package kz.halykacademy.bookstore.serviceImpl;
 
 import kz.halykacademy.bookstore.dto.Book;
 import kz.halykacademy.bookstore.entity.BookEntity;
@@ -11,15 +11,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class BookProvider extends BaseProvider<Book, BookEntity, BookRepository> implements BookService {
+public class BookServiceImpl extends BaseService<Book, BookEntity, BookRepository>
+        implements BookService {
 
-    public BookProvider(BookRepository repository) {
+    public BookServiceImpl(BookRepository repository) {
         super(BookEntity.class, Book.class, repository);
     }
 
     /**
      * @param entity Entity from database
-     * @return Providable DTO object
+     * @return DTOs DTO object
      * @apiNote Save entity to database.
      */
     @Override
@@ -29,7 +30,7 @@ public class BookProvider extends BaseProvider<Book, BookEntity, BookRepository>
 
     /**
      * @param entities Entity from database
-     * @return Providable DTO object
+     * @return DTOs DTO object
      * @apiNote Save entities to database.
      */
     @Override

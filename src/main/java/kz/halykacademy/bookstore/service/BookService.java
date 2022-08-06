@@ -4,7 +4,7 @@ import kz.halykacademy.bookstore.dto.Book;
 
 import java.util.List;
 
-public interface BookService extends CRUDService<Book> {
+public interface BookService extends BaseCRUDOperation<Book> {
 
     List<Book> findBookByName(String name);
 }

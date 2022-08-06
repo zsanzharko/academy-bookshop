@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Set;
 
-import static javax.persistence.CascadeType.*;
+import static javax.persistence.CascadeType.ALL;
 import static javax.persistence.FetchType.LAZY;
 
 /**
@@ -36,21 +36,11 @@ public class BookEntity extends AbstractEntity implements Serializable, Entitiab
     private BigDecimal price;
 
 
-    @ManyToMany(mappedBy = "writtenBookList", cascade = {
-            MERGE,
-            REFRESH,
-            REMOVE,
-            DETACH
-    }, targetEntity = AuthorEntity.class)
+    @ManyToMany(mappedBy = "writtenBookList", cascade = {ALL}, targetEntity = AuthorEntity.class)
     @ToString.Exclude
     private Set<AuthorEntity> authors;
 
-    @ManyToOne(fetch = LAZY, cascade = {
-            MERGE,
-            REFRESH,
-            REMOVE,
-            DETACH,
-            PERSIST}, targetEntity = PublisherEntity.class)
+    @ManyToOne(fetch = LAZY, targetEntity = PublisherEntity.class)
     @JoinColumn(name = "publisher_id", referencedColumnName = "id")
     @ToString.Exclude
     private PublisherEntity publisher;

@@ -1,4 +1,4 @@
-package kz.halykacademy.bookstore.provider;
+package kz.halykacademy.bookstore.serviceImpl;
 
 import kz.halykacademy.bookstore.dto.Author;
 import kz.halykacademy.bookstore.entity.AuthorEntity;
@@ -10,10 +10,11 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class AuthorProvider extends BaseProvider<Author, AuthorEntity, AuthorRepository> implements AuthorService {
+public class AuthorServiceImpl extends BaseService<Author, AuthorEntity, AuthorRepository>
+        implements AuthorService {
 
     @Autowired
-    public AuthorProvider(AuthorRepository repository) {
+    public AuthorServiceImpl(AuthorRepository repository) {
         super(AuthorEntity.class, Author.class, repository);
     }
 

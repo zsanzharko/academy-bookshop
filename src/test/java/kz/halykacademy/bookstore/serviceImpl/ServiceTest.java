@@ -1,4 +1,4 @@
-package kz.halykacademy.bookstore.provider;
+package kz.halykacademy.bookstore.serviceImpl;
 
 import kz.halykacademy.bookstore.dto.Author;
 import kz.halykacademy.bookstore.dto.Book;
@@ -16,26 +16,26 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import static kz.halykacademy.bookstore.provider.ProviderTestTools.deleteAllEntities;
-import static kz.halykacademy.bookstore.provider.ProviderTestTools.deleteEntityById;
+import static kz.halykacademy.bookstore.serviceImpl.ServiceTestTools.deleteAllEntities;
+import static kz.halykacademy.bookstore.serviceImpl.ServiceTestTools.deleteEntityById;
 
 @SpringBootTest
 @Slf4j
-public class ProviderTest {
+public class ServiceTest {
 
     @Autowired
-    private AuthorProvider authorProvider;
+    private AuthorServiceImpl authorServiceImpl;
     @Autowired
-    private BookProvider bookProvider;
+    private BookServiceImpl bookServiceImpl;
     @Autowired
-    private PublisherProvider publisherProvider;
+    private PublisherServiceImpl publisherServiceImpl;
 
     @Test
     @DisplayName("Context Load")
     void contextLoads() {
-        Assertions.assertNotNull(authorProvider, "Provider did not autowired in test");
-        Assertions.assertNotNull(bookProvider, "Provider did not autowired in test");
-        Assertions.assertNotNull(publisherProvider, "Provider did not autowired in test");
+        Assertions.assertNotNull(authorServiceImpl, "Provider did not autowired in test");
+        Assertions.assertNotNull(bookServiceImpl, "Provider did not autowired in test");
+        Assertions.assertNotNull(publisherServiceImpl, "Provider did not autowired in test");
     }
 
     @Test
@@ -43,7 +43,7 @@ public class ProviderTest {
     @Transactional
     public void saveALLEntitiesToDB() {
         // clean database
-        deleteAllEntities(List.of(publisherProvider, bookProvider, authorProvider));
+        deleteAllEntities(List.of(publisherServiceImpl, bookServiceImpl, authorServiceImpl));
 
         // create objects
         Author author;
@@ -58,18 +58,18 @@ public class ProviderTest {
         book = new Book(new BigDecimal(990), Set.of(author), publisher, "Book title", 100, new Date());
 
         // pre-operation
-        var dbPublisher = publisherProvider.create(publisher);
+        var dbPublisher = publisherServiceImpl.create(publisher);
 
         dbPublisher.setBookList(Set.of(book));
 
         book.setPublisher(dbPublisher);
 
         // operation
-        var dbBook = bookProvider.create(book);
+        var dbBook = bookServiceImpl.create(book);
 
         book.setId(dbBook.getId());
 
-        var dbPublisherWithBooks = publisherProvider.findPublisherByName(publisher.getTitle());
+        var dbPublisherWithBooks = publisherServiceImpl.findPublisherByName(publisher.getTitle());
 
         // assertion
         Assertions.assertNotNull(dbBook);
@@ -79,7 +79,7 @@ public class ProviderTest {
         Assertions.assertNotNull(dbPublisherWithBooks);
 
         // clean
-        deleteEntityById(dbBook.getId(), bookProvider);
+        deleteEntityById(dbBook.getId(), bookServiceImpl);
 
         // operation
         publisher.setId(dbPublisher.getId());
@@ -91,10 +91,10 @@ public class ProviderTest {
         Assertions.assertEquals(dbPublisher.getBookList(), Set.of(book));
 
         // clean
-        deleteEntityById(dbBook.getId(), bookProvider);
+        deleteEntityById(dbBook.getId(), bookServiceImpl);
 
         // operation
-        var dbAuthor = authorProvider.create(author);
+        var dbAuthor = authorServiceImpl.create(author);
         author.setId(dbAuthor.getId());
 
         // assertion
@@ -102,21 +102,21 @@ public class ProviderTest {
         Assertions.assertEquals(author, dbAuthor);
 
         // clean
-        deleteEntityById(dbBook.getId(), bookProvider);
+        deleteEntityById(dbBook.getId(), bookServiceImpl);
     }
 
     @Test
     @DisplayName("Save author entity")
     public void saveAuthorEntityToDB() {
         // clean database
-        deleteAllEntities(List.of(publisherProvider, bookProvider, authorProvider));
+        deleteAllEntities(List.of(publisherServiceImpl, bookServiceImpl, authorServiceImpl));
 
         // operation
         Author author = new Author("Name", "Surname", "Patronymic", new Date(), null);
-        var dbAuthor = authorProvider.create(author);
+        var dbAuthor = authorServiceImpl.create(author);
         author.setId(dbAuthor.getId());
 
-        var dbEntities = authorProvider.read();
+        var dbEntities = authorServiceImpl.read();
         if (!dbEntities.isEmpty()) {
             System.out.println(dbEntities.get(0));
             System.out.println(dbEntities.get(dbEntities.size() - 1));
@@ -136,21 +136,21 @@ public class ProviderTest {
         log.info(String.format("DB entity: %s", dbAuthor));
 
         // clean database
-        deleteEntityById(dbAuthor.getId(), authorProvider);
+        deleteEntityById(dbAuthor.getId(), authorServiceImpl);
     }
 
     @Test
     @DisplayName("Save book entity")
     public void saveBookEntityToDB() {
         // clean database
-        deleteAllEntities(List.of(publisherProvider, bookProvider, authorProvider));
+        deleteAllEntities(List.of(publisherServiceImpl, bookServiceImpl, authorServiceImpl));
 
         // operation
-        var publisher = publisherProvider.create(new Publisher("Publisher title"));
-        publisher = publisherProvider.read(publisher.getId());
+        var publisher = publisherServiceImpl.create(new Publisher("Publisher title"));
+        publisher = publisherServiceImpl.read(publisher.getId());
         var book = new Book(new BigDecimal(990), publisher, "Book title", new Date());
         book.setPublisher(publisher);
-        var dbBook = bookProvider.create(book);
+        var dbBook = bookServiceImpl.create(book);
         book.setId(dbBook.getId());
         publisher.setBookList(dbBook.getPublisher().getBookList());
 
@@ -160,24 +160,24 @@ public class ProviderTest {
         Assertions.assertEquals(publisher, dbBook.getPublisher());
 
         // clean database
-        deleteEntityById(dbBook.getId(), bookProvider);
+        deleteEntityById(dbBook.getId(), bookServiceImpl);
     }
 
     @Test
     @DisplayName("Update book entity")
     public void updateBookEntityToDB() {
         // clean database
-        deleteAllEntities(List.of(publisherProvider, bookProvider, authorProvider));
+        deleteAllEntities(List.of(publisherServiceImpl, bookServiceImpl, authorServiceImpl));
 
         // operation
-        var publisher = publisherProvider.create(new Publisher("Publisher title"));
-        publisher = publisherProvider.read(publisher.getId());
-        var dbBook = bookProvider.create(new Book(new BigDecimal(990), publisher, "Book title", new Date()));
+        var publisher = publisherServiceImpl.create(new Publisher("Publisher title"));
+        publisher = publisherServiceImpl.read(publisher.getId());
+        var dbBook = bookServiceImpl.create(new Book(new BigDecimal(990), publisher, "Book title", new Date()));
 
         var author = new Author("Sanzhar", "aaa", new Date());
 
         dbBook.setAuthors(Set.of(author));
-        dbBook = bookProvider.update(dbBook);
+        dbBook = bookServiceImpl.update(dbBook);
 
         Assertions.assertNotNull(dbBook.getAuthors());
 
@@ -191,26 +191,26 @@ public class ProviderTest {
         Assertions.assertEquals(Set.of(author), dbBook.getAuthors());
 
         // clean database
-        deleteAllEntities(List.of(publisherProvider, bookProvider, authorProvider));
+        deleteAllEntities(List.of(publisherServiceImpl, bookServiceImpl, authorServiceImpl));
     }
 
     @Test
     @DisplayName("Update publisher entity")
     public void updatePublisherEntityToDB() {
         // clean database
-        deleteAllEntities(List.of(publisherProvider, bookProvider, authorProvider));
+        deleteAllEntities(List.of(publisherServiceImpl, bookServiceImpl, authorServiceImpl));
 
         // operation
         final var changeTitle = "Other Sanzhar";
         var publisher = new Publisher("Sanzhar", null);
 
-        var dbPublisher = publisherProvider.create(publisher);
+        var dbPublisher = publisherServiceImpl.create(publisher);
 
         Assertions.assertNotNull(dbPublisher);
 
         dbPublisher.setTitle(changeTitle);
 
-        dbPublisher = publisherProvider.update(dbPublisher);
+        dbPublisher = publisherServiceImpl.update(dbPublisher);
 
         Assertions.assertNotNull(dbPublisher);
         Assertions.assertEquals(changeTitle, dbPublisher.getTitle(),
@@ -218,30 +218,30 @@ public class ProviderTest {
 
         var book = new Book(new BigDecimal(5000), dbPublisher, "Minecraft", new Date());
 
-        var dbBook = bookProvider.create(book);
+        var dbBook = bookServiceImpl.create(book);
 
         Assertions.assertNotNull(dbBook);
         Assertions.assertEquals(book.getPublisher(), dbPublisher);
 
-        dbPublisher = publisherProvider.findById(dbPublisher.getId());
+        dbPublisher = publisherServiceImpl.findById(dbPublisher.getId());
 
         Assertions.assertNotNull(dbPublisher);
         Assertions.assertNotNull(dbPublisher.getBookList());
         Assertions.assertFalse(dbPublisher.getBookList().isEmpty());
 
         // clean database
-        deleteAllEntities(List.of(publisherProvider, bookProvider, authorProvider));
+        deleteAllEntities(List.of(publisherServiceImpl, bookServiceImpl, authorServiceImpl));
     }
 
     @Test
     @DisplayName("Save publisher entity")
     public void savePublisherEntityToDB() {
         // clean database
-        deleteAllEntities(List.of(publisherProvider, bookProvider, authorProvider));
+        deleteAllEntities(List.of(publisherServiceImpl, bookServiceImpl, authorServiceImpl));
 
         // operation
         Publisher publisher = new Publisher("Publisher title");
-        var dbPublisher = publisherProvider.create(publisher);
+        var dbPublisher = publisherServiceImpl.create(publisher);
         publisher.setId(dbPublisher.getId());
 
         //assertion
@@ -253,6 +253,6 @@ public class ProviderTest {
         log.info(String.format("DB entity: %s", dbPublisher));
 
         // clean database
-        deleteEntityById(dbPublisher.getId(), publisherProvider);
+        deleteEntityById(dbPublisher.getId(), publisherServiceImpl);
     }
 }

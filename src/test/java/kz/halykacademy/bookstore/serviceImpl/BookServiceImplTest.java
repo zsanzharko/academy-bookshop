@@ -1,8 +1,10 @@
-package kz.halykacademy.bookstore.provider;
+package kz.halykacademy.bookstore.serviceImpl;
 
+import kz.halykacademy.bookstore.config.ApplicationContextProvider;
 import kz.halykacademy.bookstore.dto.Book;
 import kz.halykacademy.bookstore.dto.Publisher;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,26 +19,33 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Slf4j
-class BookProviderTest extends ProviderTestTools {
+class BookServiceImplTest extends ServiceTestTools {
 
     @Autowired
-    private BookProvider provider;
+    private BookServiceImpl bookService;
     @Autowired
-    private PublisherProvider publisherProvider;;
+    private PublisherServiceImpl publisherService;;
     @Autowired
-    private AuthorProvider authorProvider;
+    private AuthorServiceImpl authorService;
 
     @BeforeEach
     void setUp() {
-        assertNotNull(provider, "Provider did not autowired in test");
+        assertNotNull(bookService, "Provider did not autowired in test");
     }
 
+
+    @AfterAll
+    public static void clean() {
+        var provider = ApplicationContextProvider.getApplicationContext().getBean(BookServiceImpl.class);
+        provider.deleteAll();
+    }
     @Test
     @DisplayName("Save book")
     void save() {
+
         Book book = new Book(null, new BigDecimal(990), null, null, "Title", 100, new Date());
 
-        var dbBook = provider.create(book);
+        var dbBook = bookService.create(book);
 
         assertNotNull(dbBook);
     }
@@ -44,14 +53,13 @@ class BookProviderTest extends ProviderTestTools {
     @Test
     @DisplayName("Save all books")
     void saveAll() {
-
         var books = List.of(
                 new Book(null, new BigDecimal(990), null, null, "Title 1", 100, new Date()),
                 new Book(null, new BigDecimal(990), null, null, "Title 2", 100, new Date()),
                 new Book(null, new BigDecimal(990), null, null, "Title 3", 100, new Date())
         );
 
-        var dbBooks = provider.create(books);
+        var dbBooks = bookService.create(books);
 
         assertNotNull(dbBooks);
     }
@@ -61,13 +69,13 @@ class BookProviderTest extends ProviderTestTools {
     void saveAndFlush() {
         Book book = new Book(null, new BigDecimal(990), null, null, "Title 4", 100, new Date());
 
-        var dbBook = provider.create(book);
+        var dbBook = bookService.create(book);
 
         assertNotNull(dbBook);
 
         dbBook.setNumberOfPage(150);
 
-        dbBook = provider.update(dbBook);
+        dbBook = bookService.update(dbBook);
 
         assertNotNull(dbBook);
         assertEquals(150, dbBook.getNumberOfPage());
@@ -77,9 +85,9 @@ class BookProviderTest extends ProviderTestTools {
     @Test
     @DisplayName("Remove all books")
     void removeAll() {
-        provider.deleteAll();
+        bookService.deleteAll();
 
-        var books = provider.getAll();
+        var books = bookService.getAll();
 
         assertFalse(books.isEmpty());
     }
@@ -89,13 +97,13 @@ class BookProviderTest extends ProviderTestTools {
     void removeById() {
         Book book = new Book(null, new BigDecimal(990), null, null, "Title 4", 100, new Date());
 
-        var dbBook = provider.create(book);
+        var dbBook = bookService.create(book);
 
         assertNotNull(dbBook);
 
-        provider.delete(dbBook.getId());
+        bookService.delete(dbBook.getId());
 
-        assertNull(provider.findById(dbBook.getId()));
+        assertNull(bookService.findById(dbBook.getId()));
     }
 
     @Test
@@ -103,11 +111,11 @@ class BookProviderTest extends ProviderTestTools {
     void findById() {
         Book book = new Book(null, new BigDecimal(990), null, null, "Title 4", 100, new Date());
 
-        var dbBook = provider.create(book);
+        var dbBook = bookService.create(book);
 
         assertNotNull(dbBook);
 
-        var secondDbBook = provider.findById(dbBook.getId());
+        var secondDbBook = bookService.findById(dbBook.getId());
 
         assertNotNull(secondDbBook);
         assertEquals(dbBook.getId(), secondDbBook.getId());
@@ -118,11 +126,11 @@ class BookProviderTest extends ProviderTestTools {
     void getAll() {
         Book book = new Book(null, new BigDecimal(990), null, null, "Title 4", 100, new Date());
 
-        var dbBook = provider.create(book);
+        var dbBook = bookService.create(book);
 
         assertNotNull(dbBook);
 
-        var allBooks = provider.getAll();
+        var allBooks = bookService.getAll();
 
         assertNotNull(allBooks);
     }
@@ -130,11 +138,11 @@ class BookProviderTest extends ProviderTestTools {
     @Test
     @DisplayName("Save book with publisher, but publisher didn't save")
     void saveWithOtherEntity() {
-        var publisher = new Publisher("Publisher title", null);
+        var publisher = publisherService.create(new Publisher("Publisher title", null));
 
         var book = new Book(null, new BigDecimal(990), null, publisher, "Title 4", 100, new Date());
 
-        var dbBook = provider.create(book);
+        var dbBook = bookService.create(book);
 
         assertNotNull(dbBook);
         assertNotNull(dbBook.getPublisher());

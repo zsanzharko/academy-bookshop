@@ -1,4 +1,4 @@
-package kz.halykacademy.bookstore.provider;
+package kz.halykacademy.bookstore.serviceImpl;
 
 import kz.halykacademy.bookstore.dto.Author;
 import lombok.extern.slf4j.Slf4j;
@@ -12,18 +12,18 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.Date;
 import java.util.List;
 
-import static kz.halykacademy.bookstore.provider.ProviderTestTools.deleteAllEntities;
+import static kz.halykacademy.bookstore.serviceImpl.ServiceTestTools.deleteAllEntities;
 
 @SpringBootTest
 @Slf4j
-class AuthorProviderTest {
+class AuthorServiceImplTest {
 
     @Autowired
-    private AuthorProvider provider;
+    private AuthorServiceImpl service;
 
     @BeforeEach
     void setUp() {
-        Assertions.assertNotNull(provider, "Provider did not autowired in test");
+        Assertions.assertNotNull(service, "Provider did not autowired in test");
     }
 
     @Test
@@ -33,13 +33,13 @@ class AuthorProviderTest {
         // save without books
 
         // clean database
-        deleteAllEntities(List.of(provider));
+        deleteAllEntities(List.of(service));
 
         // Create object to save
         var author = new Author("Sanzhar", "Zhanibekov", new Date());
 
         // operation
-        var dbAuthor = provider.create(author);
+        var dbAuthor = service.create(author);
 
         // assertions
         Assertions.assertNotNull(dbAuthor);
@@ -53,14 +53,14 @@ class AuthorProviderTest {
 //        var publisher = new Publisher("Publisher to author to book, test Save author");
 //        var title = "Book to save with author 1";
 //
-//        final var publisherProvider = ApplicationContextProvider.getApplicationContext().getBean(PublisherProvider.class);
+//        final var publisherProvider = ApplicationContextProvider.getApplicationContext().getBean(PublisherServiceImpl.class);
 //        publisher = publisherProvider.create(publisher);
 //
 //        var book = new Book(new BigDecimal(990), publisher, title, new Date());
 //        // operation
 //        authorWithBook.setWrittenBooks(Set.of(book));
 //
-//        var dbAuthorWithBook = provider.create(authorWithBook);
+//        var dbAuthorWithBook = service.create(authorWithBook);
 //
 //        // assertion
 //        Assertions.assertNotNull(dbAuthorWithBook);

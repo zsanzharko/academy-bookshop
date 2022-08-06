@@ -1,11 +1,8 @@
-package kz.halykacademy.bookstore.provider;
+package kz.halykacademy.bookstore.serviceImpl;
 
 import kz.halykacademy.bookstore.config.ApplicationContextProvider;
 import kz.halykacademy.bookstore.entity.AbstractEntity;
 import kz.halykacademy.bookstore.entity.Entitiable;
-import kz.halykacademy.bookstore.provider.providable.AccountProvidable;
-import kz.halykacademy.bookstore.provider.providable.Providable;
-import kz.halykacademy.bookstore.provider.providable.ShopProvidable;
 import kz.halykacademy.bookstore.repository.CommonRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.lang.NonNull;
@@ -15,74 +12,74 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @param <P> Providable objects, need to access working with base provider
+ * @param <P> DTOs objects, need to access working with base provider
  * @author Sanzhar
  * @version 1.0
  * @apiNote Base Provider. Access all provider method and configurations.
- * @see Providable
+ * @see DTOs
  * @since 1.0
  */
 
-public abstract class BaseProvider<
-        P extends Providable,
+public abstract class BaseService<
+        P extends DTOs,
         E extends AbstractEntity,
         R extends CommonRepository<E>> {
 
     private final Class<E> entityClass;
-    private final Class<P> provideClass;
+    private final Class<P> dtoClass;
     protected final R repository;
 
     /**
      * @param entityClass Entity
-     * @param provideClass Provide class
+     * @param dtoClass DTO class
      * @param repository repository for provider
      */
-    public BaseProvider(@NonNull Class<E> entityClass,
-                        @NonNull Class<P> provideClass,
-                        @NonNull R repository) {
+    public BaseService(@NonNull Class<E> entityClass,
+                       @NonNull Class<P> dtoClass,
+                       @NonNull R repository) {
         this.entityClass = entityClass;
-        this.provideClass = provideClass;
+        this.dtoClass = dtoClass;
         this.repository = repository;
     }
 
     /**
      * @param entity Entity from database
-     * @return Providable DTO object
+     * @return DTOs DTO object
      * @apiNote Save entity to database.
      */
     protected P save(@NonNull P entity) {
         return getModelMap(repository.save(getModelMap(entity, entityClass)),
-                provideClass);
+                dtoClass);
     }
 
     /**
      * @param entities Entity from database
-     * @return Providable DTO object
+     * @return DTOs DTO object
      * @apiNote Save entities to database.
      */
     protected List<P> saveAll(@NonNull List<P> entities) {
         var model = repository.saveAll(getModelMap(entities, entityClass));
-        return getModelMap(model, provideClass);
+        return getModelMap(model, dtoClass);
     }
 
     /**
      * @param entity Entity from database
-     * @return Providable DTO object
+     * @return DTOs DTO object
      * @apiNote Update entity in database. Can work with JPA
      */
     protected P saveAndFlush(@NonNull P entity) {
         var model = repository.saveAndFlush(getModelMap(entity, entityClass));
-        return getModelMap(model, provideClass);
+        return getModelMap(model, dtoClass);
     }
 
     /**
      * @param entities Entity from database
-     * @return Providable DTO object
+     * @return DTOs DTO object
      * @apiNote Update entities in database. Can work with JPA
      */
     protected List<P> saveAllAndFlush(@NonNull List<P> entities) {
         var model = repository.saveAllAndFlush(getModelMap(entities, entityClass));
-        return getModelMap(model, provideClass);
+        return getModelMap(model, dtoClass);
     }
 
     /**
@@ -113,13 +110,13 @@ public abstract class BaseProvider<
 
     protected P findById(@NonNull Long id) {
         var model = repository.findById(id).orElse(null);
-        if (model != null && model.getRemoved() == null) return getModelMap(model, provideClass);
+        if (model != null && model.getRemoved() == null) return getModelMap(model, dtoClass);
         return null;
     }
 
     protected List<P> getAll() {
         var items = repository.findAll();
-        return getModelMap(items, provideClass);
+        return getModelMap(items, dtoClass);
     }
 
     /**
@@ -129,7 +126,7 @@ public abstract class BaseProvider<
      * @return Destination type object
      * @apiNote Map source object to destination type. Need to convert entity to DTO.
      * It will check source and destination to interfaces
-     * @see Providable
+     * @see DTOs
      * @see Entitiable
      * @see ModelMapper
      * @see ApplicationContextProvider
@@ -140,22 +137,16 @@ public abstract class BaseProvider<
         boolean desCor = false;
         boolean sourCor = false;
         for (var s : source.getClass().getInterfaces()) {
-            if (s.getName().equals(Providable.class.getName()) ||
-                    s.getName().equals(Entitiable.class.getName()) ||
-                    s.getName().equals(ShopProvidable.class.getName()) ||
-                    s.getName().equals(AccountProvidable.class.getName())
-            ) {
+            if (s.getName().equals(DTOs.class.getName()) ||
+                    s.getName().equals(Entitiable.class.getName())) {
                 sourCor = true;
 
                 break;
             }
         }
         for (var d : destinationType.getInterfaces()) {
-            if (d.getName().equals(Providable.class.getName()) ||
-                    d.getName().equals(Entitiable.class.getName()) ||
-                    d.getName().equals(ShopProvidable.class.getName()) ||
-                    d.getName().equals(AccountProvidable.class.getName())
-            ) {
+            if (d.getName().equals(DTOs.class.getName()) ||
+                    d.getName().equals(Entitiable.class.getName())) {
                 desCor = true;
 
                 break;
@@ -174,7 +165,7 @@ public abstract class BaseProvider<
      * @return Destination type list objects
      * @apiNote Map source objects to destination type. Need to convert entities to DTO's.
      * It will check source and destination classes to interfaces
-     * @see Providable
+     * @see DTOs
      * @see Entitiable
      * @see ModelMapper
      * @see ApplicationContextProvider
