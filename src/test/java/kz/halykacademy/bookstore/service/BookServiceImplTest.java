@@ -143,7 +143,7 @@ class BookServiceImplTest extends ServiceTestTools {
     void saveWithOtherEntity() {
         var publisher = publisherService.create(new Publisher("Publisher title", null));
 
-        var book = new Book(null, new BigDecimal(990), null, publisher, "Title 4", 100, new Date());
+        var book = new Book(null, new BigDecimal(990), null, publisher.getId(), "Title 4", 100, new Date());
 
         var dbBook = bookService.create(book);
 
@@ -152,7 +152,7 @@ class BookServiceImplTest extends ServiceTestTools {
 //
 //        var dbPublisher = publisherProvider.findById(dbBook.getPublisher().getId());
 //
-//        assertNotNull(dbPublisher.getBookList());
-//        log.info(dbPublisher.getBookList().toString());
+//        assertNotNull(dbPublisher.getBooks());
+//        log.info(dbPublisher.getBooks().toString());
     }
 }

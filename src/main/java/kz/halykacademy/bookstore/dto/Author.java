@@ -2,8 +2,9 @@ package kz.halykacademy.bookstore.dto;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import kz.halykacademy.bookstore.entity.AuthorEntity;
+import kz.halykacademy.bookstore.entity.BookEntity;
 import kz.halykacademy.bookstore.serviceImpl.DTOs;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,9 +22,7 @@ import java.util.Set;
  * Поля у автора: id, фамилия, имя, отчество, дата рождения, список написанных книг
  */
 @Data
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id"
@@ -34,9 +33,11 @@ public class Author implements Serializable, DTOs {
     private String surname;
     private String patronymic;
     private Date birthday;
-    private Set<Book> writtenBooks;
+    private Set<Long> writtenBooks;
 
-    public Author(String name, String surname, String patronymic, Date birthday, Set<Book> writtenBooks) {
+    @Builder
+    public Author(Long id, String name, String surname, String patronymic, Date birthday, Set<Long> writtenBooks) {
+        this.id = id;
         this.name = name;
         this.surname = surname;
         this.patronymic = patronymic;
@@ -58,6 +59,28 @@ public class Author implements Serializable, DTOs {
         this.patronymic = "";
         this.birthday = birthday;
         this.writtenBooks = new HashSet<>();
+    }
+
+    public AuthorEntity convert(Set<BookEntity> writtenBookList) {
+        return AuthorEntity.builder()
+                .id(id)
+                .name(name)
+                .surname((surname))
+                .patronymic(patronymic)
+                .birthday(birthday)
+                .writtenBookList(writtenBookList)
+                .build();
+    }
+
+    public AuthorEntity convert() {
+        return AuthorEntity.builder()
+                .id(id)
+                .name(name)
+                .surname((surname))
+                .patronymic(patronymic)
+                .birthday(birthday)
+                .writtenBookList(null)
+                .build();
     }
 
     @Override

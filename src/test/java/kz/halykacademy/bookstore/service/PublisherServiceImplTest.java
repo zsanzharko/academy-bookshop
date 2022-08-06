@@ -3,6 +3,7 @@ package kz.halykacademy.bookstore.service;
 import kz.halykacademy.bookstore.config.ApplicationContextProvider;
 import kz.halykacademy.bookstore.dto.Book;
 import kz.halykacademy.bookstore.dto.Publisher;
+import kz.halykacademy.bookstore.serviceImpl.BookServiceImpl;
 import kz.halykacademy.bookstore.serviceImpl.PublisherServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
@@ -21,6 +22,9 @@ class PublisherServiceImplTest {
 
     @Autowired
     private PublisherServiceImpl service;
+
+    @Autowired
+    private BookServiceImpl bookService;
 
     @BeforeEach
     void setUp() {
@@ -56,13 +60,21 @@ class PublisherServiceImplTest {
         // save with books
 
         var publisherWithBooks = new Publisher("Publisher with books");
+
+        // pre-operation
+
+        publisherWithBooks = service.create(publisher);
+
         var books = List.of(
-                new Book(new BigDecimal(990), publisherWithBooks, "Book to save with publisher 1", new Date()),
-                new Book(new BigDecimal(990), publisherWithBooks, "Book to save with publisher 2", new Date()),
-                new Book(new BigDecimal(990), publisherWithBooks, "Book to save with publisher 3", new Date()),
-                new Book(new BigDecimal(990), publisherWithBooks, "Book to save with publisher 4", new Date())
+                new Book(new BigDecimal(990), publisherWithBooks.getId(), "Book to save with publisher 1", new Date()),
+                new Book(new BigDecimal(990), publisherWithBooks.getId(), "Book to save with publisher 2", new Date()),
+                new Book(new BigDecimal(990), publisherWithBooks.getId(), "Book to save with publisher 3", new Date()),
+                new Book(new BigDecimal(990), publisherWithBooks.getId(), "Book to save with publisher 4", new Date())
         );
-        publisherWithBooks.setBookList(books);
+
+        var dbBook = bookService.create(books);
+
+        publisherWithBooks.setBooks(dbBook.stream().map(Book::getId).toList());
 
         // operation
         var dbPublisherWithBooks = service.create(publisherWithBooks);
@@ -70,17 +82,7 @@ class PublisherServiceImplTest {
         // assertions
         Assertions.assertNotNull(dbPublisherWithBooks);
         Assertions.assertEquals(publisherWithBooks.getTitle(), dbPublisherWithBooks.getTitle());
-        Assertions.assertNotNull(dbPublisherWithBooks.getBookList());
-
-        for (var book : publisherWithBooks.getBookList()) {
-            for (var dbBook : dbPublisherWithBooks.getBookList())
-                if (book.getTitle().equals(dbBook.getTitle()))
-                    book.setId(dbBook.getId());
-        }
-        //todo sort list to check books dataset
-
-        // assertions
-        Assertions.assertNotNull(dbPublisherWithBooks.getBookList());
+        Assertions.assertNotNull(dbPublisherWithBooks.getBooks());
     }
 
     @Test
@@ -121,20 +123,20 @@ class PublisherServiceImplTest {
                 );
 
         var books1 = List.of(
-                new Book(new BigDecimal(990), publishersTestSave2.get(0), "Book to save with publisher 5", new Date()),
-                new Book(new BigDecimal(990), publishersTestSave2.get(0), "Book to save with publisher 6", new Date()),
-                new Book(new BigDecimal(990), publishersTestSave2.get(0), "Book to save with publisher 7", new Date()),
-                new Book(new BigDecimal(990), publishersTestSave2.get(0), "Book to save with publisher 8", new Date())
+                new Book(new BigDecimal(990), publishersTestSave2.get(0).getId(), "Book to save with publisher 5", new Date()),
+                new Book(new BigDecimal(990), publishersTestSave2.get(0).getId(), "Book to save with publisher 6", new Date()),
+                new Book(new BigDecimal(990), publishersTestSave2.get(0).getId(), "Book to save with publisher 7", new Date()),
+                new Book(new BigDecimal(990), publishersTestSave2.get(0).getId(), "Book to save with publisher 8", new Date())
         );
         var books2 = List.of(
-                new Book(new BigDecimal(990), publishersTestSave2.get(1), "Book to save with publisher 9", new Date()),
-                new Book(new BigDecimal(990), publishersTestSave2.get(1), "Book to save with publisher 10", new Date()),
-                new Book(new BigDecimal(990), publishersTestSave2.get(1), "Book to save with publisher 11", new Date()),
-                new Book(new BigDecimal(990), publishersTestSave2.get(1), "Book to save with publisher 12", new Date())
+                new Book(new BigDecimal(990), publishersTestSave2.get(1).getId(), "Book to save with publisher 9", new Date()),
+                new Book(new BigDecimal(990), publishersTestSave2.get(1).getId(), "Book to save with publisher 10", new Date()),
+                new Book(new BigDecimal(990), publishersTestSave2.get(1).getId(), "Book to save with publisher 11", new Date()),
+                new Book(new BigDecimal(990), publishersTestSave2.get(1).getId(), "Book to save with publisher 12", new Date())
         );
 
-        publishersTestSave2.get(0).setBookList(books1);
-        publishersTestSave2.get(1).setBookList(books2);
+        publishersTestSave2.get(0).setBooks(books1.stream().map(Book::getId).toList());
+        publishersTestSave2.get(1).setBooks(books2.stream().map(Book::getId).toList());
 
         // operation
         var dbPublishersTestSave2 = service.create(publishersTestSave2);
@@ -147,8 +149,8 @@ class PublisherServiceImplTest {
         Assertions.assertEquals(publishersTestSave2.get(0).getTitle(), dbPublishersTestSave2.get(0).getTitle());
         Assertions.assertEquals(publishersTestSave2.get(1).getTitle(), dbPublishersTestSave2.get(1).getTitle());
 
-        Assertions.assertNotNull(dbPublishersTestSave2.get(0).getBookList());
-        Assertions.assertNotNull(dbPublishersTestSave2.get(1).getBookList());
+        Assertions.assertNotNull(dbPublishersTestSave2.get(0).getBooks());
+        Assertions.assertNotNull(dbPublishersTestSave2.get(1).getBooks());
 
     }
 
@@ -186,27 +188,27 @@ class PublisherServiceImplTest {
 
         // Create object to save
         var publisher2 = new Publisher("Publisher 2 test flush update");
-        publisher2.setBookList(List.of(new Book(
-                new BigDecimal(1990), publisher2, "Old Book in Publisher", new Date())));
+//        publisher2.setBooks(List.of(new Book(
+//                new BigDecimal(1990), publisher2.getId(), "Old Book in Publisher", new Date())));
 
         var dbPublisher2 = service.create(publisher2);
 
-        // operation
-        final var changeBooks = List.of(
-                new Book(new BigDecimal(990), dbPublisher2, "Change Book in Publisher", new Date()));
-
-
-        dbPublisher2.setBookList(changeBooks);
-
-        dbPublisher2 = service.update(dbPublisher2);
-
-        // assertion
-
-        Assertions.assertNotNull(dbPublisher2);
-        Assertions.assertNotNull(dbPublisher2.getBookList());
-        Assertions.assertEquals(
-                changeBooks.stream().toList().get(0).getTitle(),
-                dbPublisher2.getBookList().stream().toList().get(0).getTitle());
+//        // operation
+//        final var changeBooks = List.of(
+//                new Book(new BigDecimal(990), dbPublisher2, "Change Book in Publisher", new Date()));
+//
+//
+//        dbPublisher2.setBooks(changeBooks);
+//
+//        dbPublisher2 = service.update(dbPublisher2);
+//
+//        // assertion
+//
+//        Assertions.assertNotNull(dbPublisher2);
+//        Assertions.assertNotNull(dbPublisher2.getBooks());
+//        Assertions.assertEquals(
+//                changeBooks.stream().toList().get(0).getTitle(),
+//                dbPublisher2.getBooks().stream().toList().get(0).getTitle());
 
         // clean database
         deleteAllEntities(List.of(service));

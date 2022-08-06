@@ -1,54 +1,58 @@
 package kz.halykacademy.bookstore.serviceImpl;
 
 import kz.halykacademy.bookstore.dto.Publisher;
+import kz.halykacademy.bookstore.entity.BookEntity;
 import kz.halykacademy.bookstore.entity.PublisherEntity;
+import kz.halykacademy.bookstore.repository.BookRepository;
 import kz.halykacademy.bookstore.repository.PublisherRepository;
 import kz.halykacademy.bookstore.service.PublisherService;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Slf4j
 public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity, PublisherRepository>
         implements PublisherService {
 
-    public PublisherServiceImpl(PublisherRepository repository, ModelMapper modelMapper) {
+    public final BookRepository bookRepository;
+
+    @Autowired
+    public PublisherServiceImpl(PublisherRepository repository, ModelMapper modelMapper, BookRepository bookRepository) {
         super(PublisherEntity.class, Publisher.class, repository, modelMapper);
+        this.bookRepository = bookRepository;
     }
 
     @Override
     public List<Publisher> findPublisherByName(String name) {
         var publisherList = repository.findAllByTitle(name);
-        return getModelMap(publisherList, Publisher.class);
+        return publisherList.stream().map(PublisherEntity::convert).toList();
     }
 
     @Override
     public Publisher create(Publisher publisher) {
-        var publisherEntity = getModelMap(publisher, entityClass);
-
-        if (publisherEntity.getBooks() != null)
-            publisherEntity.getBooks().forEach(bookEntity -> {
-                if (bookEntity == null || bookEntity.getPublisher() == null)
-                    publisherEntity.addBook(bookEntity);
-            });
-
+        PublisherEntity publisherEntity;
+        try {
+            publisherEntity = getEntity(publisher);
+        } catch (NullPointerException e) {
+            log.error(e.getMessage());
+            return null;
+        }
         return save(publisherEntity);
     }
 
     @Override
     public List<Publisher> create(List<Publisher> publishers) {
-        var publisherEntities = getModelMap(publishers, entityClass);
-
-
-        publisherEntities.forEach(publisherEntity -> {
-            if (publisherEntity.getBooks() != null)
-                publisherEntity.getBooks().forEach(bookEntity -> {
-                    if (bookEntity == null || bookEntity.getPublisher() == null)
-                        publisherEntity.addBook(bookEntity);
-                });
-        });
-
+        List<PublisherEntity> publisherEntities;
+        try {
+            publisherEntities = publishers.stream().map(this::getEntity).toList();
+        } catch (NullPointerException e) {
+            log.error(e.getMessage());
+            return null;
+        }
         return saveAll(publisherEntities);
     }
 
@@ -64,8 +68,17 @@ public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity
 
     @Override
     public Publisher update(Publisher publisher) {
-        var publisherEntity = getModelMap(publisher, entityClass);
+        PublisherEntity publisherEntity;
+        try {
+            publisherEntity = getEntity(publisher);
+        } catch (NullPointerException e) {
+            log.error(e.getMessage());
+            return null;
+        }
 
+        //todo think about updating universal algorithm.
+        //  Need to check ids in book and add or remove this book in publisher
+        //  Because Publisher is main entity
         if (publisherEntity.getBooks() != null)
             publisherEntity.getBooks().forEach(bookEntity -> {
                 if (bookEntity == null || bookEntity.getPublisher() == null)
@@ -77,22 +90,26 @@ public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity
 
     @Override
     public void delete(Long id) {
-        var publisherEntity = getModelMap(findById(id), entityClass);
+        var publisherEntity = repository.findById(id).orElse(null);
+        if (publisherEntity == null) return;
 
         if (publisherEntity.getBooks() != null)
-            publisherEntity.getBooks().forEach(bookEntity -> {
-                if (bookEntity == null || bookEntity.getPublisher() == null)
-                    publisherEntity.removeBook(bookEntity);
-            });
-        saveAndFlush(publisherEntity);
+            publisherEntity.getBooks().forEach(publisherEntity::removeBook);
+        saveAndFlush(publisherEntity); // updating data in database to remove all books from publisher
 
         removeById(id);
     }
 
     @Override
     public void deleteAll() {
-        var publisherEntities = getModelMap(getAll(), entityClass);
-
+        List<PublisherEntity> publisherEntities;
+        try {
+            publisherEntities = getAll().stream().map(this::getEntity).toList();
+        } catch (NullPointerException e) {
+            log.error(e.getMessage());
+            log.error("Can't remove all publishers");
+            return;
+        }
 
         publisherEntities.forEach(publisherEntity -> {
             if (publisherEntity.getBooks() != null)
@@ -101,14 +118,14 @@ public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity
                         publisherEntity.removeBook(bookEntity);
                 });
         });
-        saveAllAndFlush(publisherEntities);
+        saveAllAndFlush(publisherEntities); // updating data in database to remove all books from publisher
 
         removeAll();
     }
 
     @Override
     public void deleteAll(List<Long> ids) {
-        var publisherEntities = getModelMap(repository.findAllById(ids), entityClass);
+        var publisherEntities = repository.findAllById(ids);
 
         publisherEntities.forEach(publisherEntity -> {
             if (publisherEntity.getBooks() != null)
@@ -117,11 +134,27 @@ public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity
                         publisherEntity.removeBook(bookEntity);
                 });
         });
-
-        saveAllAndFlush(publisherEntities);
+        saveAllAndFlush(publisherEntities); // updating data in database to remove all books from publisher
 
         removeAll(ids);
     }
 
+    private PublisherEntity getEntity(Publisher publisher) throws NullPointerException {
+        if (publisher == null) throw new NullPointerException("Publisher can not be null");
+        if (publisher.getBooks() == null) throw new NullPointerException("Books in publisher can not be null");
 
+        List<BookEntity> bookEntities = bookRepository.findAllById(publisher.getBooks());
+
+        return publisher.convert(bookEntities);
+    }
+
+    @Override
+    protected Publisher convertToDto(PublisherEntity publisherEntity) {
+        return publisherEntity.convert();
+    }
+
+    @Override
+    protected PublisherEntity convertToEntity(Publisher publisher) {
+        return getEntity(publisher);
+    }
 }
