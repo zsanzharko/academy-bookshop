@@ -1,15 +1,15 @@
 package kz.halykacademy.bookstore.entity;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import org.hibernate.Hibernate;
+import kz.halykacademy.bookstore.dto.Publisher;
+import lombok.*;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import java.io.Serializable;
-import java.util.Objects;
-import java.util.Set;
+import java.sql.Date;
+import java.util.List;
 
 import static javax.persistence.CascadeType.ALL;
 
@@ -20,39 +20,42 @@ import static javax.persistence.CascadeType.ALL;
  * @apiNote Entity getting from datasource.
  * Поля издателя: id, название, список изданных книг
  */
-@Entity
+@Entity(name = "Publisher")
 @Table(name = "publishers")
 @NoArgsConstructor
 @Getter
 @Setter
 @ToString
-public class PublisherEntity extends AbstractEntity implements Serializable, Entitiable {
+public class PublisherEntity extends AbstractEntity implements Serializable {
     @Column(name = "title")
     private String title;
-    @OneToMany(mappedBy = "publisher", cascade = ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = {ALL}, mappedBy = "publisher", targetEntity = BookEntity.class,
+            orphanRemoval = true)
     @ToString.Exclude
-    private Set<BookEntity> bookList;
+    private List<BookEntity> books;
 
-    public PublisherEntity(String title, Set<BookEntity> bookList) {
+    @Builder
+    public PublisherEntity(Long id, Date removed, String title, List<BookEntity> books) {
+        super(id, removed);
         this.title = title;
-        this.bookList = bookList;
+        this.books = books;
     }
 
-    public PublisherEntity(String title) {
-        this.title = title;
-        this.bookList = null;
+    public void addBook(BookEntity book) {
+        books.add(book);
+        book.setPublisher(this);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        PublisherEntity that = (PublisherEntity) o;
-        return getId() != null && Objects.equals(getId(), that.getId());
+    public void removeBook(BookEntity book) {
+        books.remove(book);
+        book.setPublisher(null);
     }
 
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
+    public Publisher convert() {
+        return Publisher.builder()
+                .id(super.getId())
+                .title(title)
+                .books(books.stream().map(BookEntity::getId).toList())
+                .build();
     }
 }

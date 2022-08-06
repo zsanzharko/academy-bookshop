@@ -1,61 +1,71 @@
 package kz.halykacademy.bookstore.controller.rest;
 
 import kz.halykacademy.bookstore.dto.Author;
-import kz.halykacademy.bookstore.provider.AuthorProvider;
-import kz.halykacademy.bookstore.service.CRUDService;
+import kz.halykacademy.bookstore.service.AuthorService;
+import kz.halykacademy.bookstore.serviceImpl.AuthorServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/authors")
-public class AuthorRestController implements CRUDService<Author> {
+@RequestMapping("/api/authors")
+public class AuthorRestController implements AuthorService {
 
-    private final AuthorProvider provider;
+    private final AuthorServiceImpl service;
 
     @Autowired
-    public AuthorRestController(AuthorProvider provider) {
-        this.provider = provider;
+    public AuthorRestController(AuthorServiceImpl provider) {
+        this.service = provider;
     }
 
     @Override
     @PostMapping
-    public Author create(@RequestBody Author entity) {
-        return provider.create(entity);
+    public Author create(@RequestBody Author t) {
+        return service.create(t);
+    }
+
+    @Override
+    public List<Author> create(List<Author> ts) {
+        return service.create(ts);
     }
 
     @Override
     @GetMapping
     public List<Author> read() {
-        return provider.read();
+        return service.read();
     }
 
     @Override
     @GetMapping("/{id}")
     public Author read(@PathVariable Long id) {
-        return provider.read(id);
+        return service.read(id);
     }
 
     @Override
     @PostMapping("/update")
-    public Author update(@RequestBody Author entity) {
-        return provider.update(entity);
+    public Author update(@RequestBody Author t) {
+        return service.update(t);
     }
 
     @Override
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        provider.delete(id);
+        service.delete(id);
     }
 
     @Override
     public void deleteAll() {
-        provider.deleteAll();
+        service.deleteAll();
     }
 
     @Override
     public void deleteAll(List<Long> ids) {
-        provider.deleteAll(ids);
+        service.deleteAll(ids);
+    }
+
+    @Override
+    public List<Author> findAuthorByFIO(String name, String surname, String patronymic) {
+        return null;
     }
 }
