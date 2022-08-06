@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="author" content="Sanzhar Zhanibekov">
+    <meta name="description" content="All work with market">
+    <title>MarketPlace</title>
+    <link rel="stylesheet" th:rel="stylesheet" th:href="@{style/marketplace.css}" href="../static/style/marketplace.css">
+    <link rel="stylesheet" th:rel="stylesheet" th:href="@{style/buttons.css}"
+          href="../static/style/buttons.css">
+</head>
+<body>
+<header th:replace="fragments/page_components :: header"></header>
+<div class="basic-container">
+<!--&lt;!&ndash;    todo test &ndash;&gt;-->
+<!--    <div class="container">-->
+<!--        <div class="productCard">-->
+<!--            <img src="https://www.w3schools.com/w3images/jeans3.jpg" alt="Denim Jeans" style="width:100%">-->
+<!--            <div class="productInformation">-->
+<!--                <h1>Some Book</h1>-->
+<!--                <p class="price">$19.99</p>-->
+<!--                <p><button class="button-18">Buy</button></p>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+    <div class="container" th:if="${books == null}">
+        <div th:replace="fragments/page_components :: not_find_items"></div>
+    </div>
+    <div class="container productCards" th:unless="${books == null}">
+        <div class="productCard" th:each="book : ${books}">
+            <img src="https://www.w3schools.com/w3images/jeans3.jpg" alt="Denim Jeans" style="width:100%">
+            <div class="productInformation">
+                <h1 th:text="${book.getTitle()}">Some Book</h1>
+                <p class="price" th:text="${book.getPrice()}">$19.99</p>
+                <p><button class="button-18">Buy</button></p>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

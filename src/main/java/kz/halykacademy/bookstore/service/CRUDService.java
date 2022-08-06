@@ -8,6 +8,8 @@ public interface CRUDService<T extends Providable> {
 
     T create(T entity);
 
+    List<T> create(List<T> entities);
+
     List<T> read();
 
     T read(Long id);

@@ -1,17 +1,16 @@
 package kz.halykacademy.bookstore.entity;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import org.hibernate.Hibernate;
+import lombok.*;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import java.io.Serializable;
-import java.util.Objects;
 import java.util.Set;
 
 import static javax.persistence.CascadeType.ALL;
+import static javax.persistence.FetchType.LAZY;
 
 
 /**
@@ -20,39 +19,18 @@ import static javax.persistence.CascadeType.ALL;
  * @apiNote Entity getting from datasource.
  * Поля издателя: id, название, список изданных книг
  */
-@Entity
+@Entity(name = "Publisher")
 @Table(name = "publishers")
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @ToString
 public class PublisherEntity extends AbstractEntity implements Serializable, Entitiable {
     @Column(name = "title")
     private String title;
-    @OneToMany(mappedBy = "publisher", cascade = ALL, fetch = FetchType.EAGER)
+
+    @OneToMany(cascade = {ALL}, fetch = LAZY, mappedBy = "publisher", targetEntity = BookEntity.class)
     @ToString.Exclude
     private Set<BookEntity> bookList;
-
-    public PublisherEntity(String title, Set<BookEntity> bookList) {
-        this.title = title;
-        this.bookList = bookList;
-    }
-
-    public PublisherEntity(String title) {
-        this.title = title;
-        this.bookList = null;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        PublisherEntity that = (PublisherEntity) o;
-        return getId() != null && Objects.equals(getId(), that.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
 }

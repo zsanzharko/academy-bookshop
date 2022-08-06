@@ -28,13 +28,18 @@ public class PublisherProvider extends BaseProvider<Publisher, PublisherEntity, 
     }
 
     @Override
+    public List<Publisher> create(List<Publisher> entities) {
+        return saveAll(entities);
+    }
+
+    @Override
     public List<Publisher> read() {
         return super.getAll();
     }
 
     @Override
     public Publisher read(Long id) {
-        return findById(id);
+        return super.findById(id);
     }
 
     @Override

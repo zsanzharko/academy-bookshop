@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/books")
+@RequestMapping("/api/books")
 public class BookRestController implements CRUDService<Book> {
 
     private final BookProvider provider;
@@ -23,6 +23,11 @@ public class BookRestController implements CRUDService<Book> {
     @PostMapping
     public Book create(@RequestBody Book entity) {
         return provider.create(entity);
+    }
+
+    @Override
+    public List<Book> create(List<Book> entities) {
+        return provider.create(entities);
     }
 
     @Override

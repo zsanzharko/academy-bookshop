@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/authors")
+@RequestMapping("/api/authors")
 public class AuthorRestController implements CRUDService<Author> {
 
     private final AuthorProvider provider;
@@ -23,6 +23,11 @@ public class AuthorRestController implements CRUDService<Author> {
     @PostMapping
     public Author create(@RequestBody Author entity) {
         return provider.create(entity);
+    }
+
+    @Override
+    public List<Author> create(List<Author> entities) {
+        return provider.create(entities);
     }
 
     @Override

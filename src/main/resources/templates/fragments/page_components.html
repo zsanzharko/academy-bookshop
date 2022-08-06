@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Page Components</title>
+    <link rel="stylesheet" th:rel="stylesheet" th:href="@{style/main_style.css}"
+          href="../../static/style/main_style.css">
+    <link rel="stylesheet" th:rel="stylesheet" th:href="@{style/buttons.css}"
+          href="../../static/style/buttons.css">
+</head>
+<body>
+<header th:fragment="header" class="main_header">
+    <div class="header_place"></div>
+    <div class="header_place">
+        <div class="header_text_place"><a class="header_text_links" href="/market" th:href="@{/market}">MarketPlace</a>
+        </div>
+        <div class="header_text_place"><a class="header_text_links" href="/authors" th:href="@{/authors}">Authors</a>
+        </div>
+        <div class="header_text_place"><a class="header_text_links" href="/publishers" th:href="@{/publishers}">Publishers</a>
+        </div>
+    </div>
+    <div class="header_place"></div>
+</header>
+
+<div th:fragment="not_find_items" class="error-item-place">
+    <div class="error-center-container">
+        <div class="error-item-image">
+            <img src="../../static/assets/icons/sad_smile.png"
+                 th:src="@{assets/icons/sad_smile.png}"
+                 alt="error icon">
+        </div>
+        <div class="error-item-message">
+            Sorry, we can not load items to page, please reload page soon
+        </div>
+        <div class="error-item-functions">
+            <!--/*@thymesVar id="errorReloadItems" type="java.lang.String"*/-->
+            <a class="text-decor-off" th:href="@{${errorReloadItems}}">
+                <button class="button-18" role="button" type="button">Reload</button>
+            </a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

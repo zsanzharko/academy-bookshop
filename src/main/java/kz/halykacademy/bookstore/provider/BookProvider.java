@@ -7,6 +7,7 @@ import kz.halykacademy.bookstore.service.BookService;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -23,8 +24,7 @@ public class BookProvider extends BaseProvider<Book, BookEntity, BookRepository>
      */
     @Override
     protected Book save(@NonNull Book entity) {
-        return (entity.getPublisher() != null && entity.getPublisher().getId() == null) ?
-                null : super.save(entity);
+        return super.save(entity);
     }
 
     /**
@@ -34,11 +34,12 @@ public class BookProvider extends BaseProvider<Book, BookEntity, BookRepository>
      */
     @Override
     protected List<Book> saveAll(@NonNull List<Book> entities) {
-        for (var entity : entities)
-            if (entity.getPublisher() != null && entity.getPublisher().getId() == null)
-                return null;
-
-        return super.saveAll(entities);
+        List<Book> result = new ArrayList<>(entities.size());
+        for (var entity : entities) {
+            var res = save(entity);
+            result.add(res);
+        }
+        return result;
     }
 
     @Override
@@ -49,6 +50,11 @@ public class BookProvider extends BaseProvider<Book, BookEntity, BookRepository>
     @Override
     public Book create(Book entity) {
         return save(entity);
+    }
+
+    @Override
+    public List<Book> create(List<Book> entities) {
+        return saveAll(entities);
     }
 
     @Override

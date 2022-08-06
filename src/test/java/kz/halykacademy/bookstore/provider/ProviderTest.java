@@ -1,15 +1,8 @@
-package kz.halykacademy.bookstore;
+package kz.halykacademy.bookstore.provider;
 
 import kz.halykacademy.bookstore.dto.Author;
 import kz.halykacademy.bookstore.dto.Book;
 import kz.halykacademy.bookstore.dto.Publisher;
-import kz.halykacademy.bookstore.entity.AbstractEntity;
-import kz.halykacademy.bookstore.provider.AuthorProvider;
-import kz.halykacademy.bookstore.provider.BaseProvider;
-import kz.halykacademy.bookstore.provider.BookProvider;
-import kz.halykacademy.bookstore.provider.PublisherProvider;
-import kz.halykacademy.bookstore.provider.providable.Providable;
-import kz.halykacademy.bookstore.repository.CommonRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -23,11 +16,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import static kz.halykacademy.bookstore.provider.ProviderTestTools.deleteAllEntities;
+import static kz.halykacademy.bookstore.provider.ProviderTestTools.deleteEntityById;
+
 @SpringBootTest
 @Slf4j
 public class ProviderTest {
-
-    private final String CLEAN_TAG = "Cleaner";
 
     @Autowired
     private AuthorProvider authorProvider;
@@ -63,7 +57,6 @@ public class ProviderTest {
 
         book = new Book(new BigDecimal(990), Set.of(author), publisher, "Book title", 100, new Date());
 
-
         // pre-operation
         var dbPublisher = publisherProvider.create(publisher);
 
@@ -76,9 +69,14 @@ public class ProviderTest {
 
         book.setId(dbBook.getId());
 
+        var dbPublisherWithBooks = publisherProvider.findPublisherByName(publisher.getTitle());
+
         // assertion
         Assertions.assertNotNull(dbBook);
         Assertions.assertEquals(dbBook, book);
+
+        // assertion
+        Assertions.assertNotNull(dbPublisherWithBooks);
 
         // clean
         deleteEntityById(dbBook.getId(), bookProvider);
@@ -101,61 +99,10 @@ public class ProviderTest {
 
         // assertion
         Assertions.assertNotNull(dbAuthor);
-        Assertions.assertEquals(dbAuthor, author);
+        Assertions.assertEquals(author, dbAuthor);
 
         // clean
         deleteEntityById(dbBook.getId(), bookProvider);
-    }
-
-    private void deleteAllEntities(List<BaseProvider<
-            ? extends Providable,
-            ? extends AbstractEntity,
-            ? extends CommonRepository<? extends AbstractEntity>>> providers) {
-
-        log.warn("Clean all entity in database...");
-        try {
-            for (var provider :
-                    providers) {
-                log.info(String.format("Provider: %s", provider.getClass().getName()));
-                if (provider instanceof BookProvider p) {
-                    p.deleteAll();
-                } else if (provider instanceof AuthorProvider p) {
-                    p.deleteAll();
-                } else if (provider instanceof PublisherProvider p) {
-                    p.deleteAll();
-                }
-            }
-
-            log.info("Cleaning is done!");
-        } catch (Exception e) {
-            log.warn(CLEAN_TAG, e);
-            log.warn("Can not clean database. Check database options");
-        }
-    }
-
-    private void deleteEntityById(Long id,
-                                  BaseProvider<
-                                          ? extends Providable,
-                                          ? extends AbstractEntity,
-                                          ? extends CommonRepository<? extends AbstractEntity>>
-                                          provider) {
-        log.info(String.format("Deleting database author (id=%s)...", id));
-        try {
-
-            if (provider instanceof BookProvider p) {
-                p.delete(id);
-            } else if (provider instanceof AuthorProvider p) {
-                p.delete(id);
-            } else if (provider instanceof PublisherProvider p) {
-                p.delete(id);
-            }
-
-            log.info("Deleted");
-        } catch (Exception e) {
-            log.info(CLEAN_TAG, e);
-            log.warn(String.format("Can not delete entity by id\nProvider: %s\nId entity: %s",
-                    provider.getClass().getName(), id));
-        }
     }
 
     @Test
@@ -232,6 +179,8 @@ public class ProviderTest {
         dbBook.setAuthors(Set.of(author));
         dbBook = bookProvider.update(dbBook);
 
+        Assertions.assertNotNull(dbBook.getAuthors());
+
         for (var a : dbBook.getAuthors())
             if (author.getName().equals(a.getName()))
                 author.setId(a.getId());
@@ -252,21 +201,33 @@ public class ProviderTest {
         deleteAllEntities(List.of(publisherProvider, bookProvider, authorProvider));
 
         // operation
-        var publisher = new Publisher("Sanzhar");
+        final var changeTitle = "Other Sanzhar";
+        var publisher = new Publisher("Sanzhar", null);
+
         var dbPublisher = publisherProvider.create(publisher);
-        var book = new Book(new BigDecimal(5000), dbPublisher, "Minecraft", new Date());
-        dbPublisher.setBookList(Set.of(book));
-        publisher.setBookList(dbPublisher.getBookList());
+
+        Assertions.assertNotNull(dbPublisher);
+
+        dbPublisher.setTitle(changeTitle);
 
         dbPublisher = publisherProvider.update(dbPublisher);
-        for (var b : dbPublisher.getBookList()) {
-            if (b.getTitle().equals(book.getTitle()))
-                book.setId(b.getId());
-        }
 
-        // assertion
         Assertions.assertNotNull(dbPublisher);
-        Assertions.assertEquals(Set.of(book), dbPublisher.getBookList());
+        Assertions.assertEquals(changeTitle, dbPublisher.getTitle(),
+                "Don't changed title in database after saving");
+
+        var book = new Book(new BigDecimal(5000), dbPublisher, "Minecraft", new Date());
+
+        var dbBook = bookProvider.create(book);
+
+        Assertions.assertNotNull(dbBook);
+        Assertions.assertEquals(book.getPublisher(), dbPublisher);
+
+        dbPublisher = publisherProvider.findById(dbPublisher.getId());
+
+        Assertions.assertNotNull(dbPublisher);
+        Assertions.assertNotNull(dbPublisher.getBookList());
+        Assertions.assertFalse(dbPublisher.getBookList().isEmpty());
 
         // clean database
         deleteAllEntities(List.of(publisherProvider, bookProvider, authorProvider));
