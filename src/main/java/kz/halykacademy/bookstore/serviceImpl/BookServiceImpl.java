@@ -4,40 +4,19 @@ import kz.halykacademy.bookstore.dto.Book;
 import kz.halykacademy.bookstore.entity.BookEntity;
 import kz.halykacademy.bookstore.repository.BookRepository;
 import kz.halykacademy.bookstore.service.BookService;
-import org.springframework.lang.NonNull;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class BookServiceImpl extends BaseService<Book, BookEntity, BookRepository>
         implements BookService {
 
-    public BookServiceImpl(BookRepository repository) {
-        super(BookEntity.class, Book.class, repository);
-    }
-
-    /**
-     * @param book Entity from database
-     * @return DTOs DTO object
-     * @apiNote Save book to database.
-     */
-    @Override
-    protected Book save(@NonNull Book book) {
-        return super.save(book);
-    }
-
-    /**
-     * @param entities Entity from database
-     * @return DTOs DTO object
-     * @apiNote Save entities to database.
-     */
-    @Override
-    protected List<Book> saveAll(@NonNull List<Book> entities) {
-        List<Book> result = new ArrayList<>(entities.size());
-        entities.forEach(entity -> result.add(save(entity)));
-        return result;
+    @Autowired
+    public BookServiceImpl(BookRepository repository, ModelMapper modelMapper) {
+        super(BookEntity.class, Book.class, repository, modelMapper);
     }
 
     @Override
@@ -48,7 +27,9 @@ public class BookServiceImpl extends BaseService<Book, BookEntity, BookRepositor
     @Override
     public Book create(Book book) {
         if (book.getPublisher() == null || book.getPublisher().getId() == null) return null;
-        return save(book);
+        var bookEntity = getModelMap(book, entityClass);
+
+        return save(bookEntity);
     }
 
     @Override
@@ -56,7 +37,9 @@ public class BookServiceImpl extends BaseService<Book, BookEntity, BookRepositor
         for (var book : books)
             if (book.getPublisher() == null || book.getPublisher().getId() == null)
                 return null;
-        return saveAll(books);
+        var bookEntities = getModelMap(books, entityClass);
+
+        return saveAll(bookEntities);
     }
 
     @Override
@@ -71,7 +54,11 @@ public class BookServiceImpl extends BaseService<Book, BookEntity, BookRepositor
 
     @Override
     public Book update(Book book) {
-        return saveAndFlush(book);
+        if (book.getPublisher() == null) return null;
+
+        var bookEntity = getModelMap(book, entityClass);
+
+        return saveAndFlush(bookEntity);
     }
 
     @Override

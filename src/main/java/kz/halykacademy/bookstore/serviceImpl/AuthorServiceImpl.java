@@ -4,7 +4,9 @@ import kz.halykacademy.bookstore.dto.Author;
 import kz.halykacademy.bookstore.entity.AuthorEntity;
 import kz.halykacademy.bookstore.repository.AuthorRepository;
 import kz.halykacademy.bookstore.service.AuthorService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,8 +16,8 @@ public class AuthorServiceImpl extends BaseService<Author, AuthorEntity, AuthorR
         implements AuthorService {
 
     @Autowired
-    public AuthorServiceImpl(AuthorRepository repository) {
-        super(AuthorEntity.class, Author.class, repository);
+    public AuthorServiceImpl(AuthorRepository repository, ModelMapper modelMapper) {
+        super(AuthorEntity.class, Author.class, repository, modelMapper);
     }
 
     @Override
@@ -27,13 +29,17 @@ public class AuthorServiceImpl extends BaseService<Author, AuthorEntity, AuthorR
     @Override
     public Author create(Author author) {
         if (author == null) return null;
-        return save(author);
+        var authorEntity = getModelMap(author, entityClass);
+
+        return save(authorEntity);
     }
 
     @Override
-    public List<Author> create(List<Author> authors) {
-        if (authors == null || authors.isEmpty()) return null;
-        return saveAll(authors);
+    public List<Author> create(@NonNull List<Author> authors) {
+        if (authors.isEmpty()) return null;
+        var authorEntities = getModelMap(authors, entityClass);
+
+        return saveAll(authorEntities);
     }
 
     @Override
@@ -47,8 +53,10 @@ public class AuthorServiceImpl extends BaseService<Author, AuthorEntity, AuthorR
     }
 
     @Override
-    public Author update(Author author) {
-        return saveAndFlush(author);
+    public Author update(@NonNull Author author) {
+        var authorEntity = getModelMap(author, entityClass);
+
+        return saveAndFlush(authorEntity);
     }
 
     @Override

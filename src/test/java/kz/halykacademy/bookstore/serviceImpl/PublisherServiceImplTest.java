@@ -168,8 +168,10 @@ class PublisherServiceImplTest {
 
         dbPublisher.setTitle(changeTitle);
 
+
+
         // operation
-        dbPublisher = service.saveAndFlush(dbPublisher);
+        dbPublisher = service.update(dbPublisher);
 
         // assertion
         Assertions.assertNotNull(dbPublisher);

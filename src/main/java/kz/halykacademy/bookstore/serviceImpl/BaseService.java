@@ -25,40 +25,44 @@ public abstract class BaseService<
         E extends AbstractEntity,
         R extends CommonRepository<E>> {
 
-    private final Class<E> entityClass;
-    private final Class<P> dtoClass;
+    protected final Class<E> entityClass;
+    protected final Class<P> dtoClass;
     protected final R repository;
+
+    protected final ModelMapper modelMapper;
 
     /**
      * @param entityClass Entity
-     * @param dtoClass DTO class
-     * @param repository repository for provider
+     * @param dtoClass    DTO class
+     * @param repository  repository for provider
      */
     public BaseService(@NonNull Class<E> entityClass,
                        @NonNull Class<P> dtoClass,
-                       @NonNull R repository) {
+                       @NonNull R repository,
+                       @NonNull ModelMapper modelMapper) {
         this.entityClass = entityClass;
         this.dtoClass = dtoClass;
         this.repository = repository;
+        this.modelMapper = modelMapper;
     }
 
     /**
-     * @param entity Entity from database
-     * @return DTOs DTO object
+     * @param e Entity from database
+     * @return P DTO object
      * @apiNote Save entity to database.
      */
-    protected P save(@NonNull P entity) {
-        return getModelMap(repository.save(getModelMap(entity, entityClass)),
+    protected P save(@NonNull E e) {
+        return getModelMap(repository.save(getModelMap(e, entityClass)),
                 dtoClass);
     }
 
     /**
-     * @param entities Entity from database
+     * @param es Entity from database
      * @return DTOs DTO object
-     * @apiNote Save entities to database.
+     * @apiNote Save es to database.
      */
-    protected List<P> saveAll(@NonNull List<P> entities) {
-        var model = repository.saveAll(getModelMap(entities, entityClass));
+    protected List<P> saveAll(@NonNull List<E> es) {
+        var model = repository.saveAll(getModelMap(es, entityClass));
         return getModelMap(model, dtoClass);
     }
 
@@ -67,7 +71,7 @@ public abstract class BaseService<
      * @return DTOs DTO object
      * @apiNote Update entity in database. Can work with JPA
      */
-    protected P saveAndFlush(@NonNull P entity) {
+    protected P saveAndFlush(@NonNull E entity) {
         var model = repository.saveAndFlush(getModelMap(entity, entityClass));
         return getModelMap(model, dtoClass);
     }
@@ -77,7 +81,7 @@ public abstract class BaseService<
      * @return DTOs DTO object
      * @apiNote Update entities in database. Can work with JPA
      */
-    protected List<P> saveAllAndFlush(@NonNull List<P> entities) {
+    protected List<P> saveAllAndFlush(@NonNull List<E> entities) {
         var model = repository.saveAllAndFlush(getModelMap(entities, entityClass));
         return getModelMap(model, dtoClass);
     }
@@ -131,9 +135,8 @@ public abstract class BaseService<
      * @see ModelMapper
      * @see ApplicationContextProvider
      */
-    protected  <D> D getModelMap(@NonNull Object source, Class<D> destinationType) {
+    protected <D> D getModelMap(@NonNull Object source, Class<D> destinationType) {
         // todo add exception
-        var modelMapper = ApplicationContextProvider.getApplicationContext().getBean(ModelMapper.class);
         boolean desCor = false;
         boolean sourCor = false;
         for (var s : source.getClass().getInterfaces()) {

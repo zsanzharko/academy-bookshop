@@ -4,6 +4,7 @@ import kz.halykacademy.bookstore.dto.Publisher;
 import kz.halykacademy.bookstore.entity.PublisherEntity;
 import kz.halykacademy.bookstore.repository.PublisherRepository;
 import kz.halykacademy.bookstore.service.PublisherService;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,8 +13,8 @@ import java.util.List;
 public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity, PublisherRepository>
         implements PublisherService {
 
-    public PublisherServiceImpl(PublisherRepository repository) {
-        super(PublisherEntity.class, Publisher.class, repository);
+    public PublisherServiceImpl(PublisherRepository repository, ModelMapper modelMapper) {
+        super(PublisherEntity.class, Publisher.class, repository, modelMapper);
     }
 
     @Override
@@ -24,12 +25,16 @@ public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity
 
     @Override
     public Publisher create(Publisher publisher) {
-        return save(publisher);
+        var publisherEntity = getModelMap(publisher, entityClass);
+
+        return save(publisherEntity);
     }
 
     @Override
     public List<Publisher> create(List<Publisher> publishers) {
-        return saveAll(publishers);
+        var publisherEntities = getModelMap(publishers, entityClass);
+
+        return saveAll(publisherEntities);
     }
 
     @Override
@@ -44,7 +49,9 @@ public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity
 
     @Override
     public Publisher update(Publisher publisher) {
-        return saveAndFlush(publisher);
+        var publisherEntity = getModelMap(publisher, entityClass);
+
+        return saveAndFlush(publisherEntity);
     }
 
     @Override
