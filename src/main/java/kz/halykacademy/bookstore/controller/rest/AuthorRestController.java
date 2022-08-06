@@ -1,8 +1,8 @@
 package kz.halykacademy.bookstore.controller.rest;
 
 import kz.halykacademy.bookstore.dto.Author;
-import kz.halykacademy.bookstore.provider.AuthorProvider;
 import kz.halykacademy.bookstore.service.AuthorService;
+import kz.halykacademy.bookstore.serviceImpl.AuthorServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,10 +12,10 @@ import java.util.List;
 @RequestMapping("/api/authors")
 public class AuthorRestController implements AuthorService {
 
-    private final AuthorProvider provider;
+    private final AuthorServiceImpl provider;
 
     @Autowired
-    public AuthorRestController(AuthorProvider provider) {
+    public AuthorRestController(AuthorServiceImpl provider) {
         this.provider = provider;
     }
 

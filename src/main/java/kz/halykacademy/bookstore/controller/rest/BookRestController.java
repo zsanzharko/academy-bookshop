@@ -1,8 +1,8 @@
 package kz.halykacademy.bookstore.controller.rest;
 
 import kz.halykacademy.bookstore.dto.Book;
-import kz.halykacademy.bookstore.provider.BookProvider;
 import kz.halykacademy.bookstore.service.BookService;
+import kz.halykacademy.bookstore.serviceImpl.BookServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,10 +12,10 @@ import java.util.List;
 @RequestMapping("/api/books")
 public class BookRestController implements BookService {
 
-    private final BookProvider provider;
+    private final BookServiceImpl provider;
 
     @Autowired
-    public BookRestController(BookProvider provider) {
+    public BookRestController(BookServiceImpl provider) {
         this.provider = provider;
     }
 

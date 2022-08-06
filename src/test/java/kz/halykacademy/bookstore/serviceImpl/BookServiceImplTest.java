@@ -1,4 +1,4 @@
-package kz.halykacademy.bookstore.provider;
+package kz.halykacademy.bookstore.serviceImpl;
 
 import kz.halykacademy.bookstore.config.ApplicationContextProvider;
 import kz.halykacademy.bookstore.dto.Book;
@@ -19,14 +19,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Slf4j
-class BookProviderTest extends ProviderTestTools {
+class BookServiceImplTest extends ProviderTestTools {
 
     @Autowired
-    private BookProvider provider;
+    private BookServiceImpl provider;
     @Autowired
-    private PublisherProvider publisherProvider;;
+    private PublisherServiceImpl publisherServiceImpl;;
     @Autowired
-    private AuthorProvider authorProvider;
+    private AuthorServiceImpl authorServiceImpl;
 
     @BeforeEach
     void setUp() {
@@ -36,7 +36,7 @@ class BookProviderTest extends ProviderTestTools {
 
     @AfterAll
     public static void clean() {
-        var provider = ApplicationContextProvider.getApplicationContext().getBean(BookProvider.class);
+        var provider = ApplicationContextProvider.getApplicationContext().getBean(BookServiceImpl.class);
         provider.deleteAll();
     }
     @Test
@@ -138,7 +138,7 @@ class BookProviderTest extends ProviderTestTools {
     @Test
     @DisplayName("Save book with publisher, but publisher didn't save")
     void saveWithOtherEntity() {
-        var publisher = publisherProvider.create(new Publisher("Publisher title", null));
+        var publisher = publisherServiceImpl.create(new Publisher("Publisher title", null));
 
         var book = new Book(null, new BigDecimal(990), null, publisher, "Title 4", 100, new Date());
 

@@ -1,4 +1,4 @@
-package kz.halykacademy.bookstore.provider;
+package kz.halykacademy.bookstore.serviceImpl;
 
 import kz.halykacademy.bookstore.dto.Book;
 import kz.halykacademy.bookstore.dto.Publisher;
@@ -16,14 +16,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static kz.halykacademy.bookstore.provider.ProviderTestTools.deleteAllEntities;
+import static kz.halykacademy.bookstore.serviceImpl.ProviderTestTools.deleteAllEntities;
 
 @SpringBootTest
 @Slf4j
-class PublisherProviderTest {
+class PublisherServiceImplTest {
 
     @Autowired
-    private PublisherProvider provider;
+    private PublisherServiceImpl provider;
 
     @BeforeEach
     void setUp() {

@@ -1,8 +1,8 @@
 package kz.halykacademy.bookstore.controller.rest;
 
 import kz.halykacademy.bookstore.dto.Publisher;
-import kz.halykacademy.bookstore.provider.PublisherProvider;
 import kz.halykacademy.bookstore.service.PublisherService;
+import kz.halykacademy.bookstore.serviceImpl.PublisherServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,10 +12,10 @@ import java.util.List;
 @RequestMapping("/api/publishers")
 public class PublisherRestController implements PublisherService {
 
-    private final PublisherProvider provider;
+    private final PublisherServiceImpl provider;
 
     @Autowired
-    public PublisherRestController(PublisherProvider provider) {
+    public PublisherRestController(PublisherServiceImpl provider) {
         this.provider = provider;
     }
 

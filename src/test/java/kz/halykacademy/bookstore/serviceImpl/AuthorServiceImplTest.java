@@ -1,4 +1,4 @@
-package kz.halykacademy.bookstore.provider;
+package kz.halykacademy.bookstore.serviceImpl;
 
 import kz.halykacademy.bookstore.dto.Author;
 import lombok.extern.slf4j.Slf4j;
@@ -12,14 +12,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.Date;
 import java.util.List;
 
-import static kz.halykacademy.bookstore.provider.ProviderTestTools.deleteAllEntities;
+import static kz.halykacademy.bookstore.serviceImpl.ProviderTestTools.deleteAllEntities;
 
 @SpringBootTest
 @Slf4j
-class AuthorProviderTest {
+class AuthorServiceImplTest {
 
     @Autowired
-    private AuthorProvider provider;
+    private AuthorServiceImpl provider;
 
     @BeforeEach
     void setUp() {
@@ -53,7 +53,7 @@ class AuthorProviderTest {
 //        var publisher = new Publisher("Publisher to author to book, test Save author");
 //        var title = "Book to save with author 1";
 //
-//        final var publisherProvider = ApplicationContextProvider.getApplicationContext().getBean(PublisherProvider.class);
+//        final var publisherProvider = ApplicationContextProvider.getApplicationContext().getBean(PublisherServiceImpl.class);
 //        publisher = publisherProvider.create(publisher);
 //
 //        var book = new Book(new BigDecimal(990), publisher, title, new Date());
