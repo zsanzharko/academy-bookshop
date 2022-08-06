@@ -30,7 +30,7 @@ public class AuthorController {
     }
 
     @GetMapping
-    public ModelAndView getMarketPlace() {
+    public ModelAndView getAuthors() {
         Map<String, Object> model = new HashMap<>();
 
         model.put("authors", null);
