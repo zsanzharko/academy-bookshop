@@ -117,7 +117,7 @@ public abstract class BaseProvider<
         return null;
     }
 
-    public List<P> getAll() {
+    protected List<P> getAll() {
         var items = repository.findAll();
         return getModelMap(items, provideClass);
     }

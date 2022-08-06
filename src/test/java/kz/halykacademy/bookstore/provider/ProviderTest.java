@@ -116,7 +116,7 @@ public class ProviderTest {
         var dbAuthor = authorProvider.create(author);
         author.setId(dbAuthor.getId());
 
-        var dbEntities = authorProvider.getAll();
+        var dbEntities = authorProvider.read();
         if (!dbEntities.isEmpty()) {
             System.out.println(dbEntities.get(0));
             System.out.println(dbEntities.get(dbEntities.size() - 1));

@@ -37,7 +37,7 @@ public class AuthorProvider extends BaseProvider<Author, AuthorEntity, AuthorRep
 
     @Override
     public List<Author> read() {
-        return getAll();
+        return super.getAll();
     }
 
     @Override
@@ -64,5 +64,4 @@ public class AuthorProvider extends BaseProvider<Author, AuthorEntity, AuthorRep
     public void deleteAll(List<Long> ids) {
 
     }
-
 }
