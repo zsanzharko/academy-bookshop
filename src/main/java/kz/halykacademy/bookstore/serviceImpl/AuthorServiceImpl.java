@@ -25,15 +25,15 @@ public class AuthorServiceImpl extends BaseService<Author, AuthorEntity, AuthorR
     }
 
     @Override
-    public Author create(Author entity) {
-        if (entity == null) return null;
-        return save(entity);
+    public Author create(Author author) {
+        if (author == null) return null;
+        return save(author);
     }
 
     @Override
-    public List<Author> create(List<Author> entities) {
-        if (entities == null || entities.isEmpty()) return null;
-        return saveAll(entities);
+    public List<Author> create(List<Author> authors) {
+        if (authors == null || authors.isEmpty()) return null;
+        return saveAll(authors);
     }
 
     @Override
@@ -47,8 +47,8 @@ public class AuthorServiceImpl extends BaseService<Author, AuthorEntity, AuthorR
     }
 
     @Override
-    public Author update(Author entity) {
-        return saveAndFlush(entity);
+    public Author update(Author author) {
+        return saveAndFlush(author);
     }
 
     @Override

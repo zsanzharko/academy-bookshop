@@ -18,6 +18,7 @@ import java.util.Set;
  * Поля у книги: id, цена, список авторов, издатель, название, количество страниц, год выпуска
  */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIdentityInfo(

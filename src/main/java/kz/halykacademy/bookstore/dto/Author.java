@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import kz.halykacademy.bookstore.serviceImpl.DTOs;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -20,6 +21,7 @@ import java.util.Set;
  * Поля у автора: id, фамилия, имя, отчество, дата рождения, список написанных книг
  */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIdentityInfo(
@@ -64,16 +66,10 @@ public class Author implements Serializable, DTOs {
         if (!(o instanceof Author author)) return false;
         return getId().equals(author.getId()) &&
                 getName().equals(author.getName()) &&
-                Objects.equals(getSurname(), author.getSurname()) &&
-                Objects.equals(getPatronymic(), author.getPatronymic()) &&
-                Objects.equals(getBirthday(), author.getBirthday()) &&
                 (getWrittenBooks() != null && getWrittenBooks().equals(author.getWrittenBooks()))
                 ||
                 getId().equals(author.getId()) &&
                         getName().equals(author.getName()) &&
-                        Objects.equals(getSurname(), author.getSurname()) &&
-                        Objects.equals(getPatronymic(), author.getPatronymic()) &&
-                        Objects.equals(getBirthday(), author.getBirthday()) &&
                         (getWrittenBooks() == null || getWrittenBooks().equals(author.getWrittenBooks()));
     }
 

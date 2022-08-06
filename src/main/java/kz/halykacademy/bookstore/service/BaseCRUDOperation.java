@@ -6,15 +6,15 @@ import java.util.List;
 
 public interface BaseCRUDOperation<T extends DTOs> {
 
-    T create(T entity);
+    T create(T t);
 
-    List<T> create(List<T> entities);
+    List<T> create(List<T> ts);
 
     List<T> read();
 
     T read(Long id);
 
-    T update(T entity);
+    T update(T t);
 
     void delete(Long id);
 

@@ -1,11 +1,13 @@
 package kz.halykacademy.bookstore.entity;
 
 import lombok.*;
+import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Set;
 
 import static javax.persistence.CascadeType.ALL;
@@ -25,6 +27,7 @@ import static javax.persistence.FetchType.LAZY;
 @Setter
 @ToString
 public class BookEntity extends AbstractEntity implements Serializable, Entitiable {
+    @NaturalId
     @Column(name = "title")
     private String title;
     @Column(name = "number_of_page")
@@ -44,5 +47,19 @@ public class BookEntity extends AbstractEntity implements Serializable, Entitiab
     @JoinColumn(name = "publisher_id", referencedColumnName = "id")
     @ToString.Exclude
     private PublisherEntity publisher;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        BookEntity book = (BookEntity) o;
+        return Objects.equals(title, book.getTitle());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title);
+    }
 }
 

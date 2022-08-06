@@ -21,13 +21,13 @@ public class PublisherRestController implements PublisherService {
 
     @Override
     @PostMapping
-    public Publisher create(@RequestBody Publisher entity) {
-        return service.create(entity);
+    public Publisher create(@RequestBody Publisher publisher) {
+        return service.create(publisher);
     }
 
     @Override
-    public List<Publisher> create(List<Publisher> entities) {
-        return service.create(entities);
+    public List<Publisher> create(List<Publisher> publishers) {
+        return service.create(publishers);
     }
 
     @Override
@@ -44,8 +44,8 @@ public class PublisherRestController implements PublisherService {
 
     @Override
     @PostMapping("/update")
-    public Publisher update(@RequestBody Publisher entity) {
-        return service.update(entity);
+    public Publisher update(@RequestBody Publisher publisher) {
+        return service.update(publisher);
     }
 
     @Override

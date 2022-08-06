@@ -19,13 +19,13 @@ public class BookServiceImpl extends BaseService<Book, BookEntity, BookRepositor
     }
 
     /**
-     * @param entity Entity from database
+     * @param book Entity from database
      * @return DTOs DTO object
-     * @apiNote Save entity to database.
+     * @apiNote Save book to database.
      */
     @Override
-    protected Book save(@NonNull Book entity) {
-        return super.save(entity);
+    protected Book save(@NonNull Book book) {
+        return super.save(book);
     }
 
     /**
@@ -36,10 +36,7 @@ public class BookServiceImpl extends BaseService<Book, BookEntity, BookRepositor
     @Override
     protected List<Book> saveAll(@NonNull List<Book> entities) {
         List<Book> result = new ArrayList<>(entities.size());
-        for (var entity : entities) {
-            var res = save(entity);
-            result.add(res);
-        }
+        entities.forEach(entity -> result.add(save(entity)));
         return result;
     }
 
@@ -49,13 +46,17 @@ public class BookServiceImpl extends BaseService<Book, BookEntity, BookRepositor
     }
 
     @Override
-    public Book create(Book entity) {
-        return save(entity);
+    public Book create(Book book) {
+        if (book.getPublisher() == null || book.getPublisher().getId() == null) return null;
+        return save(book);
     }
 
     @Override
-    public List<Book> create(List<Book> entities) {
-        return saveAll(entities);
+    public List<Book> create(List<Book> books) {
+        for (var book : books)
+            if (book.getPublisher() == null || book.getPublisher().getId() == null)
+                return null;
+        return saveAll(books);
     }
 
     @Override
@@ -69,8 +70,8 @@ public class BookServiceImpl extends BaseService<Book, BookEntity, BookRepositor
     }
 
     @Override
-    public Book update(Book entity) {
-        return saveAndFlush(entity);
+    public Book update(Book book) {
+        return saveAndFlush(book);
     }
 
     @Override

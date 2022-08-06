@@ -21,13 +21,13 @@ public class AuthorRestController implements AuthorService {
 
     @Override
     @PostMapping
-    public Author create(@RequestBody Author entity) {
-        return service.create(entity);
+    public Author create(@RequestBody Author t) {
+        return service.create(t);
     }
 
     @Override
-    public List<Author> create(List<Author> entities) {
-        return service.create(entities);
+    public List<Author> create(List<Author> ts) {
+        return service.create(ts);
     }
 
     @Override
@@ -44,8 +44,8 @@ public class AuthorRestController implements AuthorService {
 
     @Override
     @PostMapping("/update")
-    public Author update(@RequestBody Author entity) {
-        return service.update(entity);
+    public Author update(@RequestBody Author t) {
+        return service.update(t);
     }
 
     @Override

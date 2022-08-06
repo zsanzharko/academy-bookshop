@@ -32,5 +32,15 @@ public class PublisherEntity extends AbstractEntity implements Serializable, Ent
 
     @OneToMany(cascade = {ALL}, fetch = LAZY, mappedBy = "publisher", targetEntity = BookEntity.class)
     @ToString.Exclude
-    private Set<BookEntity> bookList;
+    private Set<BookEntity> books;
+
+    public void addBook(BookEntity book) {
+        books.add(book);
+        book.setPublisher(this);
+    }
+
+    public void removeBook(BookEntity book){
+        books.remove(book);
+        book.setPublisher(null);
+    }
 }

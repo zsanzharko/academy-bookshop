@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import kz.halykacademy.bookstore.serviceImpl.DTOs;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -19,6 +21,7 @@ import java.util.Set;
  * Поля издателя: id, название, список изданных книг
  */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIdentityInfo(
@@ -37,7 +40,7 @@ public class Publisher implements Serializable, DTOs {
 
     public Publisher(String title) {
         this.title = title;
-        this.bookList = null;
+        this.bookList = new HashSet<>();
     }
 
     @Override

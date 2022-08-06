@@ -21,13 +21,13 @@ public class BookRestController implements BookService {
 
     @Override
     @PostMapping
-    public Book create(@RequestBody Book entity) {
-        return service.create(entity);
+    public Book create(@RequestBody Book book) {
+        return service.create(book);
     }
 
     @Override
-    public List<Book> create(List<Book> entities) {
-        return service.create(entities);
+    public List<Book> create(List<Book> books) {
+        return service.create(books);
     }
 
     @Override
@@ -44,8 +44,8 @@ public class BookRestController implements BookService {
 
     @Override
     @PostMapping("/update")
-    public Book update(@RequestBody Book entity) {
-        return service.update(entity);
+    public Book update(@RequestBody Book book) {
+        return service.update(book);
     }
 
     @Override

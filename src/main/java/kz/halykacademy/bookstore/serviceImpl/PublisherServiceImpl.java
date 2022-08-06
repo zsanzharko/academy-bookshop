@@ -23,13 +23,13 @@ public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity
     }
 
     @Override
-    public Publisher create(Publisher entity) {
-        return save(entity);
+    public Publisher create(Publisher publisher) {
+        return save(publisher);
     }
 
     @Override
-    public List<Publisher> create(List<Publisher> entities) {
-        return saveAll(entities);
+    public List<Publisher> create(List<Publisher> publishers) {
+        return saveAll(publishers);
     }
 
     @Override
@@ -43,8 +43,8 @@ public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity
     }
 
     @Override
-    public Publisher update(Publisher entity) {
-        return saveAndFlush(entity);
+    public Publisher update(Publisher publisher) {
+        return saveAndFlush(publisher);
     }
 
     @Override
