@@ -7,11 +7,11 @@ import kz.halykacademy.bookstore.repository.AuthorRepository;
 import kz.halykacademy.bookstore.repository.BookRepository;
 import kz.halykacademy.bookstore.service.AuthorService;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,8 +24,8 @@ public class AuthorServiceImpl extends BaseService<Author, AuthorEntity, AuthorR
     private final BookRepository bookRepository;
 
     @Autowired
-    public AuthorServiceImpl(AuthorRepository repository, ModelMapper modelMapper, BookRepository bookRepository) {
-        super(AuthorEntity.class, Author.class, repository, modelMapper);
+    public AuthorServiceImpl(AuthorRepository repository, BookRepository bookRepository) {
+        super(AuthorEntity.class, Author.class, repository);
         this.bookRepository = bookRepository;
     }
 
@@ -84,23 +84,49 @@ public class AuthorServiceImpl extends BaseService<Author, AuthorEntity, AuthorR
             log.error(e.getMessage());
             return null;
         }
-
         return saveAndFlush(authorEntity);
     }
 
     @Override
     public void delete(Long id) {
-        removeById(id);
+        AuthorEntity authorEntity = repository.findById(id).orElse(null);
+        if (authorEntity == null) return;
+        authorEntity.getWrittenBookList().forEach(bookEntity -> bookEntity.removeAuthor(authorEntity));
+        super.removeById(id);
     }
 
     @Override
     public void deleteAll() {
-        removeAll();
+        var models = getAll().stream()
+                .map(Author::convert)
+                .map(AuthorEntity::getWrittenBookList)
+                .map(bookEntities -> {
+                    List<Long> ids = new ArrayList<>(bookEntities.size());
+                    bookEntities.forEach(bookEntity -> ids.add(bookEntity.getId()));
+                    return ids  ;
+                }).toList();
+        var allBooksId = new ArrayList<Long>();
+        for (var model : models) allBooksId.addAll(model);
+
+        bookRepository.findAllById(allBooksId).forEach(bookEntity -> {
+            bookEntity.getAuthors().forEach(bookEntity::removeAuthor);
+        });
+        super.removeAll();
     }
 
     @Override
     public void deleteAll(List<Long> ids) {
-        // todo finish this method
+        List<AuthorEntity> authorEntities = repository.findAllById(ids);
+
+        authorEntities.forEach(authorEntity -> {
+            if (authorEntity.getWrittenBookList() != null) {
+                authorEntity.getWrittenBookList().forEach(bookEntity -> {
+                    bookEntity.removeAuthor(authorEntity);
+                });
+                bookRepository.saveAllAndFlush(authorEntity.getWrittenBookList());
+            }
+        });
+        super.removeAll(ids);
     }
 
     private AuthorEntity getEntity(Author author) throws NullPointerException {

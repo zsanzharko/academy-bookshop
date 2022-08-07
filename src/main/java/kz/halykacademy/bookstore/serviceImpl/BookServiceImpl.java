@@ -8,7 +8,7 @@ import kz.halykacademy.bookstore.repository.AuthorRepository;
 import kz.halykacademy.bookstore.repository.BookRepository;
 import kz.halykacademy.bookstore.repository.PublisherRepository;
 import kz.halykacademy.bookstore.service.BookService;
-import org.modelmapper.ModelMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
@@ -19,15 +19,16 @@ import java.util.List;
 import java.util.Set;
 
 @Service
+@Slf4j
 public class BookServiceImpl extends BaseService<Book, BookEntity, BookRepository>
         implements BookService {
 
     private final PublisherRepository publisherRepository;
     private final AuthorRepository authorRepository;
     @Autowired
-    public BookServiceImpl(BookRepository repository, ModelMapper modelMapper,
+    public BookServiceImpl(BookRepository repository,
                            PublisherRepository publisherRepository, AuthorRepository authorRepository) {
-        super(BookEntity.class, Book.class, repository, modelMapper);
+        super(BookEntity.class, Book.class, repository);
         this.publisherRepository = publisherRepository;
         this.authorRepository = authorRepository;
     }
@@ -43,6 +44,8 @@ public class BookServiceImpl extends BaseService<Book, BookEntity, BookRepositor
     public Book create(Book book) {
         var bookEntity = getEntity(book);
         if (bookEntity == null) return null;
+
+        log.info(bookEntity.getPublisher().getBooks().toString());
         return save(bookEntity);
     }
 
@@ -96,7 +99,7 @@ public class BookServiceImpl extends BaseService<Book, BookEntity, BookRepositor
         if(publisherEntity == null) return null;
 
         Set<AuthorEntity> authorEntities = null;
-        if (book.getAuthors() != null || !book.getAuthors().isEmpty())
+        if (book.getAuthors() != null && !book.getAuthors().isEmpty())
             authorEntities = new HashSet<>(authorRepository.findAllById(book.getAuthors()));
         return  book.convert(authorEntities, publisherEntity);
     }

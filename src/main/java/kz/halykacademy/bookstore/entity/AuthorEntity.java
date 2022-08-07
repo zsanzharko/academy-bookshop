@@ -3,16 +3,11 @@ package kz.halykacademy.bookstore.entity;
 import kz.halykacademy.bookstore.dto.Author;
 import lombok.*;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static javax.persistence.FetchType.LAZY;
 
 /**
  * @author Sanzhar
@@ -36,7 +31,7 @@ public class AuthorEntity extends AbstractEntity implements Serializable {
     @Column(name = "birthday")
     private Date birthday;
 
-    @ManyToMany(fetch = LAZY, targetEntity = BookEntity.class)
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "publisher", targetEntity = BookEntity.class)
     @ToString.Exclude
     private Set<BookEntity> writtenBookList;
 

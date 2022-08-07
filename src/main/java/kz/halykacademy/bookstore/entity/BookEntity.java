@@ -12,9 +12,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static javax.persistence.CascadeType.ALL;
-import static javax.persistence.FetchType.LAZY;
-
 /**
  * @author Sanzhar
  * @version 0.1
@@ -38,12 +35,12 @@ public class BookEntity extends AbstractEntity implements Serializable {
     @Column(name = "price")
     private BigDecimal price;
 
-    @ManyToMany(mappedBy = "writtenBookList", cascade = {ALL}, targetEntity = AuthorEntity.class)
+    @ManyToMany(mappedBy = "writtenBookList", targetEntity = AuthorEntity.class)
     @ToString.Exclude
     private Set<AuthorEntity> authors;
 
-    @ManyToOne(fetch = LAZY, targetEntity = PublisherEntity.class)
-    @JoinColumn(name = "publisher_id", referencedColumnName = "id")
+    @ManyToOne(targetEntity = PublisherEntity.class)
+    @JoinColumn(name = "publisher_id")
     @ToString.Exclude
     private PublisherEntity publisher;
 
@@ -62,12 +59,22 @@ public class BookEntity extends AbstractEntity implements Serializable {
         return Book.builder()
                 .id(super.getId())
                 .title(title)
-                .authors(authors.stream().map(AuthorEntity::getId).collect(Collectors.toSet()))
+                .authors(authors == null ? null : authors.stream().map(AuthorEntity::getId).collect(Collectors.toSet()))
                 .numberOfPage(numberOfPage)
-                .publisher(publisher.getId())
+                .publisher(publisher == null ? null : publisher.getId())
                 .price(price)
                 .releaseDate(releaseDate)
                 .build();
+    }
+
+    public void addAuthor(AuthorEntity authorEntity) {
+        authors.add(authorEntity);
+        authorEntity.getWrittenBookList().add(this);
+    }
+
+    public void removeAuthor(AuthorEntity authorEntity) {
+        authors.remove(authorEntity);
+        authorEntity.getWrittenBookList().remove(this);
     }
 
     @Override

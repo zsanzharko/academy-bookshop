@@ -7,7 +7,6 @@ import kz.halykacademy.bookstore.repository.BookRepository;
 import kz.halykacademy.bookstore.repository.PublisherRepository;
 import kz.halykacademy.bookstore.service.PublisherService;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +20,8 @@ public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity
     public final BookRepository bookRepository;
 
     @Autowired
-    public PublisherServiceImpl(PublisherRepository repository, ModelMapper modelMapper, BookRepository bookRepository) {
-        super(PublisherEntity.class, Publisher.class, repository, modelMapper);
+    public PublisherServiceImpl(PublisherRepository repository, BookRepository bookRepository) {
+        super(PublisherEntity.class, Publisher.class, repository);
         this.bookRepository = bookRepository;
     }
 
@@ -104,10 +103,10 @@ public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity
     public void deleteAll() {
         List<PublisherEntity> publisherEntities;
         try {
-            publisherEntities = getAll().stream().map(this::getEntity).toList();
+            publisherEntities = repository.findAll();
         } catch (NullPointerException e) {
             log.error(e.getMessage());
-            log.error("Can't remove all publishers");
+            log.error("Can't get all publishers");
             return;
         }
 
