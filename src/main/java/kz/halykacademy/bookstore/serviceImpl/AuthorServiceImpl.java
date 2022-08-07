@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -32,14 +32,14 @@ public class AuthorServiceImpl extends BaseService<Author, AuthorEntity, AuthorR
     @Override
     public List<Author> findAuthorByFIO(String name, String surname, String patronymic) {
         var authorList = repository.findAllByNameAndSurnameAndPatronymic(name, surname, patronymic);
-        return authorList.stream().map(AuthorEntity::convert).toList();
+        return authorList.stream().map(this::convertToDto).toList();
     }
 
     @Override
     public Author create(Author author) {
         AuthorEntity authorEntity;
         try {
-            authorEntity = getEntity(author);
+            authorEntity = convertToEntity(author);
         } catch (NullPointerException e) {
             log.error(e.getMessage());
             return null;
@@ -52,11 +52,7 @@ public class AuthorServiceImpl extends BaseService<Author, AuthorEntity, AuthorR
     public List<Author> create(@NonNull List<Author> authors) {
         List<AuthorEntity> authorEntities;
         try {
-            authorEntities = authors.stream()
-                    .map(author ->
-                            author.convert(new HashSet<>(
-                                    bookRepository.findAllById(author.getWrittenBooks()))))
-                    .toList();
+            authorEntities = authors.stream().map(this::convertToEntity).toList();
         } catch (NullPointerException e) {
             log.error(e.getMessage());
             return null;
@@ -79,7 +75,7 @@ public class AuthorServiceImpl extends BaseService<Author, AuthorEntity, AuthorR
     public Author update(@NonNull Author author) {
         AuthorEntity authorEntity;
         try {
-            authorEntity = getEntity(author);
+            authorEntity = convertToEntity(author);
         } catch (NullPointerException e) {
             log.error(e.getMessage());
             return null;
@@ -103,14 +99,13 @@ public class AuthorServiceImpl extends BaseService<Author, AuthorEntity, AuthorR
                 .map(bookEntities -> {
                     List<Long> ids = new ArrayList<>(bookEntities.size());
                     bookEntities.forEach(bookEntity -> ids.add(bookEntity.getId()));
-                    return ids  ;
+                    return ids;
                 }).toList();
         var allBooksId = new ArrayList<Long>();
         for (var model : models) allBooksId.addAll(model);
 
-        bookRepository.findAllById(allBooksId).forEach(bookEntity -> {
-            bookEntity.getAuthors().forEach(bookEntity::removeAuthor);
-        });
+        bookRepository.findAllById(allBooksId).forEach(bookEntity ->
+                bookEntity.getAuthors().forEach(bookEntity::removeAuthor));
         super.removeAll();
     }
 
@@ -120,30 +115,36 @@ public class AuthorServiceImpl extends BaseService<Author, AuthorEntity, AuthorR
 
         authorEntities.forEach(authorEntity -> {
             if (authorEntity.getWrittenBookList() != null) {
-                authorEntity.getWrittenBookList().forEach(bookEntity -> {
-                    bookEntity.removeAuthor(authorEntity);
-                });
+                authorEntity.getWrittenBookList().forEach(bookEntity -> bookEntity.removeAuthor(authorEntity));
                 bookRepository.saveAllAndFlush(authorEntity.getWrittenBookList());
             }
         });
         super.removeAll(ids);
     }
 
-    private AuthorEntity getEntity(Author author) throws NullPointerException {
-        if (author == null) throw new NullPointerException("Author can't be null");
-
-        Set<BookEntity> bookEntities = new HashSet<>(bookRepository.findAllById(author.getWrittenBooks()));
-
-        return author.convert(bookEntities);
-    }
-
     @Override
     protected Author convertToDto(AuthorEntity authorEntity) {
-        return authorEntity.convert();
+        return Author.builder()
+                .id(authorEntity.getId())
+                .name(authorEntity.getName())
+                .surname(authorEntity.getSurname())
+                .patronymic(authorEntity.getPatronymic())
+                .birthday(authorEntity.getBirthday())
+                .writtenBooks(authorEntity.getWrittenBookList().stream().map(BookEntity::getId).collect(Collectors.toSet()))
+                .build();
     }
 
     @Override
     protected AuthorEntity convertToEntity(Author author) {
-        return getEntity(author);
+        if (author == null) throw new NullPointerException("Author can't be null");
+
+        return AuthorEntity.builder()
+                .id(author.getId())
+                .name(author.getName())
+                .surname((author.getSurname()))
+                .patronymic(author.getPatronymic())
+                .birthday(author.getBirthday())
+                .writtenBookList(new HashSet<>(bookRepository.findAllById(author.getWrittenBooks())))
+                .build();
     }
 }

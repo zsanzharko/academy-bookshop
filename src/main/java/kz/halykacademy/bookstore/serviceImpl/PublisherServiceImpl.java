@@ -28,14 +28,14 @@ public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity
     @Override
     public List<Publisher> findPublisherByName(String name) {
         var publisherList = repository.findAllByTitle(name);
-        return publisherList.stream().map(PublisherEntity::convert).toList();
+        return publisherList.stream().map(this::convertToDto).toList();
     }
 
     @Override
     public Publisher create(Publisher publisher) {
         PublisherEntity publisherEntity;
         try {
-            publisherEntity = getEntity(publisher);
+            publisherEntity = convertToEntity(publisher);
         } catch (NullPointerException e) {
             log.error(e.getMessage());
             return null;
@@ -47,7 +47,7 @@ public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity
     public List<Publisher> create(List<Publisher> publishers) {
         List<PublisherEntity> publisherEntities;
         try {
-            publisherEntities = publishers.stream().map(this::getEntity).toList();
+            publisherEntities = publishers.stream().map(this::convertToEntity).toList();
         } catch (NullPointerException e) {
             log.error(e.getMessage());
             return null;
@@ -69,7 +69,7 @@ public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity
     public Publisher update(Publisher publisher) {
         PublisherEntity publisherEntity;
         try {
-            publisherEntity = getEntity(publisher);
+            publisherEntity = convertToEntity(publisher);
         } catch (NullPointerException e) {
             log.error(e.getMessage());
             return null;
@@ -138,22 +138,24 @@ public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity
         removeAll(ids);
     }
 
-    private PublisherEntity getEntity(Publisher publisher) throws NullPointerException {
-        if (publisher == null) throw new NullPointerException("Publisher can not be null");
-        if (publisher.getBooks() == null) throw new NullPointerException("Books in publisher can not be null");
-
-        List<BookEntity> bookEntities = bookRepository.findAllById(publisher.getBooks());
-
-        return publisher.convert(bookEntities);
-    }
-
     @Override
     protected Publisher convertToDto(PublisherEntity publisherEntity) {
-        return publisherEntity.convert();
+        return Publisher.builder()
+                .id(publisherEntity.getId())
+                .title(publisherEntity.getTitle())
+                .books(publisherEntity.getBooks().stream().map(BookEntity::getId).toList())
+                .build();
     }
 
     @Override
     protected PublisherEntity convertToEntity(Publisher publisher) {
-        return getEntity(publisher);
+        if (publisher == null) throw new NullPointerException("Publisher can not be null");
+        if (publisher.getBooks() == null) throw new NullPointerException("Books in publisher can not be null");
+
+        return PublisherEntity.builder()
+                .id(publisher.getId())
+                .title(publisher.getTitle())
+                .books(bookRepository.findAllById(publisher.getBooks()))
+                .build();
     }
 }

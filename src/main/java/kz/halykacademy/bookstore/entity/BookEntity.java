@@ -1,6 +1,5 @@
 package kz.halykacademy.bookstore.entity;
 
-import kz.halykacademy.bookstore.dto.Book;
 import lombok.*;
 import org.hibernate.annotations.NaturalId;
 
@@ -10,7 +9,6 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Sanzhar
@@ -53,18 +51,6 @@ public class BookEntity extends AbstractEntity implements Serializable {
         this.price = price;
         this.authors = authors;
         this.publisher = publisher;
-    }
-
-    public Book convert(){
-        return Book.builder()
-                .id(super.getId())
-                .title(title)
-                .authors(authors == null ? null : authors.stream().map(AuthorEntity::getId).collect(Collectors.toSet()))
-                .numberOfPage(numberOfPage)
-                .publisher(publisher == null ? null : publisher.getId())
-                .price(price)
-                .releaseDate(releaseDate)
-                .build();
     }
 
     public void addAuthor(AuthorEntity authorEntity) {

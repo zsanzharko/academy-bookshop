@@ -1,6 +1,5 @@
 package kz.halykacademy.bookstore.entity;
 
-import kz.halykacademy.bookstore.dto.Publisher;
 import lombok.*;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -53,13 +52,5 @@ public class PublisherEntity extends AbstractEntity implements Serializable {
     public void removeBook(BookEntity book) {
         books.remove(book);
         book.setPublisher(null);
-    }
-
-    public Publisher convert() {
-        return Publisher.builder()
-                .id(super.getId())
-                .title(title)
-                .books(books.stream().map(BookEntity::getId).toList())
-                .build();
     }
 }

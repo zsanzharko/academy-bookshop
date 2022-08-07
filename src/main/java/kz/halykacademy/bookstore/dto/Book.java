@@ -2,9 +2,6 @@ package kz.halykacademy.bookstore.dto;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import kz.halykacademy.bookstore.entity.AuthorEntity;
-import kz.halykacademy.bookstore.entity.BookEntity;
-import kz.halykacademy.bookstore.entity.PublisherEntity;
 import kz.halykacademy.bookstore.serviceImpl.DTOs;
 import lombok.*;
 
@@ -53,18 +50,6 @@ public class Book implements Serializable, DTOs {
         this.releaseDate = releaseDate;
         this.numberOfPage = 0;
         this.authors = null;
-    }
-
-    public BookEntity convert(Set<AuthorEntity> authorEntities, PublisherEntity publisherEntity) {
-        return BookEntity.builder()
-                .id(id)
-                .price(price)
-                .title(title)
-                .authors(authorEntities)
-                .numberOfPage(numberOfPage)
-                .publisher(publisherEntity)
-                .releaseDate(releaseDate)
-                .build();
     }
 
     @Override

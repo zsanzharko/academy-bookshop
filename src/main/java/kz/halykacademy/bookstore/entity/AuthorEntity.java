@@ -1,13 +1,11 @@
 package kz.halykacademy.bookstore.entity;
 
-import kz.halykacademy.bookstore.dto.Author;
 import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Sanzhar
@@ -44,17 +42,4 @@ public class AuthorEntity extends AbstractEntity implements Serializable {
         this.birthday = birthday;
         this.writtenBookList = writtenBookList;
     }
-
-    public Author convert() {
-        return Author.builder()
-                .id(super.getId())
-                .name(name)
-                .surname((surname))
-                .patronymic(patronymic)
-                .birthday(birthday)
-                .writtenBooks(writtenBookList.stream().map(BookEntity::getId).collect(Collectors.toSet()))
-                .build();
-    }
-
-
 }
