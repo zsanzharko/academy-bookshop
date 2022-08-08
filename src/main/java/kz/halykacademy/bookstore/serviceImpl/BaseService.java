@@ -94,7 +94,9 @@ public abstract class BaseService<
      */
     protected void removeAll() {
         var models = repository.findAll();
-        models.forEach(m -> m.setRemoved(new Date(System.currentTimeMillis())));
+        models.forEach(m -> {
+            if (m.getRemoved() == null) m.setRemoved(new Date(System.currentTimeMillis()));
+        });
         repository.saveAllAndFlush(models);
     }
 
@@ -113,7 +115,9 @@ public abstract class BaseService<
 
     protected List<P> getAll() {
         var models = repository.findAll();
-        return models.stream().map(this::convertToDto).toList();
+        return models.stream()
+                .filter(model-> model.getRemoved() == null)
+                .map(this::convertToDto).toList();
     }
 
     protected abstract P convertToDto(E e);

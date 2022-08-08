@@ -46,7 +46,6 @@ public class BookServiceImpl extends BaseService<Book, BookEntity, BookRepositor
         var bookEntity = convertToEntity(book);
         if (bookEntity == null) return null;
 
-        log.info(bookEntity.getPublisher().getBooks().toString());
         return save(bookEntity);
     }
 
@@ -68,13 +67,19 @@ public class BookServiceImpl extends BaseService<Book, BookEntity, BookRepositor
 
     @Override
     public Book read(Long id) {
-        return findById(id);
+        return super.findById(id);
     }
 
     @Override
     public Book update(Book book) {
         var bookEntity = convertToEntity(book);
         if (bookEntity == null) return null;
+
+        if (bookEntity.getAuthors() != null) {
+            bookEntity.getAuthors().forEach(author -> {
+//                if (author == null || author.geta
+            });
+        }
         return saveAndFlush(bookEntity);
     }
 

@@ -1,8 +1,6 @@
 package kz.halykacademy.bookstore.entity;
 
 import lombok.*;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,7 +11,7 @@ import java.sql.Date;
 import java.util.List;
 
 import static javax.persistence.CascadeType.ALL;
-import static javax.persistence.FetchType.LAZY;
+import static javax.persistence.FetchType.EAGER;
 
 
 /**
@@ -31,9 +29,7 @@ import static javax.persistence.FetchType.LAZY;
 public class PublisherEntity extends AbstractEntity implements Serializable {
     @Column(name = "title")
     private String title;
-    @OneToMany(fetch = LAZY, cascade = {ALL}, mappedBy = "publisher", targetEntity = BookEntity.class,
-            orphanRemoval = true)
-    @Fetch(FetchMode.JOIN)
+    @OneToMany(fetch = EAGER, cascade = {ALL}, mappedBy = "publisher", targetEntity = BookEntity.class)
     @ToString.Exclude
     private List<BookEntity> books;
 

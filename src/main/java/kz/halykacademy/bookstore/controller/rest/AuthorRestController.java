@@ -15,19 +15,19 @@ public class AuthorRestController implements AuthorService {
     private final AuthorServiceImpl service;
 
     @Autowired
-    public AuthorRestController(AuthorServiceImpl provider) {
-        this.service = provider;
+    public AuthorRestController(AuthorServiceImpl service) {
+        this.service = service;
     }
 
     @Override
     @PostMapping
-    public Author create(@RequestBody Author t) {
-        return service.create(t);
+    public Author create(@RequestBody Author author) {
+        return service.create(author);
     }
 
     @Override
-    public List<Author> create(List<Author> ts) {
-        return service.create(ts);
+    public List<Author> create(@RequestBody List<Author> authors) {
+        return service.create(authors);
     }
 
     @Override
@@ -44,8 +44,8 @@ public class AuthorRestController implements AuthorService {
 
     @Override
     @PostMapping("/update")
-    public Author update(@RequestBody Author t) {
-        return service.update(t);
+    public Author update(@RequestBody Author author) {
+        return service.update(author);
     }
 
     @Override

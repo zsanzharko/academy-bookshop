@@ -6,6 +6,7 @@ import kz.halykacademy.bookstore.dto.Publisher;
 import kz.halykacademy.bookstore.serviceImpl.BookServiceImpl;
 import kz.halykacademy.bookstore.serviceImpl.PublisherServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,6 +16,8 @@ import java.util.Date;
 import java.util.List;
 
 import static kz.halykacademy.bookstore.service.ServiceTestTools.deleteAllEntities;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
 @Slf4j
@@ -26,23 +29,31 @@ class PublisherServiceImplTest {
     @Autowired
     private BookServiceImpl bookService;
 
-    @BeforeEach
-    void setUp() {
-        Assertions.assertNotNull(service, "Provider did not autowired in test");
-    }
-
     @AfterAll
     static void cleanup() {
-        var service = ApplicationContextProvider.getApplicationContext().getBean(PublisherServiceImpl.class);
+        var service = ApplicationContextProvider.getApplicationContext()
+                .getBean(PublisherServiceImpl.class);
+        var bookService = ApplicationContextProvider.getApplicationContext()
+                .getBean(BookServiceImpl.class);
         service.deleteAll();
+        bookService.deleteAll();
+    }
+
+    @BeforeEach
+    void clean() {
+        service.deleteAll();
+        bookService.deleteAll();
+    }
+
+    @Test
+    @DisplayName("Test service")
+    void setUp() {
+        assertNotNull(service, "Provider did not autowired in test");
     }
 
     @Test
     @DisplayName("Save publisher")
     void save() {
-        // STEP 1
-        // save without books
-
         // Create object to save
         var publisher = new Publisher("Publisher test save");
 
@@ -50,45 +61,41 @@ class PublisherServiceImplTest {
         var dbPublisher = service.create(publisher);
 
         // assertions
-        Assertions.assertNotNull(dbPublisher);
-        Assertions.assertEquals(publisher.getTitle(), dbPublisher.getTitle());
+        assertNotNull(dbPublisher);
+        assertEquals(publisher.getTitle(), dbPublisher.getTitle());
+    }
 
-        // STEP 2
-        // save with books
-
-        var publisherWithBooks = new Publisher("Publisher with books");
+    @Test
+    @DisplayName("Save publisher with books")
+    void saveWithBooks() {
+        var publisher = new Publisher("Publisher with books");
 
         // pre-operation
-
-        publisherWithBooks = service.create(publisher);
+        publisher = service.create(publisher);
 
         var books = List.of(
-                new Book(new BigDecimal(990), publisherWithBooks.getId(), "Book to save with publisher 1", new Date()),
-                new Book(new BigDecimal(990), publisherWithBooks.getId(), "Book to save with publisher 2", new Date()),
-                new Book(new BigDecimal(990), publisherWithBooks.getId(), "Book to save with publisher 3", new Date()),
-                new Book(new BigDecimal(990), publisherWithBooks.getId(), "Book to save with publisher 4", new Date())
+                new Book(new BigDecimal(990), publisher.getId(), "Book to save with publisher 1", new Date()),
+                new Book(new BigDecimal(990), publisher.getId(), "Book to save with publisher 2", new Date()),
+                new Book(new BigDecimal(990), publisher.getId(), "Book to save with publisher 3", new Date()),
+                new Book(new BigDecimal(990), publisher.getId(), "Book to save with publisher 4", new Date())
         );
 
         var dbBook = bookService.create(books);
 
-        publisherWithBooks.setBooks(dbBook.stream().map(Book::getId).toList());
+        publisher.setBooks(dbBook.stream().map(Book::getId).toList());
 
         // operation
-        var dbPublisherWithBooks = service.create(publisherWithBooks);
+        var dbPublisherWithBooks = service.create(publisher);
 
         // assertions
-        Assertions.assertNotNull(dbPublisherWithBooks);
-        Assertions.assertEquals(publisherWithBooks.getTitle(), dbPublisherWithBooks.getTitle());
-        Assertions.assertNotNull(dbPublisherWithBooks.getBooks());
+        assertNotNull(dbPublisherWithBooks);
+        assertEquals(publisher.getTitle(), dbPublisherWithBooks.getTitle());
+        assertNotNull(dbPublisherWithBooks.getBooks());
     }
 
     @Test
     @DisplayName("Save all publishers")
-    void saveAll() {
-        // STEP 1
-        // save without books
-
-
+    void saveAllWithoutBooks() {
         // Create object to save
         var publishersTestSave = List.of(
                 new Publisher("Publisher test save 1"),
@@ -104,48 +111,48 @@ class PublisherServiceImplTest {
         var dbPublishersListTitles = dbPublishers.stream().map(Publisher::getTitle).toList();
 
         // assertions
-        Assertions.assertNotNull(dbPublishers);
-        Assertions.assertEquals(publishersListTitles, dbPublishersListTitles);
+        assertNotNull(dbPublishers);
+        assertEquals(publishersListTitles, dbPublishersListTitles);
+    }
 
-        // STEP 2
-        // save with books
-
+    @Test
+    @DisplayName("Save all publishers with books ")
+    void saveAllWithBooks() {
         // Create object to save
-        var publishersTestSave2 = List.of(
+        var publishers = List.of(
                 new Publisher("Publisher test save 5"),
                 new Publisher("Publisher test save 6")
-                );
+        );
 
         var books1 = List.of(
-                new Book(new BigDecimal(990), publishersTestSave2.get(0).getId(), "Book to save with publisher 5", new Date()),
-                new Book(new BigDecimal(990), publishersTestSave2.get(0).getId(), "Book to save with publisher 6", new Date()),
-                new Book(new BigDecimal(990), publishersTestSave2.get(0).getId(), "Book to save with publisher 7", new Date()),
-                new Book(new BigDecimal(990), publishersTestSave2.get(0).getId(), "Book to save with publisher 8", new Date())
+                new Book(new BigDecimal(990), publishers.get(0).getId(), "Book to save with publisher 5", new Date()),
+                new Book(new BigDecimal(990), publishers.get(0).getId(), "Book to save with publisher 6", new Date()),
+                new Book(new BigDecimal(990), publishers.get(0).getId(), "Book to save with publisher 7", new Date()),
+                new Book(new BigDecimal(990), publishers.get(0).getId(), "Book to save with publisher 8", new Date())
         );
         var books2 = List.of(
-                new Book(new BigDecimal(990), publishersTestSave2.get(1).getId(), "Book to save with publisher 9", new Date()),
-                new Book(new BigDecimal(990), publishersTestSave2.get(1).getId(), "Book to save with publisher 10", new Date()),
-                new Book(new BigDecimal(990), publishersTestSave2.get(1).getId(), "Book to save with publisher 11", new Date()),
-                new Book(new BigDecimal(990), publishersTestSave2.get(1).getId(), "Book to save with publisher 12", new Date())
+                new Book(new BigDecimal(990), publishers.get(1).getId(), "Book to save with publisher 9", new Date()),
+                new Book(new BigDecimal(990), publishers.get(1).getId(), "Book to save with publisher 10", new Date()),
+                new Book(new BigDecimal(990), publishers.get(1).getId(), "Book to save with publisher 11", new Date()),
+                new Book(new BigDecimal(990), publishers.get(1).getId(), "Book to save with publisher 12", new Date())
         );
 
-        publishersTestSave2.get(0).setBooks(books1.stream().map(Book::getId).toList());
-        publishersTestSave2.get(1).setBooks(books2.stream().map(Book::getId).toList());
+        publishers.get(0).setBooks(books1.stream().map(Book::getId).toList());
+        publishers.get(1).setBooks(books2.stream().map(Book::getId).toList());
 
         // operation
-        var dbPublishersTestSave2 = service.create(publishersTestSave2);
+        var dbPublishersTestSave2 = service.create(publishers);
 
         // assertion
-        Assertions.assertNotNull(dbPublishersTestSave2);
-        Assertions.assertNotNull(dbPublishersTestSave2.get(0));
-        Assertions.assertNotNull(dbPublishersTestSave2.get(1));
+        assertNotNull(dbPublishersTestSave2);
+        assertNotNull(dbPublishersTestSave2.get(0));
+        assertNotNull(dbPublishersTestSave2.get(1));
 
-        Assertions.assertEquals(publishersTestSave2.get(0).getTitle(), dbPublishersTestSave2.get(0).getTitle());
-        Assertions.assertEquals(publishersTestSave2.get(1).getTitle(), dbPublishersTestSave2.get(1).getTitle());
+        assertEquals(publishers.get(0).getTitle(), dbPublishersTestSave2.get(0).getTitle());
+        assertEquals(publishers.get(1).getTitle(), dbPublishersTestSave2.get(1).getTitle());
 
-        Assertions.assertNotNull(dbPublishersTestSave2.get(0).getBooks());
-        Assertions.assertNotNull(dbPublishersTestSave2.get(1).getBooks());
-
+        assertNotNull(dbPublishersTestSave2.get(0).getBooks());
+        assertNotNull(dbPublishersTestSave2.get(1).getBooks());
     }
 
     @Test
@@ -164,42 +171,45 @@ class PublisherServiceImplTest {
 
         dbPublisher.setTitle(changeTitle);
 
-
-
         // operation
         dbPublisher = service.update(dbPublisher);
 
         // assertion
-        Assertions.assertNotNull(dbPublisher);
-        Assertions.assertEquals(changeTitle, dbPublisher.getTitle());
+        assertNotNull(dbPublisher);
+        assertEquals(changeTitle, dbPublisher.getTitle());
+    }
 
-        // STEP 2
-        // update with books
-
-
+    @Test
+    @DisplayName("Save and flush publisher with books")
+    void saveAndFlushWithBooks() {
         // Create object to save
-        var publisher2 = new Publisher("Publisher 2 test flush update");
-//        publisher2.setBooks(List.of(new Book(
-//                new BigDecimal(1990), publisher2.getId(), "Old Book in Publisher", new Date())));
+        var publisher = service.create(new Publisher("Publisher 2 test flush update"));
 
-        var dbPublisher2 = service.create(publisher2);
+        val books = bookService.create(List.of(new Book(
+                new BigDecimal(1990), publisher.getId(), "Old Book in Publisher", new Date())));
 
-//        // operation
-//        final var changeBooks = List.of(
-//                new Book(new BigDecimal(990), dbPublisher2, "Change Book in Publisher", new Date()));
-//
-//
-//        dbPublisher2.setBooks(changeBooks);
-//
-//        dbPublisher2 = service.update(dbPublisher2);
-//
-//        // assertion
-//
-//        Assertions.assertNotNull(dbPublisher2);
-//        Assertions.assertNotNull(dbPublisher2.getBooks());
-//        Assertions.assertEquals(
-//                changeBooks.stream().toList().get(0).getTitle(),
-//                dbPublisher2.getBooks().stream().toList().get(0).getTitle());
+        publisher = service.read(publisher.getId());
+
+        assertNotNull(publisher.getBooks());
+        assertEquals(1, publisher.getBooks().size());
+
+//        publisher.setBooks(books.stream().map(Book::getId).toList()); // set old books
+
+
+        // operation
+        final var changeBooks = List.of(
+                new Book(new BigDecimal(990), publisher.getId(), "Change Book in Publisher", new Date()));
+
+
+        publisher.setBooks(changeBooks.stream().map(Book::getId).toList());
+
+        publisher = service.update(publisher);
+
+        // assertion
+
+        assertNotNull(publisher);
+        assertNotNull(publisher.getBooks());
+        assertEquals(changeBooks.size(), publisher.getBooks().size());
 
         // clean database
         deleteAllEntities(List.of(service));
@@ -256,8 +266,8 @@ class PublisherServiceImplTest {
         var entityById = service.read(dbPublisher1.getId());
 
         // assertion
-        Assertions.assertNotNull(entityById);
-        Assertions.assertEquals(dbPublisher1, entityById);
+        assertNotNull(entityById);
+        assertEquals(dbPublisher1, entityById);
 
         // clean database
         deleteAllEntities(List.of(service));
@@ -271,14 +281,13 @@ class PublisherServiceImplTest {
         final String testTitle2 = ("Publisher test save2");
         final String testTitle3 = ("Publisher test save3");
 
-        var dbPublisher1 = service.create(new Publisher(testTitle1));
-        var dbPublisher2 = service.create(new Publisher(testTitle2));
-        var dbPublisher3 = service.create(new Publisher(testTitle3));
+        service.create(new Publisher(testTitle1));
+        service.create(new Publisher(testTitle2));
+        service.create(new Publisher(testTitle3));
 
         // operation
         List<Publisher> publishers = service.read();
 
-        Assertions.assertNotNull(publishers);
-        Assertions.assertEquals(List.of(dbPublisher3, dbPublisher2, dbPublisher1), publishers);
+        assertNotNull(publishers);
     }
 }

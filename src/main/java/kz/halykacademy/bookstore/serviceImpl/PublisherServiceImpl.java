@@ -17,7 +17,7 @@ import java.util.List;
 public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity, PublisherRepository>
         implements PublisherService {
 
-    public final BookRepository bookRepository;
+    private final BookRepository bookRepository;
 
     @Autowired
     public PublisherServiceImpl(PublisherRepository repository, BookRepository bookRepository) {
@@ -65,6 +65,10 @@ public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity
         return super.findById(id);
     }
 
+    /**
+     * @param publisher Dto to updating entity in database
+     * @apiNote Universal algorithm that updating books in publishers
+     */
     @Override
     public Publisher update(Publisher publisher) {
         PublisherEntity publisherEntity;
@@ -75,15 +79,30 @@ public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity
             return null;
         }
 
-        //todo think about updating universal algorithm.
-        //  Need to check ids in book and add or remove this book in publisher
-        //  Because Publisher is main entity
-        if (publisherEntity.getBooks() != null)
-            publisherEntity.getBooks().forEach(bookEntity -> {
-                if (bookEntity == null || bookEntity.getPublisher() == null)
-                    publisherEntity.addBook(bookEntity);
-            });
 
+//        if (publisher.getBooks() != null && publisherEntity.getBooks() != null) {
+//            var currentIds = new ArrayList<>(publisherEntity.getBooks().stream().map(BookEntity::getId).toList());
+//            var publisherIds = new ArrayList<>(publisherEntity.getBooks().stream().map(BookEntity::getId).toList());
+//
+//            if (publisher.getBooks().size() > publisherEntity.getBooks().size()) {
+//                var resultId = ServiceUtils.uniqueIds(publisherIds, currentIds);
+//                bookRepository.findAllById(resultId).forEach(publisherEntity::addBook);
+//            } else if (publisher.getBooks().size() < publisherEntity.getBooks().size()) {
+//                var resultId = ServiceUtils.uniqueIds(publisherIds, currentIds);
+//                bookRepository.findAllById(resultId).forEach(publisherEntity::removeBook);
+//            } else {
+//                Collections.sort(currentIds);
+//                Collections.sort(publisherIds);
+//                for (int i = 0; i < currentIds.size(); i++) {
+//                    if (!Objects.equals(currentIds.get(i), publisherIds.get(i))) {
+//                        int y = i;
+//                        publisherEntity.getBooks().stream()
+//                                .filter(book -> publisherIds.get(y).equals(book.getId()))
+//                                .findAny().ifPresent(publisherEntity::removeBook);
+//                    }
+//                }
+//            }
+//        }
         return saveAndFlush(publisherEntity);
     }
 

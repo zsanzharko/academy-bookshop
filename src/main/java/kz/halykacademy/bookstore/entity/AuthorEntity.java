@@ -7,6 +7,8 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 
+import static javax.persistence.CascadeType.*;
+
 /**
  * @author Sanzhar
  * @version 0.1
@@ -29,9 +31,22 @@ public class AuthorEntity extends AbstractEntity implements Serializable {
     @Column(name = "birthday")
     private Date birthday;
 
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "publisher", targetEntity = BookEntity.class)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {MERGE, DETACH, REFRESH}, targetEntity = BookEntity.class)
+    @JoinTable(name = "author_books",
+            joinColumns = @JoinColumn(name = "author_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "book_id", referencedColumnName = "id"))
     @ToString.Exclude
     private Set<BookEntity> writtenBookList;
+
+    public void addBook(BookEntity book) {
+        writtenBookList.add(book);
+        book.addAuthor(this);
+    }
+
+    public void removeBook(BookEntity book) {
+        writtenBookList.remove(book);
+        book.removeAuthor(this);
+    }
 
     @Builder
     public AuthorEntity(Long id, java.sql.Date removed, String name, String surname, String patronymic, Date birthday, Set<BookEntity> writtenBookList) {

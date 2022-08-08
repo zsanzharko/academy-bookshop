@@ -1,7 +1,6 @@
 package kz.halykacademy.bookstore.entity;
 
 import lombok.*;
-import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -23,7 +22,6 @@ import java.util.Set;
 @Setter
 @ToString
 public class BookEntity extends AbstractEntity implements Serializable {
-    @NaturalId
     @Column(name = "title")
     private String title;
     @Column(name = "number_of_page")
@@ -33,7 +31,7 @@ public class BookEntity extends AbstractEntity implements Serializable {
     @Column(name = "price")
     private BigDecimal price;
 
-    @ManyToMany(mappedBy = "writtenBookList", targetEntity = AuthorEntity.class)
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "writtenBookList", targetEntity = AuthorEntity.class)
     @ToString.Exclude
     private Set<AuthorEntity> authors;
 
@@ -43,7 +41,8 @@ public class BookEntity extends AbstractEntity implements Serializable {
     private PublisherEntity publisher;
 
     @Builder
-    public BookEntity(Long id, java.sql.Date removed, String title, Integer numberOfPage, Date releaseDate, BigDecimal price, Set<AuthorEntity> authors, PublisherEntity publisher) {
+    public BookEntity(Long id, java.sql.Date removed, String title, Integer numberOfPage, Date releaseDate,
+                      BigDecimal price, Set<AuthorEntity> authors, PublisherEntity publisher) {
         super(id, removed);
         this.title = title;
         this.numberOfPage = numberOfPage;

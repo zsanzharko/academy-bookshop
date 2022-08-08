@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -93,27 +92,19 @@ public class AuthorServiceImpl extends BaseService<Author, AuthorEntity, AuthorR
 
     @Override
     public void deleteAll() {
-        var models = getAll().stream()
-                .map(Author::convert)
-                .map(AuthorEntity::getWrittenBookList)
-                .map(bookEntities -> {
-                    List<Long> ids = new ArrayList<>(bookEntities.size());
-                    bookEntities.forEach(bookEntity -> ids.add(bookEntity.getId()));
-                    return ids;
-                }).toList();
-        var allBooksId = new ArrayList<Long>();
-        for (var model : models) allBooksId.addAll(model);
-
-        bookRepository.findAllById(allBooksId).forEach(bookEntity ->
-                bookEntity.getAuthors().forEach(bookEntity::removeAuthor));
+        var models = repository.findAll();
+        models.forEach(authorEntity -> {
+            if (authorEntity.getWrittenBookList() != null || !authorEntity.getWrittenBookList().isEmpty()) {
+                authorEntity.getWrittenBookList().forEach(bookEntity -> bookEntity.removeAuthor(authorEntity));
+                bookRepository.saveAllAndFlush(authorEntity.getWrittenBookList());
+            }
+        });
         super.removeAll();
     }
 
     @Override
     public void deleteAll(List<Long> ids) {
-        List<AuthorEntity> authorEntities = repository.findAllById(ids);
-
-        authorEntities.forEach(authorEntity -> {
+        repository.findAllById(ids).forEach(authorEntity -> {
             if (authorEntity.getWrittenBookList() != null) {
                 authorEntity.getWrittenBookList().forEach(bookEntity -> bookEntity.removeAuthor(authorEntity));
                 bookRepository.saveAllAndFlush(authorEntity.getWrittenBookList());
@@ -146,5 +137,17 @@ public class AuthorServiceImpl extends BaseService<Author, AuthorEntity, AuthorR
                 .birthday(author.getBirthday())
                 .writtenBookList(new HashSet<>(bookRepository.findAllById(author.getWrittenBooks())))
                 .build();
+    }
+
+    private void updateData(final AuthorEntity author) {
+        if (author == null || author.getWrittenBookList() == null) return;
+
+        author.getWrittenBookList().forEach(bookEntity -> {
+            author.removeBook(bookEntity);
+            bookEntity.addAuthor(author);
+            bookRepository.saveAndFlush(bookEntity);
+            bookEntity.removeAuthor(author);
+            author.addBook(bookEntity);
+        });
     }
 }
