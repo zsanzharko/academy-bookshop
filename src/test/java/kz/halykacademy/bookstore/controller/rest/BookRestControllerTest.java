@@ -50,7 +50,6 @@ class BookRestControllerTest extends AbstractControllerTest {
     @DisplayName("Create new book without publisher")
     public void createWithoutPublisher() throws Exception {
         Book book = new Book(new BigDecimal(990), null, "Adventure Minecraft", new Date());
-//        Book book = new Book(new BigDecimal(990), new Publisher("Mojang"), "Adventure Minecraft", new Date());
 
         String inputJson = super.mapToJson(book);
         log.info(marker, inputJson);
@@ -110,8 +109,8 @@ class BookRestControllerTest extends AbstractControllerTest {
     @Test
     @DisplayName("Read book by id")
     void readById() throws Exception {
-        Publisher publisher = publisherServiceImpl.create(new Publisher("Mojaaang"));
-        Book book = new Book(new BigDecimal(9900), publisher.getId(), "Adventureee Minecraft", new Date());
+        Publisher publisher = publisherServiceImpl.create(new Publisher("Mojang"));
+        Book book = new Book(new BigDecimal(9900), publisher.getId(), "Adventure Minecraft", new Date());
 
         var dbBook = bookServiceImpl.create(book);
 

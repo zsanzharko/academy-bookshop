@@ -1,6 +1,5 @@
 package kz.halykacademy.bookstore.entity;
 
-import kz.halykacademy.bookstore.dto.Publisher;
 import lombok.*;
 
 import javax.persistence.Column;
@@ -12,6 +11,7 @@ import java.sql.Date;
 import java.util.List;
 
 import static javax.persistence.CascadeType.ALL;
+import static javax.persistence.FetchType.EAGER;
 
 
 /**
@@ -29,8 +29,7 @@ import static javax.persistence.CascadeType.ALL;
 public class PublisherEntity extends AbstractEntity implements Serializable {
     @Column(name = "title")
     private String title;
-    @OneToMany(cascade = {ALL}, mappedBy = "publisher", targetEntity = BookEntity.class,
-            orphanRemoval = true)
+    @OneToMany(fetch = EAGER, cascade = {ALL}, mappedBy = "publisher", targetEntity = BookEntity.class)
     @ToString.Exclude
     private List<BookEntity> books;
 
@@ -49,13 +48,5 @@ public class PublisherEntity extends AbstractEntity implements Serializable {
     public void removeBook(BookEntity book) {
         books.remove(book);
         book.setPublisher(null);
-    }
-
-    public Publisher convert() {
-        return Publisher.builder()
-                .id(super.getId())
-                .title(title)
-                .books(books.stream().map(BookEntity::getId).toList())
-                .build();
     }
 }

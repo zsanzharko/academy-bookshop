@@ -26,7 +26,8 @@ public class PublisherRestController implements PublisherService {
     }
 
     @Override
-    public List<Publisher> create(List<Publisher> publishers) {
+    @PostMapping("/")
+    public List<Publisher> create(@RequestBody List<Publisher> publishers) {
         return service.create(publishers);
     }
 

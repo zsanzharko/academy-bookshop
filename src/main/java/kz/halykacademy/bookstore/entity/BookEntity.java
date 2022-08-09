@@ -1,8 +1,6 @@
 package kz.halykacademy.bookstore.entity;
 
-import kz.halykacademy.bookstore.dto.Book;
 import lombok.*;
-import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -10,10 +8,6 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
-
-import static javax.persistence.CascadeType.ALL;
-import static javax.persistence.FetchType.LAZY;
 
 /**
  * @author Sanzhar
@@ -28,7 +22,6 @@ import static javax.persistence.FetchType.LAZY;
 @Setter
 @ToString
 public class BookEntity extends AbstractEntity implements Serializable {
-    @NaturalId
     @Column(name = "title")
     private String title;
     @Column(name = "number_of_page")
@@ -38,17 +31,18 @@ public class BookEntity extends AbstractEntity implements Serializable {
     @Column(name = "price")
     private BigDecimal price;
 
-    @ManyToMany(mappedBy = "writtenBookList", cascade = {ALL}, targetEntity = AuthorEntity.class)
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "writtenBookList", targetEntity = AuthorEntity.class)
     @ToString.Exclude
     private Set<AuthorEntity> authors;
 
-    @ManyToOne(fetch = LAZY, targetEntity = PublisherEntity.class)
-    @JoinColumn(name = "publisher_id", referencedColumnName = "id")
+    @ManyToOne(targetEntity = PublisherEntity.class)
+    @JoinColumn(name = "publisher_id")
     @ToString.Exclude
     private PublisherEntity publisher;
 
     @Builder
-    public BookEntity(Long id, java.sql.Date removed, String title, Integer numberOfPage, Date releaseDate, BigDecimal price, Set<AuthorEntity> authors, PublisherEntity publisher) {
+    public BookEntity(Long id, java.sql.Date removed, String title, Integer numberOfPage, Date releaseDate,
+                      BigDecimal price, Set<AuthorEntity> authors, PublisherEntity publisher) {
         super(id, removed);
         this.title = title;
         this.numberOfPage = numberOfPage;
@@ -58,16 +52,14 @@ public class BookEntity extends AbstractEntity implements Serializable {
         this.publisher = publisher;
     }
 
-    public Book convert(){
-        return Book.builder()
-                .id(super.getId())
-                .title(title)
-                .authors(authors.stream().map(AuthorEntity::getId).collect(Collectors.toSet()))
-                .numberOfPage(numberOfPage)
-                .publisher(publisher.getId())
-                .price(price)
-                .releaseDate(releaseDate)
-                .build();
+    public void addAuthor(AuthorEntity authorEntity) {
+        authors.add(authorEntity);
+        authorEntity.getWrittenBookList().add(this);
+    }
+
+    public void removeAuthor(AuthorEntity authorEntity) {
+        authors.remove(authorEntity);
+        authorEntity.getWrittenBookList().remove(this);
     }
 
     @OneToMany(mappedBy = "book")

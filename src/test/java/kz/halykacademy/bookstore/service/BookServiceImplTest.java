@@ -1,12 +1,14 @@
 package kz.halykacademy.bookstore.service;
 
 import kz.halykacademy.bookstore.config.ApplicationContextProvider;
+import kz.halykacademy.bookstore.dto.Author;
 import kz.halykacademy.bookstore.dto.Book;
 import kz.halykacademy.bookstore.dto.Publisher;
 import kz.halykacademy.bookstore.serviceImpl.AuthorServiceImpl;
 import kz.halykacademy.bookstore.serviceImpl.BookServiceImpl;
 import kz.halykacademy.bookstore.serviceImpl.PublisherServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -39,14 +42,18 @@ class BookServiceImplTest extends ServiceTestTools {
 
     @AfterAll
     public static void clean() {
-        var provider = ApplicationContextProvider.getApplicationContext().getBean(BookServiceImpl.class);
-        provider.deleteAll();
+        val service = ApplicationContextProvider.getApplicationContext().getBean(BookServiceImpl.class);
+        val publisherService = ApplicationContextProvider.getApplicationContext().getBean(PublisherServiceImpl.class);
+        publisherService.deleteAll();
+        service.deleteAll();
     }
+
     @Test
     @DisplayName("Save book")
     void save() {
+        val publisher = publisherService.create(new Publisher("Some Publisher"));
 
-        Book book = new Book(null, new BigDecimal(990), null, null, "Title", 100, new Date());
+        Book book = new Book(null, new BigDecimal(990), null, publisher.getId(), "Title", 100, new Date());
 
         var dbBook = bookService.create(book);
 
@@ -54,12 +61,31 @@ class BookServiceImplTest extends ServiceTestTools {
     }
 
     @Test
+    @DisplayName("Save book with author")
+    void saveWithAuthor() {
+        val publisher = publisherService.create(new Publisher("Some Publisher"));
+
+        Book book = new Book(null, new BigDecimal(990), null, publisher.getId(), "Title", 100, new Date());
+
+        var author = authorService.create(new Author("Name", "Surname", new Date()));
+        book.setAuthors(Set.of(author.getId()));
+
+        var dbBook = bookService.create(book);
+
+        assertNotNull(dbBook);
+        assertNotNull(dbBook.getAuthors());
+        assertEquals(1, dbBook.getAuthors().size());
+    }
+
+    @Test
     @DisplayName("Save all books")
     void saveAll() {
+        val publisher = publisherService.create(new Publisher("Some Publisher with all books"));
+
         var books = List.of(
-                new Book(null, new BigDecimal(990), null, null, "Title 1", 100, new Date()),
-                new Book(null, new BigDecimal(990), null, null, "Title 2", 100, new Date()),
-                new Book(null, new BigDecimal(990), null, null, "Title 3", 100, new Date())
+                new Book(null, new BigDecimal(990), null, publisher.getId(), "Title 1", 100, new Date()),
+                new Book(null, new BigDecimal(990), null, publisher.getId(), "Title 2", 100, new Date()),
+                new Book(null, new BigDecimal(990), null, publisher.getId(), "Title 3", 100, new Date())
         );
 
         var dbBooks = bookService.create(books);
@@ -70,7 +96,8 @@ class BookServiceImplTest extends ServiceTestTools {
     @Test
     @DisplayName("Save and flush book")
     void saveAndFlush() {
-        Book book = new Book(null, new BigDecimal(990), null, null, "Title 4", 100, new Date());
+        val publisher = publisherService.create(new Publisher("Some Publisher with updating data book"));
+        Book book = new Book(null, new BigDecimal(990), null, publisher.getId(), "Title 4", 100, new Date());
 
         var dbBook = bookService.create(book);
 
@@ -82,7 +109,6 @@ class BookServiceImplTest extends ServiceTestTools {
 
         assertNotNull(dbBook);
         assertEquals(150, dbBook.getNumberOfPage());
-
     }
 
     @Test
@@ -92,13 +118,14 @@ class BookServiceImplTest extends ServiceTestTools {
 
         var books = bookService.read();
 
-        assertFalse(books.isEmpty());
+        assertTrue(books.isEmpty());
     }
 
     @Test
     @DisplayName("Remove book by id")
     void removeById() {
-        Book book = new Book(null, new BigDecimal(990), null, null, "Title 4", 100, new Date());
+        val publisher = publisherService.create(new Publisher("Some Publisher to remove book"));
+        Book book = new Book(null, new BigDecimal(990), null, publisher.getId(), "Title 4", 100, new Date());
 
         var dbBook = bookService.create(book);
 
@@ -112,7 +139,8 @@ class BookServiceImplTest extends ServiceTestTools {
     @Test
     @DisplayName("Find book by id")
     void findById() {
-        Book book = new Book(null, new BigDecimal(990), null, null, "Title 4", 100, new Date());
+        val publisher = publisherService.create(new Publisher("Some Publisher to find a book"));
+        Book book = new Book(null, new BigDecimal(990), null, publisher.getId(), "Title 4", 100, new Date());
 
         var dbBook = bookService.create(book);
 
@@ -127,7 +155,8 @@ class BookServiceImplTest extends ServiceTestTools {
     @Test
     @DisplayName("Get all books")
     void getAll() {
-        Book book = new Book(null, new BigDecimal(990), null, null, "Title 4", 100, new Date());
+        val publisher = publisherService.create(new Publisher("Some Publisher to get all books"));
+        Book book = new Book(null, new BigDecimal(990), null, publisher.getId(), "Title 4", 100, new Date());
 
         var dbBook = bookService.create(book);
 
@@ -136,23 +165,5 @@ class BookServiceImplTest extends ServiceTestTools {
         var allBooks = bookService.read();
 
         assertNotNull(allBooks);
-    }
-
-    @Test
-    @DisplayName("Save book with publisher, but publisher didn't save")
-    void saveWithOtherEntity() {
-        var publisher = publisherService.create(new Publisher("Publisher title", null));
-
-        var book = new Book(null, new BigDecimal(990), null, publisher.getId(), "Title 4", 100, new Date());
-
-        var dbBook = bookService.create(book);
-
-        assertNotNull(dbBook);
-        assertNotNull(dbBook.getPublisher());
-//
-//        var dbPublisher = publisherProvider.findById(dbBook.getPublisher().getId());
-//
-//        assertNotNull(dbPublisher.getBooks());
-//        log.info(dbPublisher.getBooks().toString());
     }
 }

@@ -3,7 +3,6 @@ package kz.halykacademy.bookstore.serviceImpl;
 import kz.halykacademy.bookstore.entity.AbstractEntity;
 import kz.halykacademy.bookstore.repository.CommonRepository;
 import lombok.Getter;
-import org.modelmapper.ModelMapper;
 import org.springframework.lang.NonNull;
 
 import java.sql.Date;
@@ -29,7 +28,6 @@ public abstract class BaseService<
     @Getter
     protected final R repository;
 
-    protected final ModelMapper modelMapper;
 
     /**
      * @param entityClass Entity
@@ -38,12 +36,10 @@ public abstract class BaseService<
      */
     public BaseService(@NonNull Class<E> entityClass,
                        @NonNull Class<P> dtoClass,
-                       @NonNull R repository,
-                       @NonNull ModelMapper modelMapper) {
+                       @NonNull R repository) {
         this.entityClass = entityClass;
         this.dtoClass = dtoClass;
         this.repository = repository;
-        this.modelMapper = modelMapper;
     }
 
     /**
@@ -77,12 +73,10 @@ public abstract class BaseService<
 
     /**
      * @param es Entity from database
-     * @return DTOs DTO object
      * @apiNote Update entities in database. Can work with JPA
      */
-    protected List<P> saveAllAndFlush(@NonNull List<E> es) {
-        var models = repository.saveAllAndFlush(es);
-        return models.stream().map(this::convertToDto).toList();
+    protected void saveAllAndFlush(@NonNull List<E> es) {
+        repository.saveAllAndFlush(es);
     }
 
     /**
@@ -100,7 +94,9 @@ public abstract class BaseService<
      */
     protected void removeAll() {
         var models = repository.findAll();
-        models.forEach(m -> m.setRemoved(new Date(System.currentTimeMillis())));
+        models.forEach(m -> {
+            if (m.getRemoved() == null) m.setRemoved(new Date(System.currentTimeMillis()));
+        });
         repository.saveAllAndFlush(models);
     }
 
@@ -119,7 +115,9 @@ public abstract class BaseService<
 
     protected List<P> getAll() {
         var models = repository.findAll();
-        return models.stream().map(this::convertToDto).toList();
+        return models.stream()
+                .filter(model-> model.getRemoved() == null)
+                .map(this::convertToDto).toList();
     }
 
     protected abstract P convertToDto(E e);

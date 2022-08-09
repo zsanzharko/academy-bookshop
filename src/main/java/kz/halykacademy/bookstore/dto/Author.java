@@ -3,7 +3,6 @@ package kz.halykacademy.bookstore.dto;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import kz.halykacademy.bookstore.entity.AuthorEntity;
-import kz.halykacademy.bookstore.entity.BookEntity;
 import kz.halykacademy.bookstore.serviceImpl.DTOs;
 import lombok.Builder;
 import lombok.Data;
@@ -59,17 +58,6 @@ public class Author implements Serializable, DTOs {
         this.patronymic = "";
         this.birthday = birthday;
         this.writtenBooks = new HashSet<>();
-    }
-
-    public AuthorEntity convert(Set<BookEntity> writtenBookList) {
-        return AuthorEntity.builder()
-                .id(id)
-                .name(name)
-                .surname((surname))
-                .patronymic(patronymic)
-                .birthday(birthday)
-                .writtenBookList(writtenBookList)
-                .build();
     }
 
     public AuthorEntity convert() {

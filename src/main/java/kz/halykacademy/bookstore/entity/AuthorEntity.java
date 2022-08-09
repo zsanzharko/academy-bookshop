@@ -1,18 +1,13 @@
 package kz.halykacademy.bookstore.entity;
 
-import kz.halykacademy.bookstore.dto.Author;
 import lombok.*;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import static javax.persistence.FetchType.LAZY;
+import static javax.persistence.CascadeType.*;
 
 /**
  * @author Sanzhar
@@ -36,9 +31,22 @@ public class AuthorEntity extends AbstractEntity implements Serializable {
     @Column(name = "birthday")
     private Date birthday;
 
-    @ManyToMany(fetch = LAZY, targetEntity = BookEntity.class)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {MERGE, DETACH, REFRESH}, targetEntity = BookEntity.class)
+    @JoinTable(name = "author_books",
+            joinColumns = @JoinColumn(name = "author_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "book_id", referencedColumnName = "id"))
     @ToString.Exclude
     private Set<BookEntity> writtenBookList;
+
+    public void addBook(BookEntity book) {
+        writtenBookList.add(book);
+        book.addAuthor(this);
+    }
+
+    public void removeBook(BookEntity book) {
+        writtenBookList.remove(book);
+        book.removeAuthor(this);
+    }
 
     @Builder
     public AuthorEntity(Long id, java.sql.Date removed, String name, String surname, String patronymic, Date birthday, Set<BookEntity> writtenBookList) {
@@ -49,17 +57,4 @@ public class AuthorEntity extends AbstractEntity implements Serializable {
         this.birthday = birthday;
         this.writtenBookList = writtenBookList;
     }
-
-    public Author convert() {
-        return Author.builder()
-                .id(super.getId())
-                .name(name)
-                .surname((surname))
-                .patronymic(patronymic)
-                .birthday(birthday)
-                .writtenBooks(writtenBookList.stream().map(BookEntity::getId).collect(Collectors.toSet()))
-                .build();
-    }
-
-
 }
