@@ -6,7 +6,6 @@ import kz.halykacademy.bookstore.dto.Publisher;
 import kz.halykacademy.bookstore.serviceImpl.BookServiceImpl;
 import kz.halykacademy.bookstore.serviceImpl.PublisherServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -48,7 +47,7 @@ class PublisherServiceImplTest {
     @Test
     @DisplayName("Test service")
     void setUp() {
-        assertNotNull(service, "Provider did not autowired in test");
+        assertNotNull(service, "Service did not autowired in test");
     }
 
     @Test
@@ -185,16 +184,13 @@ class PublisherServiceImplTest {
         // Create object to save
         var publisher = service.create(new Publisher("Publisher 2 test flush update"));
 
-        val books = bookService.create(List.of(new Book(
+        bookService.create(List.of(new Book(
                 new BigDecimal(1990), publisher.getId(), "Old Book in Publisher", new Date())));
 
         publisher = service.read(publisher.getId());
 
         assertNotNull(publisher.getBooks());
         assertEquals(1, publisher.getBooks().size());
-
-//        publisher.setBooks(books.stream().map(Book::getId).toList()); // set old books
-
 
         // operation
         final var changeBooks = List.of(

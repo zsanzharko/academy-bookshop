@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.Set;
+import java.util.List;
 
 @Data
 @Builder
@@ -14,11 +14,11 @@ import java.util.Set;
 public class Genre implements Serializable, DTOs {
     private Long id;
     private String title;
-    private Set<Long> books;
-    private Set<Long> authors;
+    private List<Long> books;
+    private List<Long> authors;
 
     @Builder
-    public Genre(Long id, String title, Set<Long> books, Set<Long> authors) {
+    public Genre(Long id, String title, List<Long> books, List<Long> authors) {
         this.id = id;
         this.title = title;
         this.books = books;

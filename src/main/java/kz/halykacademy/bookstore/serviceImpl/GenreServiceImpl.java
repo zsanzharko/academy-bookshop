@@ -11,7 +11,8 @@ import kz.halykacademy.bookstore.service.GenreService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
+import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -82,32 +83,20 @@ public class GenreServiceImpl extends BaseService<Genre, GenreEntity, GenreRepos
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
-        var genreEntity = repository.findById(id);
-        genreEntity.ifPresent(genre ->
-                genre.getBooks().forEach(book ->
-                        book.getGenres().forEach(book::removeGenre)));
-        genreEntity.ifPresent(this::saveAndFlush);
         super.removeById(id);
     }
 
     @Override
+    @Transactional
     public void deleteAll() {
-        var genreEntities = repository.findAll();
-        genreEntities.forEach(genre ->
-                genre.getBooks().forEach(book ->
-                        book.getGenres().forEach(book::removeGenre)));
-        saveAllAndFlush(genreEntities);
         super.removeAll();
     }
 
     @Override
+    @Transactional
     public void deleteAll(List<Long> ids) {
-        var genreEntities = repository.findAllById(ids);
-        genreEntities.forEach(genre ->
-                genre.getBooks().forEach(book ->
-                        book.getGenres().forEach(book::removeGenre)));
-        saveAllAndFlush(genreEntities);
         super.removeAll();
     }
 
@@ -120,22 +109,20 @@ public class GenreServiceImpl extends BaseService<Genre, GenreEntity, GenreRepos
         return Genre.builder()
                 .id(genreEntity.getId())
                 .title(genreEntity.getTitle())
-                .authors(authors)
-                .books(books)
+                .authors(authors.stream().toList())
+                .books(books.stream().toList())
                 .build();
     }
 
     @Override
     protected GenreEntity convertToEntity(Genre genre) {
         if (genre == null) throw new NullPointerException("Genre can not be null");
-        if (genre.getBooks() == null || genre.getAuthors() == null)
-            throw new NullPointerException("Books or Authors in genre can not be null. Cause Authors and Books is merged");
 
         return GenreEntity.builder()
                 .id(genre.getId())
                 .title(genre.getTitle())
-                .authors(new HashSet<>(authorRepository.findAllById(genre.getAuthors())))
-                .books(new HashSet<>(bookRepository.findAllById(genre.getBooks())))
+                .authors(genre.getAuthors() == null ? new ArrayList<>() : new ArrayList<>(authorRepository.findAllById(genre.getAuthors())))
+                .books(genre.getBooks() == null ? new ArrayList<>() : new ArrayList<>(bookRepository.findAllById(genre.getBooks())))
                 .build();
     }
 }

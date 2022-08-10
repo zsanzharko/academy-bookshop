@@ -35,6 +35,7 @@ class AuthorServiceImplTest {
     @BeforeEach
     void setUp() {
         assertNotNull(service, "Provider did not autowired in test");
+        clean();
     }
 
     @AfterAll
@@ -225,10 +226,26 @@ class AuthorServiceImplTest {
     @Test
     @DisplayName("Find author by id")
     void findById() {
+        var author = new Author("Sanzhar", "Zhanibekov", new Date());
+
+        var dbAuthor = service.create(author);
+
+        assertNotNull(dbAuthor);
+
+        var findingAuthor = service.read(dbAuthor.getId());
+
+        assertNotNull(findingAuthor);
+        assertEquals(dbAuthor, findingAuthor);
     }
 
     @Test
     @DisplayName("Get all authors")
     void getAll() {
+        service.create(new Author("Sanzhar", "Zhanibekov", new Date()));
+
+        var allAuthors = service.read();
+
+        assertNotNull(allAuthors);
+        assertEquals(1, allAuthors.size());
     }
 }

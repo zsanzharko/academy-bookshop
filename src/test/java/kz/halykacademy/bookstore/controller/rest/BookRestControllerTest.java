@@ -151,7 +151,8 @@ class BookRestControllerTest extends AbstractControllerTest {
     @Test
     @DisplayName("Delete book by id")
     public void delete() throws Exception {
-        Book book = bookServiceImpl.create(new Book(new BigDecimal(990), null, "Adventure Minecraft", new Date()));
+        var publisher = publisherServiceImpl.create(new Publisher("DC"));
+        Book book = bookServiceImpl.create(new Book(new BigDecimal(990), publisher.getId(), "Adventure Minecraft", new Date()));
 //        Book book = bookServiceImpl.create(new Book(new BigDecimal(990), new Publisher("Mojang"), "Adventure Minecraft", new Date()));
 
         Assertions.assertNotNull(book);
