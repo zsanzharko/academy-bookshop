@@ -120,14 +120,7 @@ public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity
 
     @Override
     public void deleteAll() {
-        List<PublisherEntity> publisherEntities;
-        try {
-            publisherEntities = repository.findAll();
-        } catch (NullPointerException e) {
-            log.error(e.getMessage());
-            log.error("Can't get all publishers");
-            return;
-        }
+        var publisherEntities =repository.findAll();
 
         publisherEntities.forEach(publisherEntity -> {
             if (publisherEntity.getBooks() != null)

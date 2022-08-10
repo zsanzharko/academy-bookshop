@@ -40,9 +40,13 @@ public class BookEntity extends AbstractEntity implements Serializable {
     @ToString.Exclude
     private PublisherEntity publisher;
 
+    @ManyToMany(mappedBy = "books")
+    @ToString.Exclude
+    private Set<GenreEntity> genres;
+
     @Builder
     public BookEntity(Long id, java.sql.Date removed, String title, Integer numberOfPage, Date releaseDate,
-                      BigDecimal price, Set<AuthorEntity> authors, PublisherEntity publisher) {
+                      BigDecimal price, Set<AuthorEntity> authors, PublisherEntity publisher, Set<GenreEntity> genres) {
         super(id, removed);
         this.title = title;
         this.numberOfPage = numberOfPage;
@@ -50,6 +54,7 @@ public class BookEntity extends AbstractEntity implements Serializable {
         this.price = price;
         this.authors = authors;
         this.publisher = publisher;
+        this.genres = genres;
     }
 
     public void addAuthor(AuthorEntity authorEntity) {
@@ -62,9 +67,16 @@ public class BookEntity extends AbstractEntity implements Serializable {
         authorEntity.getWrittenBookList().remove(this);
     }
 
-    @OneToMany(mappedBy = "book")
-    @ToString.Exclude
-    private Set<GenreEntity> genres;
+    public void addGenre(GenreEntity genreEntity) {
+        genres.add(genreEntity);
+        genreEntity.getBooks().add(this);
+    }
+
+    public void removeGenre(GenreEntity genreEntity) {
+        genres.remove(genreEntity);
+        genreEntity.getBooks().remove(this);
+    }
+
 
     @Override
     public boolean equals(Object o) {

@@ -1,21 +1,21 @@
 package kz.halykacademy.bookstore.controller.rest;
 
 import kz.halykacademy.bookstore.dto.Genre;
-import kz.halykacademy.bookstore.provider.GenreProvider;
 import kz.halykacademy.bookstore.service.GenreService;
+import kz.halykacademy.bookstore.serviceImpl.GenreServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping(name = "/genre")
+@RequestMapping(name = "/api/genre")
 public class GenreRestController implements GenreService {
 
-    private final GenreProvider provider;
+    private final GenreServiceImpl provider;
 
     @Autowired
-    public GenreRestController(GenreProvider provider) {
+    public GenreRestController(GenreServiceImpl provider) {
         this.provider = provider;
     }
 
