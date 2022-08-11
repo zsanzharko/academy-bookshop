@@ -1,20 +1,22 @@
 package kz.halykacademy.bookstore.service;
 
-import kz.halykacademy.bookstore.config.ApplicationContextProvider;
 import kz.halykacademy.bookstore.dto.Book;
 import kz.halykacademy.bookstore.dto.Publisher;
 import kz.halykacademy.bookstore.serviceImpl.BookServiceImpl;
 import kz.halykacademy.bookstore.serviceImpl.PublisherServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Stream;
 
-import static kz.halykacademy.bookstore.service.ServiceTestTools.deleteAllEntities;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -28,26 +30,20 @@ class PublisherServiceImplTest {
     @Autowired
     private BookServiceImpl bookService;
 
-    @AfterAll
-    static void cleanup() {
-        var service = ApplicationContextProvider.getApplicationContext()
-                .getBean(PublisherServiceImpl.class);
-        var bookService = ApplicationContextProvider.getApplicationContext()
-                .getBean(BookServiceImpl.class);
-        service.deleteAll();
-        bookService.deleteAll();
-    }
-
     @BeforeEach
     void clean() {
-        service.deleteAll();
-        bookService.deleteAll();
+        service.read().stream()
+                .map(Publisher::getId)
+                .forEach(bookService::delete);
+        bookService.read().stream()
+                .map(Book::getId)
+                .forEach(bookService::delete);
     }
 
     @Test
     @DisplayName("Test service")
     void setUp() {
-        assertNotNull(service, "Service did not autowired in test");
+        assertNotNull(service, "Provider did not autowired in test");
     }
 
     @Test
@@ -79,7 +75,7 @@ class PublisherServiceImplTest {
                 new Book(new BigDecimal(990), publisher.getId(), "Book to save with publisher 4", new Date())
         );
 
-        var dbBook = bookService.create(books);
+        var dbBook = books.stream().map(book -> bookService.create(book)).toList();
 
         publisher.setBooks(dbBook.stream().map(Book::getId).toList());
 
@@ -104,7 +100,7 @@ class PublisherServiceImplTest {
         );
 
         // operation
-        var dbPublishers = service.create(publishersTestSave);
+        var dbPublishers = publishersTestSave.stream().map(publisher -> service.create(publisher)).toList();
 
         var publishersListTitles = publishersTestSave.stream().map(Publisher::getTitle).toList();
         var dbPublishersListTitles = dbPublishers.stream().map(Publisher::getTitle).toList();
@@ -140,7 +136,8 @@ class PublisherServiceImplTest {
         publishers.get(1).setBooks(books2.stream().map(Book::getId).toList());
 
         // operation
-        var dbPublishersTestSave2 = service.create(publishers);
+        var dbPublishersTestSave2 = publishers.stream()
+                .map(publisher -> service.create(publisher)).toList();
 
         // assertion
         assertNotNull(dbPublishersTestSave2);
@@ -184,13 +181,17 @@ class PublisherServiceImplTest {
         // Create object to save
         var publisher = service.create(new Publisher("Publisher 2 test flush update"));
 
-        bookService.create(List.of(new Book(
-                new BigDecimal(1990), publisher.getId(), "Old Book in Publisher", new Date())));
+        Stream.of(new Book(
+                        new BigDecimal(1990), publisher.getId(), "Old Book in Publisher", new Date()))
+                .forEach(book -> bookService.create(book));
 
         publisher = service.read(publisher.getId());
 
         assertNotNull(publisher.getBooks());
         assertEquals(1, publisher.getBooks().size());
+
+//        publisher.setBooks(books.stream().map(Book::getId).toList()); // set old books
+
 
         // operation
         final var changeBooks = List.of(
@@ -206,9 +207,6 @@ class PublisherServiceImplTest {
         assertNotNull(publisher);
         assertNotNull(publisher.getBooks());
         assertEquals(changeBooks.size(), publisher.getBooks().size());
-
-        // clean database
-        deleteAllEntities(List.of(service));
     }
 
     @Test
@@ -225,14 +223,13 @@ class PublisherServiceImplTest {
         var dbPublisher3 = service.create(new Publisher(testTitle3));
 
 
-        service.deleteAll();
+        service.read().stream()
+                .map(Publisher::getId)
+                .forEach(bookService::delete);
 
         Assertions.assertNull(service.read(dbPublisher1.getId()));
         Assertions.assertNull(service.read(dbPublisher2.getId()));
         Assertions.assertNull(service.read(dbPublisher3.getId()));
-
-        // clean database
-        deleteAllEntities(List.of(service));
     }
 
     @Test
@@ -245,9 +242,6 @@ class PublisherServiceImplTest {
         var dbPublisher1 = service.create(new Publisher(testTitle1));
 
         service.delete(dbPublisher1.getId());
-
-        // clean database
-        deleteAllEntities(List.of(service));
     }
 
     @Test
@@ -264,9 +258,6 @@ class PublisherServiceImplTest {
         // assertion
         assertNotNull(entityById);
         assertEquals(dbPublisher1, entityById);
-
-        // clean database
-        deleteAllEntities(List.of(service));
     }
 
     @Test

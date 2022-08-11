@@ -17,6 +17,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,15 +36,21 @@ class AuthorServiceImplTest {
     @BeforeEach
     void setUp() {
         assertNotNull(service, "Provider did not autowired in test");
-        clean();
+        bookService.read().stream()
+                .map(Book::getId)
+                .forEach(bookService::delete);
     }
 
     @AfterAll
     public static void clean() {
         val bookService = ApplicationContextProvider.getApplicationContext().getBean(BookServiceImpl.class);
         val service = ApplicationContextProvider.getApplicationContext().getBean(AuthorServiceImpl.class);
-        service.deleteAll();
-        bookService.deleteAll();
+        service.read().stream()
+                .map(Author::getId)
+                .forEach(service::delete);          // deleting all in authors
+        bookService.read().stream()
+                .map(Book::getId)
+                .forEach(bookService::delete);      // deleting all in books
     }
 
 
@@ -89,7 +96,7 @@ class AuthorServiceImplTest {
                 new Author("Another Another Sanzhar", "Another Another Zhanibekov", new Date())
         );
 
-        var dbAuthors = service.create(authors);
+        var dbAuthors = authors.stream().map(author -> service.create(author)).toList();
 
         assertNotNull(dbAuthors);
         assertEquals(authors.size(), dbAuthors.size());
@@ -106,16 +113,16 @@ class AuthorServiceImplTest {
 
         val publisher = publisherService.create(new Publisher("Publisher 255"));
 
-        val books = bookService.create(List.of(
+        val books = Stream.of(
                 new Book(new BigDecimal(1990), publisher.getId(), "title", new Date()),
                 new Book(new BigDecimal(1990), publisher.getId(), "title", new Date()),
                 new Book(new BigDecimal(1990), publisher.getId(), "title", new Date())
-        ));
+        ).map(book -> bookService.create(book)).toList();
 
         for (int i = 0; i < 3; i++)
             authors.get(i).setWrittenBooks(Set.of(books.get(i).getId()));
 
-        val dbAuthorsWithBooks = service.create(authors);
+        val dbAuthorsWithBooks = authors.stream().map(author -> service.create(author)).toList();
 
         assertNotNull(dbAuthorsWithBooks);
         assertEquals(authors.size(), dbAuthorsWithBooks.size());
@@ -170,7 +177,6 @@ class AuthorServiceImplTest {
     @Test
     @DisplayName("Remove all authors without books ")
     void removeAllWithoutBooks() {
-        service.deleteAll();
 
         service.create(new Author("Sanzhar", "Zhanibekov", new Date()));
         service.create(new Author("Another Sanzhar", "Zhanibekov", new Date()));
@@ -178,7 +184,9 @@ class AuthorServiceImplTest {
 
         assertEquals(3, service.read().size());
 
-        service.deleteAll();
+        bookService.read().stream()
+                .map(Book::getId)
+                .forEach(bookService::delete);
 
         assertEquals(0, service.read().size());
     }
@@ -194,22 +202,24 @@ class AuthorServiceImplTest {
 
         val publisher = publisherService.create(new Publisher("Publisher 255"));
 
-        val books = bookService.create(List.of(
+        val books = (Stream.of(
                 new Book(new BigDecimal(1990), publisher.getId(), "title", new Date()),
                 new Book(new BigDecimal(1990), publisher.getId(), "title", new Date()),
                 new Book(new BigDecimal(1990), publisher.getId(), "title", new Date())
-        ));
+        )).map(book -> bookService.create(book)).toList();
 
         for (int i = 0; i < 3; i++) authors.get(i).setWrittenBooks(Set.of(books.get(i).getId()));
 
-        val dbAuthors = service.create(authors);
+        val dbAuthors = authors.stream().map(author -> service.create(author)).toList();
 
         assertEquals(3, service.read().size());
         dbAuthors.forEach(author ->
                 assertEquals(1, author.getWrittenBooks().size())); // assert books size each author
 
 
-        service.deleteAll();
+        bookService.read().stream()
+                .map(Book::getId)
+                .forEach(bookService::delete);
 
         assertEquals(0, service.read().size());
         assertEquals(0, bookService.read().size(),
@@ -226,26 +236,10 @@ class AuthorServiceImplTest {
     @Test
     @DisplayName("Find author by id")
     void findById() {
-        var author = new Author("Sanzhar", "Zhanibekov", new Date());
-
-        var dbAuthor = service.create(author);
-
-        assertNotNull(dbAuthor);
-
-        var findingAuthor = service.read(dbAuthor.getId());
-
-        assertNotNull(findingAuthor);
-        assertEquals(dbAuthor, findingAuthor);
     }
 
     @Test
     @DisplayName("Get all authors")
     void getAll() {
-        service.create(new Author("Sanzhar", "Zhanibekov", new Date()));
-
-        var allAuthors = service.read();
-
-        assertNotNull(allAuthors);
-        assertEquals(1, allAuthors.size());
     }
 }

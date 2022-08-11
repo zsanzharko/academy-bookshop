@@ -26,11 +26,6 @@ public class AuthorRestController implements AuthorService {
     }
 
     @Override
-    public List<Author> create(@RequestBody List<Author> authors) {
-        return service.create(authors);
-    }
-
-    @Override
     @GetMapping
     public List<Author> read() {
         return service.read();
@@ -52,16 +47,6 @@ public class AuthorRestController implements AuthorService {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         service.delete(id);
-    }
-
-    @Override
-    public void deleteAll() {
-        service.deleteAll();
-    }
-
-    @Override
-    public void deleteAll(List<Long> ids) {
-        service.deleteAll(ids);
     }
 
     @Override

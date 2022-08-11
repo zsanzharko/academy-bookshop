@@ -44,18 +44,6 @@ public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity
     }
 
     @Override
-    public List<Publisher> create(List<Publisher> publishers) {
-        List<PublisherEntity> publisherEntities;
-        try {
-            publisherEntities = publishers.stream().map(this::convertToEntity).toList();
-        } catch (NullPointerException e) {
-            log.error(e.getMessage());
-            return null;
-        }
-        return saveAll(publisherEntities);
-    }
-
-    @Override
     public List<Publisher> read() {
         return super.getAll();
     }
@@ -116,38 +104,6 @@ public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity
         saveAndFlush(publisherEntity); // updating data in database to remove all books from publisher
 
         removeById(id);
-    }
-
-    @Override
-    public void deleteAll() {
-        var publisherEntities =repository.findAll();
-
-        publisherEntities.forEach(publisherEntity -> {
-            if (publisherEntity.getBooks() != null)
-                publisherEntity.getBooks().forEach(bookEntity -> {
-                    if (bookEntity == null || bookEntity.getPublisher() == null)
-                        publisherEntity.removeBook(bookEntity);
-                });
-        });
-        saveAllAndFlush(publisherEntities); // updating data in database to remove all books from publisher
-
-        removeAll();
-    }
-
-    @Override
-    public void deleteAll(List<Long> ids) {
-        var publisherEntities = repository.findAllById(ids);
-
-        publisherEntities.forEach(publisherEntity -> {
-            if (publisherEntity.getBooks() != null)
-                publisherEntity.getBooks().forEach(bookEntity -> {
-                    if (bookEntity == null || bookEntity.getPublisher() == null)
-                        publisherEntity.removeBook(bookEntity);
-                });
-        });
-        saveAllAndFlush(publisherEntities); // updating data in database to remove all books from publisher
-
-        removeAll(ids);
     }
 
     @Override

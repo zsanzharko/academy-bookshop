@@ -1,6 +1,5 @@
 package kz.halykacademy.bookstore.service;
 
-import kz.halykacademy.bookstore.config.ApplicationContextProvider;
 import kz.halykacademy.bookstore.dto.Author;
 import kz.halykacademy.bookstore.dto.Book;
 import kz.halykacademy.bookstore.dto.Publisher;
@@ -9,7 +8,6 @@ import kz.halykacademy.bookstore.serviceImpl.BookServiceImpl;
 import kz.halykacademy.bookstore.serviceImpl.PublisherServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,27 +23,24 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Slf4j
-class BookServiceImplTest extends ServiceTestTools {
+class BookServiceImplTest {
 
     @Autowired
     private BookServiceImpl bookService;
     @Autowired
-    private PublisherServiceImpl publisherService;;
+    private PublisherServiceImpl publisherService;
     @Autowired
     private AuthorServiceImpl authorService;
 
     @BeforeEach
     void setUp() {
         assertNotNull(bookService, "Provider did not autowired in test");
-    }
-
-
-    @AfterAll
-    public static void clean() {
-        val service = ApplicationContextProvider.getApplicationContext().getBean(BookServiceImpl.class);
-        val publisherService = ApplicationContextProvider.getApplicationContext().getBean(PublisherServiceImpl.class);
-        publisherService.deleteAll();
-        service.deleteAll();
+        bookService.read().stream()
+                .map(Book::getId)
+                .forEach(bookService::delete);
+        publisherService.read().stream()
+                .map(Publisher::getId)
+                .forEach(bookService::delete);
     }
 
     @Test
@@ -88,7 +83,7 @@ class BookServiceImplTest extends ServiceTestTools {
                 new Book(null, new BigDecimal(990), null, publisher.getId(), "Title 3", 100, new Date())
         );
 
-        var dbBooks = bookService.create(books);
+        var dbBooks = books.stream().map(book -> bookService.create(book));
 
         assertNotNull(dbBooks);
     }
@@ -114,7 +109,9 @@ class BookServiceImplTest extends ServiceTestTools {
     @Test
     @DisplayName("Remove all books")
     void removeAll() {
-        bookService.deleteAll();
+        bookService.read().stream()
+                .map(Book::getId)
+                .forEach(bookService::delete);
 
         var books = bookService.read();
 

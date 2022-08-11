@@ -10,10 +10,8 @@ import kz.halykacademy.bookstore.repository.PublisherRepository;
 import kz.halykacademy.bookstore.service.BookService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -50,17 +48,6 @@ public class BookServiceImpl extends BaseService<Book, BookEntity, BookRepositor
     }
 
     @Override
-    public List<Book> create(@NonNull List<Book> books) {
-        List<BookEntity> bookEntities = new ArrayList<>(books.size());
-        for (Book book : books) {
-            var bookEntity = convertToEntity(book);
-            if (bookEntity == null) return null;
-            bookEntities.add(bookEntity);
-        }
-        return saveAll(bookEntities);
-    }
-
-    @Override
     public List<Book> read() {
         return super.getAll();
     }
@@ -86,16 +73,6 @@ public class BookServiceImpl extends BaseService<Book, BookEntity, BookRepositor
     @Override
     public void delete(Long id) {
         removeById(id);
-    }
-
-    @Override
-    public void deleteAll() {
-        removeAll();
-    }
-
-    @Override
-    public void deleteAll(List<Long> ids) {
-        removeAll(ids);
     }
 
     @Override
