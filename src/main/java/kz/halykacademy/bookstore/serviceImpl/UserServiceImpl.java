@@ -1,7 +1,9 @@
 package kz.halykacademy.bookstore.serviceImpl;
 
 import kz.halykacademy.bookstore.dto.User;
+import kz.halykacademy.bookstore.entity.OrderEntity;
 import kz.halykacademy.bookstore.entity.UserEntity;
+import kz.halykacademy.bookstore.repository.OrderRepository;
 import kz.halykacademy.bookstore.repository.UserRepository;
 import kz.halykacademy.bookstore.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -16,15 +18,18 @@ import java.util.List;
 public class UserServiceImpl extends BaseService<User, UserEntity, UserRepository> implements UserService {
 
     private final PasswordEncoder passwordEncoder;
+    private final OrderRepository orderRepository;
 
     /**
      * @param repository      repository for provider
      * @param passwordEncoder encoder to encode password
+     * @param orderRepository for monitor orders in user
      */
     @Autowired
-    public UserServiceImpl(UserRepository repository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository repository, PasswordEncoder passwordEncoder, OrderRepository orderRepository) {
         super(UserEntity.class, User.class, repository);
         this.passwordEncoder = passwordEncoder;
+        this.orderRepository = orderRepository;
     }
 
     @Override
@@ -60,6 +65,7 @@ public class UserServiceImpl extends BaseService<User, UserEntity, UserRepositor
                 .username(userEntity.getUsername())
                 .rule(userEntity.getRule())
                 .password("null")
+                .orders(userEntity.getOrders().stream().map(OrderEntity::getId).toList())
                 .build();
     }
 
@@ -70,6 +76,7 @@ public class UserServiceImpl extends BaseService<User, UserEntity, UserRepositor
                 .username(user.getUsername())
                 .password(user.getPassword())
                 .rule(user.getRule())
+                .orders(orderRepository.findAllById(user.getOrders()))
                 .build();
     }
 }
