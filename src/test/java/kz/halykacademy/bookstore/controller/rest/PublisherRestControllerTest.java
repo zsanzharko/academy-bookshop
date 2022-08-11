@@ -13,7 +13,6 @@ import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -23,7 +22,6 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -31,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @Slf4j
 class PublisherRestControllerTest extends AbstractTestController {
     private final Marker marker = MarkerFactory.getMarker("PublisherRestControllerTest");
-    private MockMvc mvc;
     private final String contentType = "application/json";
     private final String uri = "http://localhost:8080/api/publishers";
 
@@ -97,7 +94,7 @@ class PublisherRestControllerTest extends AbstractTestController {
         assertEquals(200, status, "Status is failed.");
         String content = result.getResponse().getContentAsString();
         log.info(marker, "Checking response...");
-        assertFalse(content.isEmpty());
+        Assertions.assertFalse(content.isEmpty());
         var object = super.mapFromJson(content, Publisher.class);
         assertNotNull(object.getId());
         assertEquals(publisher.getTitle(), object.getTitle());
@@ -142,7 +139,7 @@ class PublisherRestControllerTest extends AbstractTestController {
         assertEquals(200, status, "Status is failed.");
         String content = result.getResponse().getContentAsString();
         log.info(marker, "Checking response...");
-        assertFalse(content.isEmpty());
+        Assertions.assertFalse(content.isEmpty());
         var object = super.mapFromJson(content, Publisher.class);
         assertNotNull(object.getId());
         assertEquals(publisher.getTitle(), object.getTitle());
