@@ -1,6 +1,6 @@
 package kz.halykacademy.bookstore.controller.rest;
 
-import kz.halykacademy.bookstore.controller.AbstractControllerTest;
+import kz.halykacademy.bookstore.controller.AbstractTestController;
 import kz.halykacademy.bookstore.dto.Book;
 import kz.halykacademy.bookstore.dto.Publisher;
 import kz.halykacademy.bookstore.serviceImpl.BookServiceImpl;
@@ -29,21 +29,27 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 @WebAppConfiguration
 @Slf4j
-class BookRestControllerTest extends AbstractControllerTest {
+class BookRestControllerTest extends AbstractTestController {
 
     private final Marker marker = MarkerFactory.getMarker("BookRestControllerTest");
     private final String uri = "http://localhost:8080/api/books";
     private final String contentType = "application/json";
 
     @Autowired
-    private BookServiceImpl bookServiceImpl;
+    private BookServiceImpl bookService;
 
     @Autowired
-    private PublisherServiceImpl publisherServiceImpl;
+    private PublisherServiceImpl publisherService;
 
     @BeforeEach
     public void setUp() {
         super.setUp();
+        publisherService.read().stream()
+                .map(Publisher::getId)
+                .forEach(bookService::delete);
+        bookService.read().stream()
+                .map(Book::getId)
+                .forEach(bookService::delete);
     }
 
     @Test
@@ -65,14 +71,12 @@ class BookRestControllerTest extends AbstractControllerTest {
         assertEquals("", content);
         log.info(marker, "Show response...");
         log.info(marker, content);
-
-        bookServiceImpl.deleteAll();
     }
 
     @Test
     @DisplayName("Create new book with publisher")
     public void createWithPublisher() throws Exception {
-        Publisher publisher = publisherServiceImpl.create(new Publisher("Mojang"));
+        Publisher publisher = publisherService.create(new Publisher("Mojang"));
         Book book = new Book(new BigDecimal(990), publisher.getId(), "Adventure Minecraft", new Date());
 
         String inputJson = super.mapToJson(book);
@@ -109,10 +113,10 @@ class BookRestControllerTest extends AbstractControllerTest {
     @Test
     @DisplayName("Read book by id")
     void readById() throws Exception {
-        Publisher publisher = publisherServiceImpl.create(new Publisher("Mojang"));
+        Publisher publisher = publisherService.create(new Publisher("Mojang"));
         Book book = new Book(new BigDecimal(9900), publisher.getId(), "Adventure Minecraft", new Date());
 
-        var dbBook = bookServiceImpl.create(book);
+        var dbBook = bookService.create(book);
 
         MvcResult result = this.mvc.perform(MockMvcRequestBuilders.get(uri + "/" + dbBook.getId())
                 )
@@ -130,8 +134,8 @@ class BookRestControllerTest extends AbstractControllerTest {
     @DisplayName("Update book by entity")
     public void update() throws Exception {
         String updateTitle = "Philosophy of Java";
-        Publisher publisher = publisherServiceImpl.create(new Publisher("Oracle"));
-        Book dbBook = bookServiceImpl.create(new Book(new BigDecimal(5000), publisher.getId(), "Java JDK 18", new Date()));
+        Publisher publisher = publisherService.create(new Publisher("Oracle"));
+        Book dbBook = bookService.create(new Book(new BigDecimal(5000), publisher.getId(), "Java JDK 18", new Date()));
 
         dbBook.setTitle(updateTitle);
 
@@ -151,8 +155,7 @@ class BookRestControllerTest extends AbstractControllerTest {
     @Test
     @DisplayName("Delete book by id")
     public void delete() throws Exception {
-        Book book = bookServiceImpl.create(new Book(new BigDecimal(990), null, "Adventure Minecraft", new Date()));
-//        Book book = bookServiceImpl.create(new Book(new BigDecimal(990), new Publisher("Mojang"), "Adventure Minecraft", new Date()));
+        Book book = bookService.create(new Book(new BigDecimal(990), null, "Adventure Minecraft", new Date()));
 
         Assertions.assertNotNull(book);
 
@@ -164,7 +167,7 @@ class BookRestControllerTest extends AbstractControllerTest {
         int status = result.getResponse().getStatus();
         assertEquals(200, status, "Status is failed.");
 
-        var removedBook = bookServiceImpl.read(book.getId());
+        var removedBook = bookService.read(book.getId());
 
         log.info(marker, String.format("Removed book: %b", removedBook == null));
         Assertions.assertNull(removedBook, "Book did not removed in repository. Have problem with entity or " +

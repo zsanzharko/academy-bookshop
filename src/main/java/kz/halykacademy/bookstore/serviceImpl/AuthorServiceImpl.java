@@ -48,19 +48,6 @@ public class AuthorServiceImpl extends BaseService<Author, AuthorEntity, AuthorR
     }
 
     @Override
-    public List<Author> create(@NonNull List<Author> authors) {
-        List<AuthorEntity> authorEntities;
-        try {
-            authorEntities = authors.stream().map(this::convertToEntity).toList();
-        } catch (NullPointerException e) {
-            log.error(e.getMessage());
-            return null;
-        }
-
-        return saveAll(authorEntities);
-    }
-
-    @Override
     public List<Author> read() {
         return super.getAll();
     }
@@ -88,29 +75,6 @@ public class AuthorServiceImpl extends BaseService<Author, AuthorEntity, AuthorR
         if (authorEntity == null) return;
         authorEntity.getWrittenBookList().forEach(bookEntity -> bookEntity.removeAuthor(authorEntity));
         super.removeById(id);
-    }
-
-    @Override
-    public void deleteAll() {
-        var models = repository.findAll();
-        models.forEach(authorEntity -> {
-            if (authorEntity.getWrittenBookList() != null || !authorEntity.getWrittenBookList().isEmpty()) {
-                authorEntity.getWrittenBookList().forEach(bookEntity -> bookEntity.removeAuthor(authorEntity));
-                bookRepository.saveAllAndFlush(authorEntity.getWrittenBookList());
-            }
-        });
-        super.removeAll();
-    }
-
-    @Override
-    public void deleteAll(List<Long> ids) {
-        repository.findAllById(ids).forEach(authorEntity -> {
-            if (authorEntity.getWrittenBookList() != null) {
-                authorEntity.getWrittenBookList().forEach(bookEntity -> bookEntity.removeAuthor(authorEntity));
-                bookRepository.saveAllAndFlush(authorEntity.getWrittenBookList());
-            }
-        });
-        super.removeAll(ids);
     }
 
     @Override

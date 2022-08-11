@@ -26,12 +26,6 @@ public class PublisherRestController implements PublisherService {
     }
 
     @Override
-    @PostMapping("/")
-    public List<Publisher> create(@RequestBody List<Publisher> publishers) {
-        return service.create(publishers);
-    }
-
-    @Override
     @GetMapping
     public List<Publisher> read() {
         return service.read();
@@ -53,16 +47,6 @@ public class PublisherRestController implements PublisherService {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         service.delete(id);
-    }
-
-    @Override
-    public void deleteAll() {
-        service.deleteAll();
-    }
-
-    @Override
-    public void deleteAll(List<Long> ids) {
-        service.deleteAll(ids);
     }
 
     @Override

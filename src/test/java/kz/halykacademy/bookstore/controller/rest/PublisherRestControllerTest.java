@@ -1,12 +1,13 @@
 package kz.halykacademy.bookstore.controller.rest;
 
 import kz.halykacademy.bookstore.config.ApplicationContextProvider;
-import kz.halykacademy.bookstore.controller.AbstractControllerTest;
+import kz.halykacademy.bookstore.controller.AbstractTestController;
 import kz.halykacademy.bookstore.dto.Book;
 import kz.halykacademy.bookstore.dto.Publisher;
 import kz.halykacademy.bookstore.serviceImpl.BookServiceImpl;
 import kz.halykacademy.bookstore.serviceImpl.PublisherServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.junit.jupiter.api.*;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
@@ -28,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
 @Slf4j
-class PublisherRestControllerTest extends AbstractControllerTest {
+class PublisherRestControllerTest extends AbstractTestController {
     private final Marker marker = MarkerFactory.getMarker("PublisherRestControllerTest");
     private MockMvc mvc;
     private final String contentType = "application/json";
@@ -47,17 +48,26 @@ class PublisherRestControllerTest extends AbstractControllerTest {
 
     @AfterAll
     static void cleanup() {
-        var service = ApplicationContextProvider.getApplicationContext()
+        val publisherService = ApplicationContextProvider.getApplicationContext()
                 .getBean(PublisherServiceImpl.class);
-        var bookService = ApplicationContextProvider.getApplicationContext()
+        val bookService = ApplicationContextProvider.getApplicationContext()
                 .getBean(BookServiceImpl.class);
-        service.deleteAll();
-        bookService.deleteAll();
+        publisherService.read().stream()
+                .map(Publisher::getId)
+                .forEach(bookService::delete);
+        bookService.read().stream()
+                .map(Book::getId)
+                .forEach(bookService::delete);
     }
 
     @BeforeEach
     void clean() {
-        cleanup();
+        publisherService.read().stream()
+                .map(Publisher::getId)
+                .forEach(bookService::delete);
+        bookService.read().stream()
+                .map(Book::getId)
+                .forEach(bookService::delete);
     }
 
     @Test
@@ -112,8 +122,10 @@ class PublisherRestControllerTest extends AbstractControllerTest {
                 new Book(new BigDecimal(990), publisher.getId(), "Book to save with publisher 4", new Date())
         );
 
-        var dbBook = bookService.create(books);
-        publisher.setBooks(dbBook.stream().map(Book::getId).toList());
+        publisher.setBooks(books.stream()
+                .map(book -> bookService.create(book))
+                .map(Book::getId)
+                .toList());
 
         long startTime = System.currentTimeMillis();
         String inputJson = super.mapToJson(publisher);

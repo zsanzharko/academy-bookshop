@@ -26,11 +26,6 @@ public class BookRestController implements BookService {
     }
 
     @Override
-    public List<Book> create(List<Book> books) {
-        return service.create(books);
-    }
-
-    @Override
     @GetMapping
     public List<Book> read() {
         return service.read();
@@ -52,16 +47,6 @@ public class BookRestController implements BookService {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         service.delete(id);
-    }
-
-    @Override
-    public void deleteAll() {
-
-    }
-
-    @Override
-    public void deleteAll(List<Long> ids) {
-        service.deleteAll(ids);
     }
 
     @Override
