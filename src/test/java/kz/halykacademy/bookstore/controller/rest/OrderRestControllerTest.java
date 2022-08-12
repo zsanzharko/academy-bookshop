@@ -50,7 +50,7 @@ class OrderRestControllerTest extends AbstractTestController {
         service.read().forEach(order -> service.delete(order.getId()));
         userService.read().forEach(user -> service.delete(user.getId()));
 
-        user = userService.create(new User(null, "sun", "test", UserRule.USER, null));
+        user = userService.create(new User(null, "sun", UserRule.USER, "test", null));
     }
 
     @Test

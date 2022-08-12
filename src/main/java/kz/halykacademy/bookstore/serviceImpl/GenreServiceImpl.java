@@ -47,19 +47,6 @@ public class GenreServiceImpl extends BaseService<Genre, GenreEntity, GenreRepos
     }
 
     @Override
-    public List<Genre> create(List<Genre> genres) {
-        List<GenreEntity> genreEntities;
-        try {
-            genreEntities = genres.stream().map(this::convertToEntity).toList();
-        } catch (NullPointerException e) {
-            log.error(e.getMessage());
-            return null;
-        }
-
-        return saveAll(genreEntities);
-    }
-
-    @Override
     public List<Genre> read() {
         return super.getAll();
     }
@@ -86,18 +73,6 @@ public class GenreServiceImpl extends BaseService<Genre, GenreEntity, GenreRepos
     @Transactional
     public void delete(Long id) {
         super.removeById(id);
-    }
-
-    @Override
-    @Transactional
-    public void deleteAll() {
-        super.removeAll();
-    }
-
-    @Override
-    @Transactional
-    public void deleteAll(List<Long> ids) {
-        super.removeAll();
     }
 
     @Override

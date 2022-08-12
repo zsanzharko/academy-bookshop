@@ -38,9 +38,10 @@ public class GenreServiceImplTest {
 
     @BeforeEach
     void cleanBefore() {
-        service.deleteAll();
-        bookService.deleteAll();
-        authorService.deleteAll();
+        service.read().forEach(genre -> service.delete(genre.getId()));
+        bookService.read().forEach(book -> bookService.delete(book.getId()));
+        authorService.read().forEach(author -> authorService.delete(author.getId()));
+        publisherService.read().forEach(publisher -> publisherService.delete(publisher.getId()));
     }
 
     @Test
@@ -164,9 +165,9 @@ public class GenreServiceImplTest {
         );
 
 
-        val dbGenre = service.create(genres);
+        val dbGenre = genres.stream().map(genre -> service.create(genre)).toList();
 
-        service.deleteAll(dbGenre.stream().map(Genre::getId).toList());
+        service.read().forEach(genre -> service.delete(genre.getId()));
 
         assertFalse(service.getRepository().findAllById(dbGenre.stream()
                 .map(Genre::getId).toList())
@@ -197,9 +198,10 @@ public class GenreServiceImplTest {
                 .getBean(BookServiceImpl.class);
         var authorService = ApplicationContextProvider.getApplicationContext()
                 .getBean(AuthorServiceImpl.class);
-        service.deleteAll();
-        bookService.deleteAll();
-        authorService.deleteAll();
-        publisherService.deleteAll();
+
+        service.read().forEach(genre -> service.delete(genre.getId()));
+        bookService.read().forEach(book -> bookService.delete(book.getId()));
+        authorService.read().forEach(author -> authorService.delete(author.getId()));
+        publisherService.read().forEach(publisher -> publisherService.delete(publisher.getId()));
     }
 }

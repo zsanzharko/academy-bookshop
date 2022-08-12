@@ -2,13 +2,15 @@ package kz.halykacademy.bookstore.dto;
 
 import kz.halykacademy.bookstore.enums.UserRule;
 import kz.halykacademy.bookstore.serviceImpl.DTOs;
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class User implements DTOs {
     private Long id;
@@ -25,6 +27,6 @@ public class User implements DTOs {
         this.username = username;
         this.rule = rule;
         this.password = password;
-        this.orders = orders == null ? new ArrayList<>(): orders;
+        this.orders = orders == null ? new ArrayList<>() : orders;
     }
 }

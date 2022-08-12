@@ -27,11 +27,6 @@ public class GenreRestController implements GenreService {
     }
 
     @Override
-    public List<Genre> create(List<Genre> entities) {
-        return provider.create(entities);
-    }
-
-    @Override
     @GetMapping
     public List<Genre> read() {
         return provider.read();
@@ -53,15 +48,5 @@ public class GenreRestController implements GenreService {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         provider.delete(id);
-    }
-
-    @Override
-    public void deleteAll() {
-        provider.deleteAll();
-    }
-
-    @Override
-    public void deleteAll(List<Long> ids) {
-        provider.deleteAll(ids);
     }
 }
