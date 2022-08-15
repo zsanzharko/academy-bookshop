@@ -1,16 +1,21 @@
 package kz.halykacademy.bookstore.controller.rest;
 
+import kz.halykacademy.bookstore.controller.rest.response.PublisherApiResponse;
+import kz.halykacademy.bookstore.controller.rest.response.Response;
 import kz.halykacademy.bookstore.dto.Publisher;
+import kz.halykacademy.bookstore.exceptions.businessExceptions.BusinessException;
 import kz.halykacademy.bookstore.service.PublisherService;
 import kz.halykacademy.bookstore.serviceImpl.PublisherServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/publishers")
-public class PublisherRestController implements PublisherService {
+public class PublisherRestController implements PublisherApiResponse {
 
     private final PublisherServiceImpl service;
 
@@ -20,32 +25,27 @@ public class PublisherRestController implements PublisherService {
     }
 
     @Override
-    @PostMapping
-    public Publisher create(@RequestBody Publisher publisher) {
+    public Publisher create(Publisher publisher) throws BusinessException {
         return service.create(publisher);
     }
 
     @Override
-    @GetMapping
-    public List<Publisher> read() {
+    public List<Publisher> read() throws BusinessException {
         return service.read();
     }
 
     @Override
-    @GetMapping("/{id}")
-    public Publisher read(@PathVariable Long id) {
+    public Publisher read(Long id) throws BusinessException {
         return service.read(id);
     }
 
     @Override
-    @PostMapping("/update")
-    public Publisher update(@RequestBody Publisher publisher) {
-        return service.update(publisher);
+    public void update(Publisher publisher) throws BusinessException {
+         service.update(publisher);
     }
 
     @Override
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public void delete(Long id) throws BusinessException {
         service.delete(id);
     }
 

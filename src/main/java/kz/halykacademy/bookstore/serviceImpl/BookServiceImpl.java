@@ -4,12 +4,14 @@ import kz.halykacademy.bookstore.dto.Book;
 import kz.halykacademy.bookstore.entity.AuthorEntity;
 import kz.halykacademy.bookstore.entity.BookEntity;
 import kz.halykacademy.bookstore.entity.PublisherEntity;
+import kz.halykacademy.bookstore.exceptions.businessExceptions.BusinessException;
 import kz.halykacademy.bookstore.repository.AuthorRepository;
 import kz.halykacademy.bookstore.repository.BookRepository;
 import kz.halykacademy.bookstore.repository.PublisherRepository;
 import kz.halykacademy.bookstore.service.BookService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -40,7 +42,7 @@ public class BookServiceImpl extends BaseService<Book, BookEntity, BookRepositor
     }
 
     @Override
-    public Book create(Book book) {
+    public Book create(Book book) throws BusinessException {
         var bookEntity = convertToEntity(book);
         if (bookEntity == null) return null;
 
@@ -48,17 +50,17 @@ public class BookServiceImpl extends BaseService<Book, BookEntity, BookRepositor
     }
 
     @Override
-    public List<Book> read() {
+    public List<Book> read() throws BusinessException {
         return super.getAll();
     }
 
     @Override
-    public Book read(Long id) {
+    public Book read(Long id) throws BusinessException {
         return super.findById(id);
     }
 
     @Override
-    public Book update(Book book) {
+    public Book update(Book book) throws BusinessException {
         var bookEntity = convertToEntity(book);
         if (bookEntity == null) return null;
 
@@ -71,7 +73,7 @@ public class BookServiceImpl extends BaseService<Book, BookEntity, BookRepositor
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(Long id) throws BusinessException {
         removeById(id);
     }
 
@@ -89,8 +91,9 @@ public class BookServiceImpl extends BaseService<Book, BookEntity, BookRepositor
     }
 
     @Override
-    protected BookEntity convertToEntity(Book book) {
-        if (book.getPublisher() == null) return null;
+    protected BookEntity convertToEntity(Book book) throws BusinessException {
+        if (book == null) throw new NullPointerException("Book can not be null");
+        if (book.getPublisher() == null) throw new BusinessException("Publisher in books can not be null", HttpStatus.BAD_REQUEST);
 
         PublisherEntity publisherEntity = publisherRepository.findById(book.getPublisher()).orElse(null);
         if(publisherEntity == null) return null;

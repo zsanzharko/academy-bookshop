@@ -6,6 +6,7 @@ import kz.halykacademy.bookstore.dto.Author;
 import kz.halykacademy.bookstore.dto.Book;
 import kz.halykacademy.bookstore.dto.Genre;
 import kz.halykacademy.bookstore.dto.Publisher;
+import kz.halykacademy.bookstore.exceptions.businessExceptions.BusinessException;
 import kz.halykacademy.bookstore.serviceImpl.AuthorServiceImpl;
 import kz.halykacademy.bookstore.serviceImpl.BookServiceImpl;
 import kz.halykacademy.bookstore.serviceImpl.GenreServiceImpl;
@@ -17,10 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -38,10 +37,14 @@ public class GenreServiceImplTest {
 
     @BeforeEach
     void cleanBefore() {
-        service.read().forEach(genre -> service.delete(genre.getId()));
-        bookService.read().forEach(book -> bookService.delete(book.getId()));
-        authorService.read().forEach(author -> authorService.delete(author.getId()));
-        publisherService.read().forEach(publisher -> publisherService.delete(publisher.getId()));
+        var genres= service.read();
+        genres.forEach(genre -> {
+            try {
+                service.delete(genre.getId());
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     @Test
@@ -53,7 +56,7 @@ public class GenreServiceImplTest {
 
     @Test
     @DisplayName("Save Genre")
-    void saveGenre() {
+    void saveGenre() throws BusinessException {
         var genre = new Genre(null, "Dramatic", null, null);
 
         val dbGenre = service.create(genre);
@@ -64,8 +67,8 @@ public class GenreServiceImplTest {
 
     @Test
     @DisplayName("Save Genre with Books")
-    void saveGenreWithBooks() {
-        var genre = new Genre(null, "Comedy", List.of(createBook().getId()), null);
+    void saveGenreWithBooks() throws BusinessException {
+        var genre = new Genre(null, "Comedy", Set.of(createBook().getId()), new HashSet<>());
 
         val dbGenre = service.create(genre);
 
@@ -75,9 +78,9 @@ public class GenreServiceImplTest {
 
     @Test
     @DisplayName("Save Genre with Books and Author")
-    void saveGenreWithBooksAndAuthor() {
+    void saveGenreWithBooksAndAuthor() throws BusinessException {
         val book = createBookWithAuthor();
-        var genre = new Genre(null, "Comedy", List.of(book.getId()), new ArrayList<>(book.getAuthors()));
+        var genre = new Genre(null, "Comedy", Set.of(book.getId()), new HashSet<>(book.getAuthors()));
 
         val dbGenre = service.create(genre);
 
@@ -89,7 +92,7 @@ public class GenreServiceImplTest {
 
     @Test
     @DisplayName("Update Genre")
-    void updateGenre() {
+    void updateGenre() throws BusinessException {
         var genre = new Genre(null, "Dramatic", null, null);
 
         val dbGenre = service.create(genre);
@@ -105,9 +108,9 @@ public class GenreServiceImplTest {
 
     @Test
     @DisplayName("Update genre with books")
-    void updateGenreWithBooks() {
+    void updateGenreWithBooks() throws BusinessException {
         val book = createBookWithAuthor();
-        var genre = new Genre(null, "Comedy", List.of(book.getId()), new ArrayList<>(book.getAuthors()));
+        var genre = new Genre(null, "Comedy", Set.of(book.getId()), new HashSet<>(book.getAuthors()));
 
         val dbGenre = service.create(genre);
 
@@ -125,7 +128,7 @@ public class GenreServiceImplTest {
 
     @Test
     @DisplayName("Delete genre by id")
-    void deleteGenreById() {
+    void deleteGenreById() throws BusinessException {
         var genre = new Genre(null, "Dramatic", null, null);
 
         val dbGenre = service.create(genre);
@@ -140,9 +143,9 @@ public class GenreServiceImplTest {
 
     @Test
     @DisplayName("Delete genre with book by id")
-    void deleteGenreWithBookById() {
+    void deleteGenreWithBookById() throws BusinessException {
         val book = createBookWithAuthor();
-        var genre = new Genre(null, "Comedy", List.of(book.getId()), new ArrayList<>(book.getAuthors()));
+        var genre = new Genre(null, "Comedy", Set.of(book.getId()), new HashSet<>(book.getAuthors()));
 
         val dbGenre = service.create(genre);
 
@@ -156,30 +159,42 @@ public class GenreServiceImplTest {
 
     @Test
     @DisplayName("Delete genres by id")
-    void deleteGenresById() {
+    void deleteGenresById() throws BusinessException {
         val book = createBookWithAuthor();
         var genres = List.of(
-                new Genre(null, "Comedy", List.of(book.getId()), book.getAuthors().stream().toList()),
-                new Genre(null, "Indie", List.of(book.getId()), book.getAuthors().stream().toList()),
-                new Genre(null, "Fighting", List.of(book.getId()), book.getAuthors().stream().toList())
+                new Genre(null, "Comedy", Set.of(book.getId()), new HashSet<>(book.getAuthors())),
+                new Genre(null, "Indie", Set.of(book.getId()),new HashSet<>(book.getAuthors())),
+                new Genre(null, "Fighting", Set.of(book.getId()), new HashSet<>(book.getAuthors()))
         );
 
 
-        val dbGenre = genres.stream().map(genre -> service.create(genre)).toList();
+        val dbGenre = genres.stream().map(genre -> {
+            try {
+                return service.create(genre);
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        }).toList();
 
-        service.read().forEach(genre -> service.delete(genre.getId()));
+        service.read().forEach(genre -> {
+            try {
+                service.delete(genre.getId());
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         assertFalse(service.getRepository().findAllById(dbGenre.stream()
                 .map(Genre::getId).toList())
                 .isEmpty());
     }
 
-    private Book createBook() {
+    private Book createBook() throws BusinessException {
         val publisher = publisherService.create(new Publisher("Marvel"));
         return bookService.create(new Book(BigDecimal.ZERO, publisher.getId(), "Earth", new Date()));
     }
 
-    private Book createBookWithAuthor() {
+    private Book createBookWithAuthor() throws BusinessException {
         val publisher = publisherService.create(new Publisher("Marvel"));
         val author = authorService.create(new Author("Sanzhar", "Zhanibekov", new Date()));
         val book = new Book(BigDecimal.ZERO, publisher.getId(), "Earth", new Date());
@@ -189,7 +204,7 @@ public class GenreServiceImplTest {
     }
 
     @AfterAll
-    static void cleanup() {
+    static void cleanup() throws BusinessException {
         var service = ApplicationContextProvider.getApplicationContext()
                 .getBean(GenreServiceImpl.class);
         var publisherService = ApplicationContextProvider.getApplicationContext()
@@ -199,9 +214,33 @@ public class GenreServiceImplTest {
         var authorService = ApplicationContextProvider.getApplicationContext()
                 .getBean(AuthorServiceImpl.class);
 
-        service.read().forEach(genre -> service.delete(genre.getId()));
-        bookService.read().forEach(book -> bookService.delete(book.getId()));
-        authorService.read().forEach(author -> authorService.delete(author.getId()));
-        publisherService.read().forEach(publisher -> publisherService.delete(publisher.getId()));
+        service.read().forEach(genre -> {
+            try {
+                service.delete(genre.getId());
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        bookService.read().forEach(book -> {
+            try {
+                bookService.delete(book.getId());
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        authorService.read().forEach(author -> {
+            try {
+                authorService.delete(author.getId());
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        publisherService.read().forEach(publisher -> {
+            try {
+                publisherService.delete(publisher.getId());
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 }

@@ -5,6 +5,7 @@ import kz.halykacademy.bookstore.dto.Order;
 import kz.halykacademy.bookstore.dto.User;
 import kz.halykacademy.bookstore.enums.OrderStatus;
 import kz.halykacademy.bookstore.enums.UserRule;
+import kz.halykacademy.bookstore.exceptions.businessExceptions.BusinessException;
 import kz.halykacademy.bookstore.serviceImpl.OrderServiceImpl;
 import kz.halykacademy.bookstore.serviceImpl.UserServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -45,10 +46,22 @@ class OrderRestControllerTest extends AbstractTestController {
     private final String uri = "http://localhost:8080/api/orders";
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws BusinessException {
         mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-        service.read().forEach(order -> service.delete(order.getId()));
-        userService.read().forEach(user -> service.delete(user.getId()));
+        service.read().forEach(order -> {
+            try {
+                service.delete(order.getId());
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        userService.read().forEach(user -> {
+            try {
+                service.delete(user.getId());
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         user = userService.create(new User(null, "sun", UserRule.USER, "test", null));
     }

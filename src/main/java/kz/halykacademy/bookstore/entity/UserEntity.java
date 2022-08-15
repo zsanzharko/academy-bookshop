@@ -8,7 +8,7 @@ import java.sql.Date;
 import java.util.List;
 
 @Entity(name = "User")
-@Table(name = "user")
+@Table(name = "users")
 @NoArgsConstructor
 @ToString
 @Getter
@@ -18,6 +18,9 @@ public class UserEntity extends AbstractEntity {
     private String username;
     @Column(name = "password")
     private String password;
+
+    @Column(name = "enabled")
+    private Boolean enable;
     @Column(name = "rule", length = 15)
     @Enumerated(EnumType.STRING)
     private UserRule rule;
@@ -33,4 +36,5 @@ public class UserEntity extends AbstractEntity {
         this.rule = rule;
         this.orders = orders;
     }
+
 }

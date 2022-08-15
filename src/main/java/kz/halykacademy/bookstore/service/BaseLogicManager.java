@@ -1,11 +1,11 @@
 package kz.halykacademy.bookstore.service;
 
 import kz.halykacademy.bookstore.exceptions.businessExceptions.BusinessException;
-import kz.halykacademy.bookstore.serviceImpl.DTOs;
+import kz.halykacademy.bookstore.dto.DTOs;
 
 import java.util.List;
 
-public interface BaseCRUDOperation<T extends DTOs> {
+public interface BaseLogicManager<T extends DTOs> {
 
     T create(T t) throws BusinessException;
 

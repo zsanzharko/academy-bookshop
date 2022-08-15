@@ -3,6 +3,7 @@ package kz.halykacademy.bookstore.controller.rest;
 import kz.halykacademy.bookstore.controller.AbstractTestController;
 import kz.halykacademy.bookstore.dto.Book;
 import kz.halykacademy.bookstore.dto.Publisher;
+import kz.halykacademy.bookstore.exceptions.businessExceptions.BusinessException;
 import kz.halykacademy.bookstore.serviceImpl.BookServiceImpl;
 import kz.halykacademy.bookstore.serviceImpl.PublisherServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -42,14 +43,26 @@ class BookRestControllerTest extends AbstractTestController {
     private PublisherServiceImpl publisherService;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws BusinessException {
         super.setUp();
         publisherService.read().stream()
                 .map(Publisher::getId)
-                .forEach(bookService::delete);
+                .forEach(id -> {
+                    try {
+                        publisherService.delete(id);
+                    } catch (BusinessException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
         bookService.read().stream()
                 .map(Book::getId)
-                .forEach(bookService::delete);
+                .forEach(id -> {
+                    try {
+                        bookService.delete(id);
+                    } catch (BusinessException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
     }
 
     @Test

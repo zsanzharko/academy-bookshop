@@ -1,10 +1,15 @@
 package kz.halykacademy.bookstore.controller.rest;
 
+import kz.halykacademy.bookstore.controller.rest.response.Response;
+import kz.halykacademy.bookstore.controller.rest.response.UserApiResponse;
 import kz.halykacademy.bookstore.dto.User;
+import kz.halykacademy.bookstore.exceptions.businessExceptions.BusinessException;
 import kz.halykacademy.bookstore.service.UserService;
 import kz.halykacademy.bookstore.serviceImpl.UserServiceImpl;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,7 +18,7 @@ import java.util.List;
 @RequestMapping("/api/users")
 @Slf4j
 @Getter
-public class UserRestController implements UserService {
+public class UserRestController implements UserApiResponse {
     private final UserServiceImpl service;
 
     public UserRestController(UserServiceImpl service) {
@@ -21,32 +26,27 @@ public class UserRestController implements UserService {
     }
 
     @Override
-    @PostMapping
-    public User create(@RequestBody User user) {
-        return null;
+    public User create(User user) throws BusinessException {
+        return service.create(user);
     }
 
     @Override
-    @GetMapping
-    public List<User> read() {
-        return null;
+    public List<User> read() throws BusinessException {
+        return service.read();
     }
 
     @Override
-    @GetMapping("/{id}")
-    public User read(@PathVariable Long id) {
-        return null;
+    public User read(Long id) throws BusinessException {
+        return service.read(id);
     }
 
     @Override
-    @PostMapping("/update")
-    public User update(@RequestBody User user) {
-        return null;
+    public void update(User user) throws BusinessException {
+        service.update(user);
     }
 
     @Override
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-
+    public void delete(Long id) throws BusinessException {
+        service.delete(id);
     }
 }

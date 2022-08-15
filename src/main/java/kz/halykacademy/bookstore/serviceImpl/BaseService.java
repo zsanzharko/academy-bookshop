@@ -1,8 +1,11 @@
 package kz.halykacademy.bookstore.serviceImpl;
 
+import kz.halykacademy.bookstore.dto.DTOs;
 import kz.halykacademy.bookstore.entity.AbstractEntity;
+import kz.halykacademy.bookstore.exceptions.businessExceptions.BusinessException;
 import kz.halykacademy.bookstore.repository.CommonRepository;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 
 import java.sql.Date;
@@ -52,16 +55,6 @@ public abstract class BaseService<
     }
 
     /**
-     * @param es Entity from database
-     * @return DTOs DTO object
-     * @apiNote Save es to database.
-     */
-    protected List<P> saveAll(@NonNull List<E> es) {
-        var models = repository.saveAll(es);
-        return models.stream().map(this::convertToDto).toList();
-    }
-
-    /**
      * @param e Entity from database
      * @return DTOs DTO object
      * @apiNote Update entity in database. Can work with JPA
@@ -71,56 +64,32 @@ public abstract class BaseService<
         return convertToDto(model);
     }
 
-    /**
-     * @param es Entity from database
-     * @apiNote Update entities in database. Can work with JPA
-     */
-    protected void saveAllAndFlush(@NonNull List<E> es) {
-        repository.saveAllAndFlush(es);
-    }
+    protected void removeById(@NonNull Long id) throws BusinessException {
+        var model = repository.findById(id).orElseThrow(() ->
+                new BusinessException("Id is not find in database. Maybe it is already removed", HttpStatus.OK));
+        if (model.getRemoved() != null) throw new BusinessException("Id is already removed", HttpStatus.OK);
 
-    /**
-     * @param ids List of id entities
-     * @apiNote Removing entities
-     */
-    protected void removeAll(@NonNull List<Long> ids) {
-        var models = repository.findAllById(ids);
-        models.forEach(m -> m.setRemoved(new Date(System.currentTimeMillis())));
-        repository.saveAllAndFlush(models);
-    }
-
-    /**
-     * @apiNote Remove all entities in database
-     */
-    protected void removeAll() {
-        var models = repository.findAll();
-        models.forEach(m -> {
-            if (m.getRemoved() == null) m.setRemoved(new Date(System.currentTimeMillis()));
-        });
-        repository.saveAllAndFlush(models);
-    }
-
-    protected void removeById(@NonNull Long id) {
-        var model = repository.findById(id).orElse(null);
-        if (model == null) return;
         model.setRemoved(new Date(System.currentTimeMillis()));
         repository.saveAndFlush(model);
     }
 
-    protected P findById(@NonNull Long id) {
-        var model = repository.findById(id).orElse(null);
-        if (model != null && model.getRemoved() == null) return convertToDto(model);
-        return null;
+    protected P findById(@NonNull Long id) throws BusinessException {
+        var model = repository.findById(id).orElseThrow(() ->
+                new BusinessException(String.format("Can't find entity by id (%s)", id), HttpStatus.NOT_FOUND));
+        if (model.getRemoved() != null)
+            throw new BusinessException(String.format("Can't find entity by id (%s)", id), HttpStatus.NOT_FOUND);
+
+        return convertToDto(model);
     }
 
     protected List<P> getAll() {
         var models = repository.findAll();
         return models.stream()
-                .filter(model-> model.getRemoved() == null)
+                .filter(model -> model.getRemoved() == null)
                 .map(this::convertToDto).toList();
     }
 
     protected abstract P convertToDto(E e);
 
-    protected abstract E convertToEntity(P p);
+    protected abstract E convertToEntity(P p) throws BusinessException;
 }

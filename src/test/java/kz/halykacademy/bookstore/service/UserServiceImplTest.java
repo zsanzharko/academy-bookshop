@@ -4,6 +4,7 @@ import kz.halykacademy.bookstore.dto.Order;
 import kz.halykacademy.bookstore.dto.User;
 import kz.halykacademy.bookstore.enums.OrderStatus;
 import kz.halykacademy.bookstore.enums.UserRule;
+import kz.halykacademy.bookstore.exceptions.businessExceptions.BusinessException;
 import kz.halykacademy.bookstore.exceptions.businessExceptions.CostInvalidException;
 import kz.halykacademy.bookstore.exceptions.businessExceptions.UserInvalidException;
 import kz.halykacademy.bookstore.serviceImpl.OrderServiceImpl;
@@ -27,14 +28,18 @@ class UserServiceImplTest {
     private OrderServiceImpl orderService;
 
     @BeforeEach
-    void clean() {
-        service.read().forEach(user -> service.delete(user.getId()));
-        orderService.read().forEach(order -> service.delete(order.getId()));
+    void clean() throws BusinessException {
+        for (User user : service.read()) {
+            service.delete(user.getId());
+        }
+        for (Order order : orderService.read()) {
+            service.delete(order.getId());
+        }
     }
 
     @Test
     @DisplayName("Create user")
-    void create() {
+    void create() throws BusinessException {
         User user = new User(null, "sanzharrko", UserRule.USER, "test", null);
 
         val dbUser = service.create(user);
@@ -45,7 +50,7 @@ class UserServiceImplTest {
 
     @Test
     @DisplayName("Create user with order")
-    void createUserWithOrder() throws UserInvalidException, CostInvalidException {
+    void createUserWithOrder() throws BusinessException {
         User user =  service.create(new User(null, "sanzharrko", UserRule.USER, "test", null));
         var order = orderService.create(new Order(null, user.getId(), OrderStatus.CREATED, new Date(), null));
 
@@ -64,7 +69,13 @@ class UserServiceImplTest {
                 new User(null, "sanzharrrko", UserRule.USER, "test", null),
                 new User(null, "sanzharrrrko", UserRule.USER, "test", null),
                 new User(null, "sanzharrrrrko", UserRule.USER, "test", null)
-        ).map(user -> service.create(user)).toList();
+        ).map(user -> {
+            try {
+                return service.create(user);
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        }).toList();
 
         val dbUsers = service.read();
 
@@ -76,7 +87,7 @@ class UserServiceImplTest {
 
     @Test
     @DisplayName("Read user by id")
-    void readById() {
+    void readById() throws BusinessException {
         Long idSaveUser = service.create(new User(null, "sanzharrko", UserRule.USER, "test", null))
                 .getId();
 
@@ -88,7 +99,7 @@ class UserServiceImplTest {
 
     @Test
     @DisplayName("Update user username")
-    void update() {
+    void update() throws BusinessException {
         String oldUsername = "sanzharrko";
         String newUsername = "ssanzharrko";
         User user = service.create(new User(null, oldUsername, UserRule.USER, "test", null));
@@ -103,7 +114,7 @@ class UserServiceImplTest {
 
     @Test
     @DisplayName("Delete user by id")
-    void delete() {
+    void delete() throws BusinessException {
         Long idSaveUser = service.create(new User(null, "sanzharrko", UserRule.USER, "test", null))
                 .getId();
         Assertions.assertNotNull(service.read(idSaveUser));

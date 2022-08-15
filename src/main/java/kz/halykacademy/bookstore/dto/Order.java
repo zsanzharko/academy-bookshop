@@ -1,7 +1,6 @@
 package kz.halykacademy.bookstore.dto;
 
 import kz.halykacademy.bookstore.enums.OrderStatus;
-import kz.halykacademy.bookstore.serviceImpl.DTOs;
 import lombok.Builder;
 import lombok.Data;
 

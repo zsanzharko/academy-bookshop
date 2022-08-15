@@ -4,6 +4,7 @@ import kz.halykacademy.bookstore.dto.Order;
 import kz.halykacademy.bookstore.dto.User;
 import kz.halykacademy.bookstore.enums.OrderStatus;
 import kz.halykacademy.bookstore.enums.UserRule;
+import kz.halykacademy.bookstore.exceptions.businessExceptions.BusinessException;
 import kz.halykacademy.bookstore.exceptions.businessExceptions.CostInvalidException;
 import kz.halykacademy.bookstore.exceptions.businessExceptions.UserInvalidException;
 import kz.halykacademy.bookstore.serviceImpl.OrderServiceImpl;
@@ -30,16 +31,28 @@ class OrderServiceImplTest {
     private UserServiceImpl userService;
 
     @BeforeEach
-    void clean() {
-        service.read().forEach(order -> service.delete(order.getId()));
-        userService.read().forEach(user -> service.delete(user.getId()));
+    void clean() throws BusinessException {
+        service.read().forEach(order -> {
+            try {
+                service.delete(order.getId());
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        userService.read().forEach(user -> {
+            try {
+                service.delete(user.getId());
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         user = userService.create(new User(null, "sun", UserRule.USER,"test",  null));
     }
 
     @Test
     @DisplayName("Create order")
-    void create() throws UserInvalidException, CostInvalidException {
+    void create() throws BusinessException {
         Order order = new Order(null, user.getId(), OrderStatus.CREATED, new Date(), null);
 
         var dbOrder = service.create(order);
@@ -58,7 +71,7 @@ class OrderServiceImplTest {
         ).forEach(order -> {
             try {
                 service.create(order);
-            } catch (UserInvalidException | CostInvalidException e) {
+            } catch (BusinessException e) {
                 throw new RuntimeException(e);
             }
         });
@@ -72,7 +85,7 @@ class OrderServiceImplTest {
 
     @Test
     @DisplayName("Read order by id")
-    void readById () throws UserInvalidException, CostInvalidException {
+    void readById () throws BusinessException {
         Long id = service.create(
                 new Order(null, user.getId(), OrderStatus.CREATED, new Date(), null))
                 .getId();
@@ -84,7 +97,7 @@ class OrderServiceImplTest {
     }
 
     @Test
-    void update() throws UserInvalidException, CostInvalidException {
+    void update() throws BusinessException {
         OrderStatus oldStatus = OrderStatus.CREATED, newStatus = OrderStatus.IN_PROCESS;
         var order =  service.create(new Order(null, user.getId(), oldStatus, new Date(), null));
 
@@ -98,7 +111,7 @@ class OrderServiceImplTest {
     }
 
     @Test
-    void delete() throws UserInvalidException, CostInvalidException {
+    void delete() throws BusinessException {
         Long id = service.create(
                         new Order(null, user.getId(), OrderStatus.CREATED, new Date(), null))
                 .getId();

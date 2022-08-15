@@ -3,11 +3,13 @@ package kz.halykacademy.bookstore.serviceImpl;
 import kz.halykacademy.bookstore.dto.Publisher;
 import kz.halykacademy.bookstore.entity.BookEntity;
 import kz.halykacademy.bookstore.entity.PublisherEntity;
+import kz.halykacademy.bookstore.exceptions.businessExceptions.BusinessException;
 import kz.halykacademy.bookstore.repository.BookRepository;
 import kz.halykacademy.bookstore.repository.PublisherRepository;
 import kz.halykacademy.bookstore.service.PublisherService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,14 +34,9 @@ public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity
     }
 
     @Override
-    public Publisher create(Publisher publisher) {
-        PublisherEntity publisherEntity;
-        try {
-            publisherEntity = convertToEntity(publisher);
-        } catch (NullPointerException e) {
-            log.error(e.getMessage());
-            return null;
-        }
+    public Publisher create(Publisher publisher) throws BusinessException {
+        PublisherEntity publisherEntity = convertToEntity(publisher);
+
         return save(publisherEntity);
     }
 
@@ -49,7 +46,7 @@ public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity
     }
 
     @Override
-    public Publisher read(Long id) {
+    public Publisher read(Long id) throws BusinessException {
         return super.findById(id);
     }
 
@@ -58,7 +55,7 @@ public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity
      * @apiNote Universal algorithm that updating books in publishers
      */
     @Override
-    public Publisher update(Publisher publisher) {
+    public Publisher update(Publisher publisher) throws BusinessException {
         PublisherEntity publisherEntity;
         try {
             publisherEntity = convertToEntity(publisher);
@@ -95,7 +92,7 @@ public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(Long id) throws BusinessException {
         var publisherEntity = repository.findById(id).orElse(null);
         if (publisherEntity == null) return;
 
@@ -116,9 +113,9 @@ public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity
     }
 
     @Override
-    protected PublisherEntity convertToEntity(Publisher publisher) {
-        if (publisher == null) throw new NullPointerException("Publisher can not be null");
-        if (publisher.getBooks() == null) throw new NullPointerException("Books in publisher can not be null");
+    protected PublisherEntity convertToEntity(Publisher publisher) throws BusinessException {
+        if (publisher == null) throw new BusinessException("Publisher can not be null", HttpStatus.NO_CONTENT);
+        if (publisher.getBooks() == null) throw new BusinessException("Books in publisher can not be null", HttpStatus.BAD_REQUEST);
 
         return PublisherEntity.builder()
                 .id(publisher.getId())

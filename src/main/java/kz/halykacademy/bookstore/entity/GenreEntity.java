@@ -1,14 +1,18 @@
 package kz.halykacademy.bookstore.entity;
 
 import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Date;
 import java.util.List;
+import java.util.Set;
+
+import static javax.persistence.CascadeType.DETACH;
+import static javax.persistence.CascadeType.MERGE;
+import static javax.persistence.FetchType.LAZY;
 
 @Entity(name = "Genres")
 @Table(name = "genres")
@@ -21,14 +25,16 @@ public class GenreEntity extends AbstractEntity implements Serializable  {
     @Column(name = "genre_name")
     private String title;
 
-    @OneToMany
+    @OneToMany(fetch = LAZY, cascade = {MERGE, DETACH})
+    @Fetch(FetchMode.JOIN)
     @ToString.Exclude
-    private List<BookEntity> books;
-    @OneToMany
+    private Set<BookEntity> books;
+    @OneToMany(fetch = LAZY, cascade = {MERGE, DETACH})
+    @Fetch(FetchMode.JOIN)
     @ToString.Exclude
-    private List<AuthorEntity> authors;
+    private Set<AuthorEntity> authors;
     @Builder
-    public GenreEntity(Long id, Date removed, String title, List<BookEntity> books, List<AuthorEntity> authors) {
+    public GenreEntity(Long id, Date removed, String title, Set<BookEntity> books, Set<AuthorEntity> authors) {
         super(id, removed);
         this.title = title;
         this.books = books;

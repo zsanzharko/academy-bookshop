@@ -36,7 +36,7 @@ public class BookEntity extends AbstractEntity implements Serializable {
     private Set<AuthorEntity> authors;
 
     @ManyToOne(targetEntity = PublisherEntity.class)
-    @JoinColumn(name = "publisher_id")
+    @JoinColumn(name = "publisher_id", referencedColumnName = "id")
     @ToString.Exclude
     private PublisherEntity publisher;
 

@@ -1,7 +1,7 @@
 package kz.halykacademy.bookstore.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import kz.halykacademy.bookstore.enums.UserRule;
-import kz.halykacademy.bookstore.serviceImpl.DTOs;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,6 +16,7 @@ public class User implements DTOs {
     private Long id;
     private String username;
     @ToString.Include
+    @JsonIgnore
     private String password;
     private UserRule rule;
 

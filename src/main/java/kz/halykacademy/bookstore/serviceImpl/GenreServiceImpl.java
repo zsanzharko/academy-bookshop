@@ -4,15 +4,16 @@ import kz.halykacademy.bookstore.dto.Genre;
 import kz.halykacademy.bookstore.entity.AuthorEntity;
 import kz.halykacademy.bookstore.entity.BookEntity;
 import kz.halykacademy.bookstore.entity.GenreEntity;
+import kz.halykacademy.bookstore.exceptions.businessExceptions.BusinessException;
 import kz.halykacademy.bookstore.repository.AuthorRepository;
 import kz.halykacademy.bookstore.repository.BookRepository;
 import kz.halykacademy.bookstore.repository.GenreRepository;
 import kz.halykacademy.bookstore.service.GenreService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,14 +36,8 @@ public class GenreServiceImpl extends BaseService<Genre, GenreEntity, GenreRepos
     }
 
     @Override
-    public Genre create(Genre genre) {
-        GenreEntity genreEntity;
-        try {
-            genreEntity = convertToEntity(genre);
-        } catch (NullPointerException e) {
-            log.error(e.getMessage());
-            return null;
-        }
+    public Genre create(Genre genre) throws BusinessException {
+        GenreEntity genreEntity = convertToEntity(genre);
         return save(genreEntity);
     }
 
@@ -52,26 +47,19 @@ public class GenreServiceImpl extends BaseService<Genre, GenreEntity, GenreRepos
     }
 
     @Override
-    public Genre read(Long id) {
+    public Genre read(Long id) throws BusinessException {
         return super.findById(id);
     }
 
     @Override
-    public Genre update(Genre genre) {
-        GenreEntity genreEntity;
-        try {
-            genreEntity = convertToEntity(genre);
-        } catch (NullPointerException e) {
-            log.error(e.getMessage());
-            return null;
-        }
+    public Genre update(Genre genre) throws BusinessException {
+        GenreEntity genreEntity = convertToEntity(genre);
 
         return super.saveAndFlush(genreEntity);
     }
 
     @Override
-    @Transactional
-    public void delete(Long id) {
+    public void delete(Long id) throws BusinessException {
         super.removeById(id);
     }
 
@@ -84,20 +72,22 @@ public class GenreServiceImpl extends BaseService<Genre, GenreEntity, GenreRepos
         return Genre.builder()
                 .id(genreEntity.getId())
                 .title(genreEntity.getTitle())
-                .authors(authors.stream().toList())
-                .books(books.stream().toList())
+                .authors(authors)
+                .books(books)
                 .build();
     }
 
     @Override
-    protected GenreEntity convertToEntity(Genre genre) {
+    protected GenreEntity convertToEntity(Genre genre) throws NullPointerException, BusinessException {
         if (genre == null) throw new NullPointerException("Genre can not be null");
+        if (genre.getAuthors() == null || genre.getBooks() == null)
+            throw new BusinessException("In genres authors or books can not be null", HttpStatus.BAD_REQUEST);
 
         return GenreEntity.builder()
                 .id(genre.getId())
                 .title(genre.getTitle())
-                .authors(genre.getAuthors() == null ? new ArrayList<>() : new ArrayList<>(authorRepository.findAllById(genre.getAuthors())))
-                .books(genre.getBooks() == null ? new ArrayList<>() : new ArrayList<>(bookRepository.findAllById(genre.getBooks())))
+                .authors(new HashSet<>(authorRepository.findAllById(genre.getAuthors())))
+                .books(new HashSet<>(bookRepository.findAllById(genre.getBooks())))
                 .build();
     }
 }

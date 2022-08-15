@@ -3,11 +3,13 @@ package kz.halykacademy.bookstore.serviceImpl;
 import kz.halykacademy.bookstore.dto.Author;
 import kz.halykacademy.bookstore.entity.AuthorEntity;
 import kz.halykacademy.bookstore.entity.BookEntity;
+import kz.halykacademy.bookstore.exceptions.businessExceptions.BusinessException;
 import kz.halykacademy.bookstore.repository.AuthorRepository;
 import kz.halykacademy.bookstore.repository.BookRepository;
 import kz.halykacademy.bookstore.service.AuthorService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
@@ -35,15 +37,8 @@ public class AuthorServiceImpl extends BaseService<Author, AuthorEntity, AuthorR
     }
 
     @Override
-    public Author create(Author author) {
-        AuthorEntity authorEntity;
-        try {
-            authorEntity = convertToEntity(author);
-        } catch (NullPointerException e) {
-            log.error(e.getMessage());
-            return null;
-        }
-
+    public Author create(Author author) throws BusinessException, NullPointerException {
+        AuthorEntity authorEntity = convertToEntity(author);
         return save(authorEntity);
     }
 
@@ -53,24 +48,19 @@ public class AuthorServiceImpl extends BaseService<Author, AuthorEntity, AuthorR
     }
 
     @Override
-    public Author read(Long id) {
+    public Author read(Long id) throws BusinessException {
         return findById(id);
     }
 
     @Override
-    public Author update(@NonNull Author author) {
-        AuthorEntity authorEntity;
-        try {
-            authorEntity = convertToEntity(author);
-        } catch (NullPointerException e) {
-            log.error(e.getMessage());
-            return null;
-        }
+    public Author update(@NonNull Author author) throws BusinessException, NullPointerException {
+        AuthorEntity authorEntity = convertToEntity(author);
+
         return saveAndFlush(authorEntity);
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(Long id) throws BusinessException {
         AuthorEntity authorEntity = repository.findById(id).orElse(null);
         if (authorEntity == null) return;
         authorEntity.getWrittenBookList().forEach(bookEntity -> bookEntity.removeAuthor(authorEntity));
@@ -90,8 +80,10 @@ public class AuthorServiceImpl extends BaseService<Author, AuthorEntity, AuthorR
     }
 
     @Override
-    protected AuthorEntity convertToEntity(Author author) {
+    protected AuthorEntity convertToEntity(Author author) throws BusinessException, NullPointerException {
         if (author == null) throw new NullPointerException("Author can't be null");
+        if (author.getWrittenBooks() == null)
+            throw new BusinessException("Books in authors can not be null", HttpStatus.BAD_REQUEST);
 
         return AuthorEntity.builder()
                 .id(author.getId())
@@ -99,7 +91,8 @@ public class AuthorServiceImpl extends BaseService<Author, AuthorEntity, AuthorR
                 .surname((author.getSurname()))
                 .patronymic(author.getPatronymic())
                 .birthday(author.getBirthday())
-                .writtenBookList(new HashSet<>(bookRepository.findAllById(author.getWrittenBooks())))
+                .writtenBookList(author.getWrittenBooks() == null ? new HashSet<>() :
+                        new HashSet<>(bookRepository.findAllById(author.getWrittenBooks())))
                 .build();
     }
 

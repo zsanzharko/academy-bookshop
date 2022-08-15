@@ -3,14 +3,14 @@ package kz.halykacademy.bookstore.serviceImpl;
 import kz.halykacademy.bookstore.dto.Order;
 import kz.halykacademy.bookstore.entity.BookEntity;
 import kz.halykacademy.bookstore.entity.OrderEntity;
+import kz.halykacademy.bookstore.exceptions.businessExceptions.BusinessException;
 import kz.halykacademy.bookstore.exceptions.businessExceptions.CostInvalidException;
 import kz.halykacademy.bookstore.exceptions.businessExceptions.UserInvalidException;
 import kz.halykacademy.bookstore.repository.OrderRepository;
 import kz.halykacademy.bookstore.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -20,8 +20,6 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class OrderServiceImpl extends BaseService<Order, OrderEntity, OrderRepository> implements OrderService {
-
-    private final Marker errorMarker = MarkerFactory.getMarker("Order Problem");
 
     private final UserServiceImpl userService;
     private final BookServiceImpl bookService;
@@ -37,12 +35,9 @@ public class OrderServiceImpl extends BaseService<Order, OrderEntity, OrderRepos
     }
 
     @Override
-    public Order create(Order order) throws UserInvalidException, CostInvalidException {
+    public Order create(Order order) throws BusinessException {
         var orderEntity = convertToEntity(order);
-        if (orderEntity == null) return null;
-
         orderIsCorrect(orderEntity);
-
         return save(orderEntity);
     }
 
@@ -52,25 +47,19 @@ public class OrderServiceImpl extends BaseService<Order, OrderEntity, OrderRepos
     }
 
     @Override
-    public Order read(Long id) {
+    public Order read(Long id) throws BusinessException {
         return findById(id);
     }
 
     @Override
-    public Order update(Order order) {
+    public Order update(Order order) throws BusinessException {
         var orderEntity = convertToEntity(order);
-        if (orderEntity == null) return null;
-        try {
-            orderIsCorrect(orderEntity);
-        } catch (CostInvalidException | UserInvalidException e) {
-            log.error(errorMarker, e.getMessage());
-            return null;
-        }
+        orderIsCorrect(orderEntity);
         return saveAndFlush(orderEntity);
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(Long id) throws BusinessException {
         removeById(id);
     }
 
@@ -86,13 +75,31 @@ public class OrderServiceImpl extends BaseService<Order, OrderEntity, OrderRepos
     }
 
     @Override
-    protected OrderEntity convertToEntity(Order order) {
-        if (order.getUser() == null) return null;
+    protected OrderEntity convertToEntity(Order order) throws NullPointerException, BusinessException {
+        if (order == null) throw new NullPointerException("Order can not be null");
+        if (order.getUser() == null)
+            throw new BusinessException("In order user can not be null", HttpStatus.BAD_REQUEST);
+        if (order.getBooks() == null)
+            throw new BusinessException("In order books can not be null", HttpStatus.BAD_REQUEST);
+
         var user = userService.convertToEntity(userService.read(order.getUser()));
+
         var books = order.getBooks()
                 .stream()
-                .map(bookService::read)
-                .map(bookService::convertToEntity)
+                .map(id -> {
+                    try {
+                        return bookService.read(id);
+                    } catch (BusinessException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .map(book -> {
+                    try {
+                        return bookService.convertToEntity(book);
+                    } catch (BusinessException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
                 .collect(Collectors.toSet());
 
         return OrderEntity.builder()
@@ -109,7 +116,8 @@ public class OrderServiceImpl extends BaseService<Order, OrderEntity, OrderRepos
         var books = order.getBookEntityList();
 
         // valid user
-        if (order.getUser().getRemoved() != null) throw new UserInvalidException("Access is denied. User is removed");
+        if (order.getUser().getRemoved() != null)
+            throw new UserInvalidException("Access is denied. User is removed", HttpStatus.FORBIDDEN);
 
         // valid books
         //todo valid books
@@ -118,7 +126,7 @@ public class OrderServiceImpl extends BaseService<Order, OrderEntity, OrderRepos
         BigDecimal costs = books.stream()
                 .map(BookEntity::getPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        if (costs.intValue() >= 10_000) throw new CostInvalidException(costs.intValue(), 10_000);
+        if (costs.intValue() >= 10_000) throw new CostInvalidException(costs.intValue(), 10_000, HttpStatus.FORBIDDEN);
 
     }
 }

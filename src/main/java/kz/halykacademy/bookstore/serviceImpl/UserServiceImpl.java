@@ -3,12 +3,13 @@ package kz.halykacademy.bookstore.serviceImpl;
 import kz.halykacademy.bookstore.dto.User;
 import kz.halykacademy.bookstore.entity.OrderEntity;
 import kz.halykacademy.bookstore.entity.UserEntity;
+import kz.halykacademy.bookstore.exceptions.businessExceptions.BusinessException;
 import kz.halykacademy.bookstore.repository.OrderRepository;
 import kz.halykacademy.bookstore.repository.UserRepository;
 import kz.halykacademy.bookstore.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,24 +18,20 @@ import java.util.List;
 @Slf4j
 public class UserServiceImpl extends BaseService<User, UserEntity, UserRepository> implements UserService {
 
-    private final PasswordEncoder passwordEncoder;
     private final OrderRepository orderRepository;
 
     /**
-     * @param repository      repository for provider
-     * @param passwordEncoder encoder to encode password
-     * @param orderRepository for monitor orders in user
+     * @param repository         repository for provider
+     * @param orderRepository    for monitor orders in user
      */
     @Autowired
-    public UserServiceImpl(UserRepository repository, PasswordEncoder passwordEncoder, OrderRepository orderRepository) {
+    public UserServiceImpl(UserRepository repository, OrderRepository orderRepository) {
         super(UserEntity.class, User.class, repository);
-        this.passwordEncoder = passwordEncoder;
         this.orderRepository = orderRepository;
     }
 
     @Override
-    public User create(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+    public User create(User user) throws BusinessException {
         return save(convertToEntity(user));
     }
 
@@ -44,17 +41,17 @@ public class UserServiceImpl extends BaseService<User, UserEntity, UserRepositor
     }
 
     @Override
-    public User read(Long id) {
+    public User read(Long id) throws BusinessException {
         return findById(id);
     }
 
     @Override
-    public User update(User user) {
+    public User update(User user) throws BusinessException {
         return saveAndFlush(convertToEntity(user));
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(Long id) throws BusinessException {
         removeById(id);
     }
 
@@ -70,7 +67,10 @@ public class UserServiceImpl extends BaseService<User, UserEntity, UserRepositor
     }
 
     @Override
-    protected UserEntity convertToEntity(User user) {
+    protected UserEntity convertToEntity(User user) throws BusinessException {
+        if (user == null) throw new NullPointerException("User can not be null");
+        if (user.getOrders() == null) throw new BusinessException("In user orders can not be null", HttpStatus.BAD_REQUEST);
+
         return UserEntity.builder()
                 .id(user.getId())
                 .username(user.getUsername())
