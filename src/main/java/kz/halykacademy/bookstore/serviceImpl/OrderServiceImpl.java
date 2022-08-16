@@ -55,7 +55,7 @@ public class OrderServiceImpl extends BaseService<Order, OrderEntity, OrderRepos
     public Order update(Order order) throws BusinessException {
         var orderEntity = convertToEntity(order);
         orderIsCorrect(orderEntity);
-        return saveAndFlush(orderEntity);
+        return update(orderEntity);
     }
 
     @Override

@@ -59,14 +59,12 @@ public abstract class BaseService<
      * @return DTOs DTO object
      * @apiNote Update entity in database. Can work with JPA
      */
-    protected P saveAndFlush(@NonNull E e) throws BusinessException {
-        var entity = repository.findById(e.getId()).orElseThrow(
-                () -> new BusinessException("Entity with this id not found in database", HttpStatus.NOT_FOUND)
-        );
-        if (entity.getRemoved() != null) throw new BusinessException("This entity does not exist in the database",
-                HttpStatus.NOT_FOUND);
-        var model = repository.saveAndFlush(e);
-        return convertToDto(model);
+    protected P update(@NonNull E e) throws BusinessException {
+        var model = repository.findById(e.getId()).orElseThrow(
+                () -> new BusinessException("Entity with this id not found in database", HttpStatus.NOT_FOUND));
+        if (model.getRemoved() != null)
+            throw new BusinessException("This entity does not exist in the database", HttpStatus.NOT_FOUND);
+        return convertToDto(repository.save(e));
     }
 
     protected void removeById(@NonNull Long id) throws BusinessException {

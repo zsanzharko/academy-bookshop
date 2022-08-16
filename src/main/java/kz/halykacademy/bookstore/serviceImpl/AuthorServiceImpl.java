@@ -83,7 +83,7 @@ public class AuthorServiceImpl extends BaseService<Author, AuthorEntity, AuthorR
             throw new BusinessException("Id to update author must not be null", HttpStatus.BAD_REQUEST);
 
         AuthorEntity authorEntity = convertToEntity(author);
-        return saveAndFlush(authorEntity);
+        return update(authorEntity);
     }
 
     @Override

@@ -78,10 +78,8 @@ class BookRestControllerTest extends AbstractTestController {
 
         int status = result.getResponse().getStatus();
         log.info(marker, "Checking status...");
-        assertEquals(200, status, "Status is failed.");
+        assertEquals(400, status, "Status is failed.");
         String content = result.getResponse().getContentAsString();
-        log.info(marker, "Checking response...");
-        assertEquals("", content);
         log.info(marker, "Show response...");
         log.info(marker, content);
     }
@@ -105,7 +103,8 @@ class BookRestControllerTest extends AbstractTestController {
         log.info(marker, "Checking response...");
         var serverBook = super.mapFromJson(content, Book.class);
         book.setId(serverBook.getId());
-        assertEquals(book, serverBook);
+        assertEquals(book.getId(), serverBook.getId());
+        assertEquals(book.getPublisher(), serverBook.getPublisher());
         log.info(marker, "Show response...");
         log.info(marker, content);
     }
@@ -154,21 +153,22 @@ class BookRestControllerTest extends AbstractTestController {
 
         String inputJson = super.mapToJson(dbBook);
         System.out.println(inputJson);
-        MvcResult result = this.mvc.perform(MockMvcRequestBuilders.post(uri + "/update")
+        MvcResult result = this.mvc.perform(MockMvcRequestBuilders.put(uri)
                         .contentType(contentType).content(inputJson))
                 .andReturn();
 
         int status = result.getResponse().getStatus();
-        assertEquals(200, status, "Status is failed.");
-
+        assertEquals(200, status, result.getResponse().getContentAsString());
         String content = result.getResponse().getContentAsString();
+
         log.info(content);
     }
 
     @Test
     @DisplayName("Delete book by id")
     public void delete() throws Exception {
-        Book book = bookService.create(new Book(new BigDecimal(990), null, "Adventure Minecraft", new Date()));
+        var publisher = publisherService.create(new Publisher("Moojanng"));
+        Book book = bookService.create(new Book(new BigDecimal(990), publisher.getId(), "Adventure Minecraft", new Date()));
 
         Assertions.assertNotNull(book);
 
@@ -180,10 +180,12 @@ class BookRestControllerTest extends AbstractTestController {
         int status = result.getResponse().getStatus();
         assertEquals(200, status, "Status is failed.");
 
-        var removedBook = bookService.read(book.getId());
-
-        log.info(marker, String.format("Removed book: %b", removedBook == null));
-        Assertions.assertNull(removedBook, "Book did not removed in repository. Have problem with entity or " +
-                "connections in jpa");
+        try {
+            bookService.read(book.getId());
+            log.info(marker, String.format("Removed book: %b", book.getId()));
+        } catch (BusinessException e) {
+            return;
+        }
+        Assertions.fail();
     }
 }

@@ -5,8 +5,6 @@ import kz.halykacademy.bookstore.dto.User;
 import kz.halykacademy.bookstore.enums.OrderStatus;
 import kz.halykacademy.bookstore.enums.UserRule;
 import kz.halykacademy.bookstore.exceptions.businessExceptions.BusinessException;
-import kz.halykacademy.bookstore.exceptions.businessExceptions.CostInvalidException;
-import kz.halykacademy.bookstore.exceptions.businessExceptions.UserInvalidException;
 import kz.halykacademy.bookstore.serviceImpl.OrderServiceImpl;
 import kz.halykacademy.bookstore.serviceImpl.UserServiceImpl;
 import org.junit.jupiter.api.Assertions;
@@ -16,8 +14,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 @SpringBootTest
 class OrderServiceImplTest {
@@ -32,28 +34,18 @@ class OrderServiceImplTest {
 
     @BeforeEach
     void clean() throws BusinessException {
-        service.read().forEach(order -> {
-            try {
-                service.delete(order.getId());
-            } catch (BusinessException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        userService.read().forEach(user -> {
-            try {
-                service.delete(user.getId());
-            } catch (BusinessException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        for (var order : service.read())
+            service.delete(order.getId());
+        for (var user : userService.read())
+            userService.delete(user.getId());
 
-        user = userService.create(new User(null, "sun", UserRule.USER,"test",  null));
+        user = userService.create(new User(null, "sun", UserRule.USER,"test",  new ArrayList<>()));
     }
 
     @Test
     @DisplayName("Create order")
     void create() throws BusinessException {
-        Order order = new Order(null, user.getId(), OrderStatus.CREATED, new Date(), null);
+        Order order = new Order(null, user.getId(), OrderStatus.CREATED, new Date(), new HashSet<>());
 
         var dbOrder = service.create(order);
 
@@ -65,9 +57,9 @@ class OrderServiceImplTest {
     @DisplayName("Read orders")
     void read() {
         Stream.of(
-                new Order(null, user.getId(), OrderStatus.CREATED, new Date(), null),
-                new Order(null, user.getId(), OrderStatus.CREATED, new Date(), null),
-                new Order(null, user.getId(), OrderStatus.CREATED, new Date(), null)
+                new Order(null, user.getId(), OrderStatus.CREATED, new Date(), new HashSet<>()),
+                new Order(null, user.getId(), OrderStatus.CREATED, new Date(), new HashSet<>()),
+                new Order(null, user.getId(), OrderStatus.CREATED, new Date(), new HashSet<>())
         ).forEach(order -> {
             try {
                 service.create(order);
@@ -87,7 +79,7 @@ class OrderServiceImplTest {
     @DisplayName("Read order by id")
     void readById () throws BusinessException {
         Long id = service.create(
-                new Order(null, user.getId(), OrderStatus.CREATED, new Date(), null))
+                new Order(null, user.getId(), OrderStatus.CREATED, new Date(), new HashSet<>()))
                 .getId();
 
         var order = service.read(id);
@@ -99,7 +91,7 @@ class OrderServiceImplTest {
     @Test
     void update() throws BusinessException {
         OrderStatus oldStatus = OrderStatus.CREATED, newStatus = OrderStatus.IN_PROCESS;
-        var order =  service.create(new Order(null, user.getId(), oldStatus, new Date(), null));
+        var order =  service.create(new Order(null, user.getId(), oldStatus, new Date(), new HashSet<>()));
 
         order.setStatus(newStatus);
 
@@ -113,11 +105,17 @@ class OrderServiceImplTest {
     @Test
     void delete() throws BusinessException {
         Long id = service.create(
-                        new Order(null, user.getId(), OrderStatus.CREATED, new Date(), null))
+                        new Order(null, user.getId(), OrderStatus.CREATED, new Date(), new HashSet<>()))
                 .getId();
 
         service.delete(id);
 
-        Assertions.assertNull(service.read(id));
+        try {
+            service.read(id);
+        } catch (BusinessException businessException) {
+            Assertions.assertTrue(true);
+            return;
+        }
+        fail();
     }
 }

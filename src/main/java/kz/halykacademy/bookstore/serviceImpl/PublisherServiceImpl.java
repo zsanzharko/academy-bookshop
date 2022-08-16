@@ -88,18 +88,19 @@ public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity
 //                }
 //            }
 //        }
-        return saveAndFlush(publisherEntity);
+        return update(publisherEntity);
     }
 
     @Override
     public void delete(Long id) throws BusinessException {
-        var publisherEntity = repository.findById(id).orElse(null);
-        if (publisherEntity == null) return;
+        var publisherEntity = repository.findById(id).orElseThrow(() ->
+                new BusinessException("Not found publisher by id", HttpStatus.NOT_FOUND));
 
-        if (publisherEntity.getBooks() != null)
-            publisherEntity.getBooks().forEach(publisherEntity::removeBook);
-        saveAndFlush(publisherEntity); // updating data in database to remove all books from publisher
-
+        if (publisherEntity.getBooks() != null) {
+            while (!publisherEntity.getBooks().isEmpty())
+                publisherEntity.removeBook(publisherEntity.getBooks().get(0));
+            update(publisherEntity); // updating data in database to remove all books from publisher
+        }
         removeById(id);
     }
 
@@ -115,7 +116,8 @@ public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity
     @Override
     protected PublisherEntity convertToEntity(Publisher publisher) throws BusinessException {
         if (publisher == null) throw new BusinessException("Publisher can not be null", HttpStatus.NO_CONTENT);
-        if (publisher.getBooks() == null) throw new BusinessException("Books in publisher can not be null", HttpStatus.BAD_REQUEST);
+        if (publisher.getBooks() == null)
+            throw new BusinessException("Books in publisher can not be null", HttpStatus.BAD_REQUEST);
 
         return PublisherEntity.builder()
                 .id(publisher.getId())

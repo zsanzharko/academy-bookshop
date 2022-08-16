@@ -47,7 +47,7 @@ public class UserServiceImpl extends BaseService<User, UserEntity, UserRepositor
 
     @Override
     public User update(User user) throws BusinessException {
-        return saveAndFlush(convertToEntity(user));
+        return update(convertToEntity(user));
     }
 
     @Override

@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -28,6 +27,6 @@ public class User implements DTOs {
         this.username = username;
         this.rule = rule;
         this.password = password;
-        this.orders = orders == null ? new ArrayList<>() : orders;
+        this.orders = orders;
     }
 }

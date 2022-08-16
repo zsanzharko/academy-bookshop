@@ -21,9 +21,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -48,27 +46,18 @@ class OrderRestControllerTest extends AbstractTestController {
     @BeforeEach
     public void setUp() throws BusinessException {
         mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-        service.read().forEach(order -> {
-            try {
-                service.delete(order.getId());
-            } catch (BusinessException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        userService.read().forEach(user -> {
-            try {
-                service.delete(user.getId());
-            } catch (BusinessException e) {
-                throw new RuntimeException(e);
-            }
-        });
 
-        user = userService.create(new User(null, "sun", UserRule.USER, "test", null));
+        for (var order : service.read())
+            service.delete(order.getId());
+        for (var user : userService.read())
+            userService.delete(user.getId());
+
+        user = userService.create(new User(null, "sun", UserRule.USER, "test", new ArrayList<>()));
     }
 
     @Test
     void create() throws Exception {
-        var order = new Order(null, user.getId(), OrderStatus.CREATED, new Date(), null);
+        var order = new Order(null, user.getId(), OrderStatus.CREATED, new Date(), new HashSet<>());
 
         String inputJson = super.mapToJson(order);
         log.info(marker, inputJson);
@@ -91,7 +80,7 @@ class OrderRestControllerTest extends AbstractTestController {
     @Test
     void read() throws Exception {
         var order = service.create(
-                new Order(null, user.getId(), OrderStatus.CREATED, new Date(), null));
+                new Order(null, user.getId(), OrderStatus.CREATED, new Date(), new HashSet<>()));
 
         MvcResult result = this.mvc.perform(MockMvcRequestBuilders.get(uri)
                         .contentType(contentType))
@@ -103,8 +92,6 @@ class OrderRestControllerTest extends AbstractTestController {
         String content = result.getResponse().getContentAsString();
         log.info(marker, "Checking response...");
         Assertions.assertFalse(content.isEmpty());
-        Map object = super.mapFromJson(content, HashMap.class);
-
         log.info(marker, "Show response...");
         log.info(marker, content);
     }
@@ -112,7 +99,7 @@ class OrderRestControllerTest extends AbstractTestController {
     @Test
     void readById() throws Exception {
         var order = service.create(
-                new Order(null, user.getId(), OrderStatus.CREATED, new Date(), null));
+                new Order(null, user.getId(), OrderStatus.CREATED, new Date(), new HashSet<>()));
 
         MvcResult result = this.mvc.perform(MockMvcRequestBuilders.get(uri + "/" + order.getId())
                         .contentType(contentType))
@@ -133,13 +120,13 @@ class OrderRestControllerTest extends AbstractTestController {
     @Test
     void update() throws Exception {
         var order = service.create(
-                new Order(null, user.getId(), OrderStatus.CREATED, new Date(), null));
+                new Order(null, user.getId(), OrderStatus.CREATED, new Date(), new HashSet<>()));
 
         order.setStatus(OrderStatus.IN_PROCESS);
 
         String content = super.mapToJson(order);
 
-        MvcResult result = this.mvc.perform(MockMvcRequestBuilders.post(uri + "/update")
+        MvcResult result = this.mvc.perform(MockMvcRequestBuilders.put(uri)
                         .contentType(contentType).content(content))
                 .andReturn();
 
@@ -148,9 +135,7 @@ class OrderRestControllerTest extends AbstractTestController {
         assertEquals(200, status, "Status is failed.");
         String response = result.getResponse().getContentAsString();
         log.info(marker, "Checking response...");
-        Assertions.assertFalse(response.isEmpty());
-        Map object = super.mapFromJson(response, HashMap.class);
-
+        Assertions.assertTrue(response.isEmpty());
         log.info(marker, "Show response...");
         log.info(marker, response);
     }
@@ -158,7 +143,7 @@ class OrderRestControllerTest extends AbstractTestController {
     @Test
     void delete() throws Exception {
         var order = service.create(
-                new Order(null, user.getId(), OrderStatus.CREATED, new Date(), null));
+                new Order(null, user.getId(), OrderStatus.CREATED, new Date(), new HashSet<>()));
 
         MvcResult result = this.mvc.perform(MockMvcRequestBuilders.delete(uri + "/" + order.getId())
                         .contentType(contentType))
@@ -166,6 +151,11 @@ class OrderRestControllerTest extends AbstractTestController {
 
         Assertions.assertEquals(200, result.getResponse().getStatus());
 
-        Assertions.assertNull(service.read(order.getId()));
+        try {
+            service.read(order.getId());
+        } catch (BusinessException e) {
+            return;
+        }
+        Assertions.fail();
     }
 }

@@ -40,7 +40,9 @@ class BookServiceImplTest {
         for (Book book : bookService.read())
             bookService.delete(book.getId());
         for (Publisher publisher : publisherService.read())
-            bookService.delete(publisher.getId());
+            publisherService.delete(publisher.getId());
+//        for (Author author : authorService.read())
+//            authorService.delete(author.getId());
     }
 
     @Test
@@ -136,7 +138,37 @@ class BookServiceImplTest {
 
         bookService.delete(dbBook.getId());
 
-        assertNull(bookService.read(dbBook.getId()));
+        try {
+            bookService.read(dbBook.getId());
+        } catch (BusinessException businessException) {
+            assertTrue(true);
+            return;
+        }
+        fail();
+    }
+
+    @Test
+    @DisplayName("Remove book with author by id")
+    void removeWithAuthorById() throws BusinessException {
+        val publisher = publisherService.create(new Publisher("Some Publisher to remove book"));
+        Book book = new Book(null, new BigDecimal(990), null, publisher.getId(), "Title 4", 100, new Date());
+
+        var author = authorService.create(new Author("Name", "Surname", new Date()));
+        book.setAuthors(Set.of(author.getId()));
+
+        var dbBook = bookService.create(book);
+
+        assertNotNull(dbBook);
+
+        bookService.delete(dbBook.getId());
+
+        try {
+            bookService.read(dbBook.getId());
+        } catch (BusinessException businessException) {
+            assertTrue(true);
+            return;
+        }
+        fail();
     }
 
     @Test

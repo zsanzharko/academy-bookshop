@@ -50,7 +50,7 @@ public class GenreServiceImpl extends BaseService<Genre, GenreEntity, GenreRepos
     public Genre update(Genre genre) throws BusinessException {
         GenreEntity genreEntity = convertToEntity(genre);
 
-        return super.saveAndFlush(genreEntity);
+        return super.update(genreEntity);
     }
 
     @Override

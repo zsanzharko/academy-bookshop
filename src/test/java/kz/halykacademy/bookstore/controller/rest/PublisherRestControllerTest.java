@@ -193,7 +193,6 @@ class PublisherRestControllerTest extends AbstractTestController {
         assertEquals(200, status, "Status is failed.");
         String content = result.getResponse().getContentAsString();
         log.info(marker, "Checking response...");
-        var object = super.mapFromJson(content, HashMap.class);
 //        assertEquals(publisher.getTitle(), (((HashMap<?, ?>)object.get("data")).get("title")));
         log.info(marker, "Show response...");
         log.info(marker, content);

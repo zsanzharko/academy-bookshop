@@ -198,15 +198,8 @@ class PublisherServiceImplTest {
         // Create object to save
         var publisher = service.create(new Publisher("Publisher 2 test flush update"));
 
-        Stream.of(new Book(
-                        new BigDecimal(1990), publisher.getId(), "Old Book in Publisher", new Date()))
-                .forEach(book -> {
-                    try {
-                        bookService.create(book);
-                    } catch (BusinessException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+        bookService.create(new Book(
+                new BigDecimal(1990), publisher.getId(), "Old Book in Publisher", new Date()));
 
         publisher = service.read(publisher.getId());
 
@@ -215,13 +208,22 @@ class PublisherServiceImplTest {
 
 //        publisher.setBooks(books.stream().map(Book::getId).toList()); // set old books
 
-
         // operation
-        final var changeBooks = List.of(
-                new Book(new BigDecimal(990), publisher.getId(), "Change Book in Publisher", new Date()));
+        final var changeBooks = Stream.of(
+                new Book(new BigDecimal(990), publisher.getId(), "Change Book in Publisher", new Date()),
+                new Book(new BigDecimal(990), publisher.getId(), "AOWFNAOIFNAOEIn", new Date()),
+                new Book(new BigDecimal(990), publisher.getId(), "apifhqifhqeifhqef", new Date()))
+                .map(book -> {
+                    try {
+                        return bookService.create(book);
+                    } catch (BusinessException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).map(Book::getId)
+                .toList();
 
 
-        publisher.setBooks(changeBooks.stream().map(Book::getId).toList());
+        publisher.setBooks(changeBooks);
 
         publisher = service.update(publisher);
 
@@ -246,12 +248,17 @@ class PublisherServiceImplTest {
         var dbPublisher3 = service.create(new Publisher(testTitle3));
 
         for (Publisher publisher : service.read()) {
-            bookService.delete(publisher.getId());
+            service.delete(publisher.getId());
         }
 
-        Assertions.assertNull(service.read(dbPublisher1.getId()));
-        Assertions.assertNull(service.read(dbPublisher2.getId()));
-        Assertions.assertNull(service.read(dbPublisher3.getId()));
+        try {
+            service.read(dbPublisher1.getId());
+            service.read(dbPublisher2.getId());
+            service.read(dbPublisher3.getId());
+        } catch (BusinessException e) {
+            return;
+        }
+        Assertions.fail();
     }
 
     @Test

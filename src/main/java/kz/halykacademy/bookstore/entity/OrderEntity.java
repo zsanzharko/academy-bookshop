@@ -19,6 +19,7 @@ public class OrderEntity extends AbstractEntity {
     @ManyToOne(targetEntity = UserEntity.class)
     private UserEntity user;
     @OneToMany(fetch = FetchType.EAGER, cascade = {MERGE, DETACH, REFRESH}, targetEntity = BookEntity.class)
+    @JoinTable(name = "order_books")
     @ToString.Exclude
     private Set<BookEntity> bookEntityList;
     @Column(name = "status")

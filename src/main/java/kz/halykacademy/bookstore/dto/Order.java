@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -24,6 +23,6 @@ public class Order implements DTOs {
         this.user = user;
         this.status = status;
         this.time = time;
-        this.books = books == null ? new HashSet<>() : books;
+        this.books = books;
     }
 }

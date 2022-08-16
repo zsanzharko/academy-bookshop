@@ -18,9 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -58,7 +56,7 @@ public class GenreServiceImplTest {
     @Test
     @DisplayName("Save Genre")
     void saveGenre() throws BusinessException {
-        var genre = new Genre(null, "Dramatic", null);
+        var genre = new Genre(null, "Dramatic", new HashSet<>());
 
         val dbGenre = service.create(genre);
 
@@ -93,7 +91,7 @@ public class GenreServiceImplTest {
     @Test
     @DisplayName("Update Genre")
     void updateGenre() throws BusinessException {
-        var genre = new Genre(null, "Dramatic", null);
+        var genre = new Genre(null, "Dramatic", new HashSet<>());
 
         val dbGenre = service.create(genre);
 
@@ -115,7 +113,7 @@ public class GenreServiceImplTest {
         val dbGenre = service.create(genre);
 
         dbGenre.setTitle("Horror");
-        dbGenre.setBooks(null);
+        dbGenre.setBooks(new HashSet<>());
 
         val updateGenre = service.update(dbGenre);
 
@@ -128,7 +126,7 @@ public class GenreServiceImplTest {
     @Test
     @DisplayName("Delete genre by id")
     void deleteGenreById() throws BusinessException {
-        var genre = new Genre(null, "Dramatic", null);
+        var genre = new Genre(null, "Dramatic", new HashSet<>());
 
         val dbGenre = service.create(genre);
 
@@ -160,32 +158,28 @@ public class GenreServiceImplTest {
     @DisplayName("Delete genres by id")
     void deleteGenresById() throws BusinessException {
         val book = createBookWithAuthor();
+        //fixme do many to many unidirectional
         var genres = List.of(
                 new Genre(null, "Comedy", Set.of(book.getId())),
                 new Genre(null, "Indie", Set.of(book.getId())),
                 new Genre(null, "Fighting", Set.of(book.getId()))
         );
 
+        List<Genre> dbGenres = new ArrayList<>(genres.size());
 
-        val dbGenre = genres.stream().map(genre -> {
-            try {
-                return service.create(genre);
-            } catch (BusinessException e) {
-                throw new RuntimeException(e);
-            }
-        }).toList();
+        for (var genre : genres)
+            dbGenres.add(service.create(genre));
 
-        service.read().forEach(genre -> {
-            try {
-                service.delete(genre.getId());
-            } catch (BusinessException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        for (var genre : service.read())
+            service.delete(genre.getId());
 
-        assertFalse(service.getRepository().findAllById(dbGenre.stream()
-                        .map(Genre::getId).toList())
-                .isEmpty());
+
+        try {
+            service.read(dbGenres.get(0).getId());
+        } catch (BusinessException e) {
+            return;
+        }
+        Assertions.fail();
     }
 
     private Book createBook() throws BusinessException {
