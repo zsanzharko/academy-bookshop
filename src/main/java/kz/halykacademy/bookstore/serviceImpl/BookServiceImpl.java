@@ -36,7 +36,8 @@ public class BookServiceImpl extends BaseService<Book, BookEntity, BookRepositor
 
     @Override
     public List<Book> findBookByName(String name) {
-        List<BookEntity> bookEntities = repository.findAllByTitle(name);
+        List<BookEntity> bookEntities = repository.findAllByTitle(name).stream()
+                .filter(book -> book.getRemoved() == null).toList();
 
         return bookEntities.stream().map(this::convertToDto).toList();
     }

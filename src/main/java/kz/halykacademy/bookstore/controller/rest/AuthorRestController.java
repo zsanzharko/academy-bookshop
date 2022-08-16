@@ -1,16 +1,13 @@
 package kz.halykacademy.bookstore.controller.rest;
 
 import kz.halykacademy.bookstore.controller.rest.response.AuthorApiResponse;
-import kz.halykacademy.bookstore.controller.rest.response.Response;
 import kz.halykacademy.bookstore.dto.Author;
 import kz.halykacademy.bookstore.exceptions.businessExceptions.BusinessException;
-import kz.halykacademy.bookstore.service.AuthorService;
 import kz.halykacademy.bookstore.serviceImpl.AuthorServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -27,13 +24,11 @@ public class AuthorRestController implements AuthorApiResponse {
     }
 
     @Override
-    @PostMapping
     public Author create(Author author) throws BusinessException {
         return service.create(author);
     }
 
     @Override
-    @GetMapping
     public List<Author> read() throws BusinessException {
         return service.read();
     }

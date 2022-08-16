@@ -1,15 +1,12 @@
 package kz.halykacademy.bookstore.controller.rest;
 
 import kz.halykacademy.bookstore.controller.rest.response.BookApiResponse;
-import kz.halykacademy.bookstore.controller.rest.response.Response;
 import kz.halykacademy.bookstore.dto.Book;
 import kz.halykacademy.bookstore.exceptions.businessExceptions.BusinessException;
-import kz.halykacademy.bookstore.service.BookService;
 import kz.halykacademy.bookstore.serviceImpl.BookServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -47,5 +44,10 @@ public class BookRestController implements BookApiResponse {
     @Override
     public void delete(Long id) throws BusinessException {
         service.delete(id);
+    }
+
+    @Override
+    public List<Book> findBookByName(String name) {
+        return service.findBookByName(name);
     }
 }

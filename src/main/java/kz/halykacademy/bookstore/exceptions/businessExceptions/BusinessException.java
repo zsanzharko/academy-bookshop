@@ -13,6 +13,7 @@ public class BusinessException extends Exception {
      * call to {@link #initCause}.
      */
     public BusinessException(HttpStatus status) {
+        super("");
         this.status = status;
     }
 

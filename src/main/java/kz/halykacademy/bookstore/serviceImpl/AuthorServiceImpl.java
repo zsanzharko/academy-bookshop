@@ -33,7 +33,9 @@ public class AuthorServiceImpl extends BaseService<Author, AuthorEntity, AuthorR
     @Override
     public List<Author> findAuthorByFIO(String name, String surname, String patronymic) {
         var authorList = repository.findAllByNameAndSurnameAndPatronymic(name, surname, patronymic);
-        return authorList.stream().map(this::convertToDto).toList();
+        return authorList.stream()
+                .filter(author -> author.getRemoved() == null)
+                .map(this::convertToDto).toList();
     }
 
     @Override
@@ -54,8 +56,10 @@ public class AuthorServiceImpl extends BaseService<Author, AuthorEntity, AuthorR
 
     @Override
     public Author update(@NonNull Author author) throws BusinessException, NullPointerException {
-        AuthorEntity authorEntity = convertToEntity(author);
+        if (author.getId() == null)
+            throw new BusinessException("Id to update author must not be null", HttpStatus.BAD_REQUEST);
 
+        AuthorEntity authorEntity = convertToEntity(author);
         return saveAndFlush(authorEntity);
     }
 

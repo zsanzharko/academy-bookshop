@@ -1,15 +1,12 @@
 package kz.halykacademy.bookstore.controller.rest;
 
 import kz.halykacademy.bookstore.controller.rest.response.PublisherApiResponse;
-import kz.halykacademy.bookstore.controller.rest.response.Response;
 import kz.halykacademy.bookstore.dto.Publisher;
 import kz.halykacademy.bookstore.exceptions.businessExceptions.BusinessException;
-import kz.halykacademy.bookstore.service.PublisherService;
 import kz.halykacademy.bookstore.serviceImpl.PublisherServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
