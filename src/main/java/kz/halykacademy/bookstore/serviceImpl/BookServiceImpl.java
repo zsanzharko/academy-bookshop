@@ -7,8 +7,10 @@ import kz.halykacademy.bookstore.entity.PublisherEntity;
 import kz.halykacademy.bookstore.exceptions.businessExceptions.BusinessException;
 import kz.halykacademy.bookstore.repository.AuthorRepository;
 import kz.halykacademy.bookstore.repository.BookRepository;
+import kz.halykacademy.bookstore.repository.GenreRepository;
 import kz.halykacademy.bookstore.repository.PublisherRepository;
 import kz.halykacademy.bookstore.service.BookService;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,12 +28,15 @@ public class BookServiceImpl extends BaseService<Book, BookEntity, BookRepositor
 
     private final PublisherRepository publisherRepository;
     private final AuthorRepository authorRepository;
+    private final GenreRepository genreRepository;
+
     @Autowired
     public BookServiceImpl(BookRepository repository,
-                           PublisherRepository publisherRepository, AuthorRepository authorRepository) {
+                           PublisherRepository publisherRepository, AuthorRepository authorRepository, GenreRepository genreRepository) {
         super(BookEntity.class, Book.class, repository);
         this.publisherRepository = publisherRepository;
         this.authorRepository = authorRepository;
+        this.genreRepository = genreRepository;
     }
 
     @Override
@@ -40,6 +45,29 @@ public class BookServiceImpl extends BaseService<Book, BookEntity, BookRepositor
                 .filter(book -> book.getRemoved() == null).toList();
 
         return bookEntities.stream().map(this::convertToDto).toList();
+    }
+
+    @Override
+    public List<Book> findBooksByGenres(@NonNull List<String> genresName) throws BusinessException {
+        if (genresName.size() == 0) throw new BusinessException("Invalid input on genres name", HttpStatus.BAD_REQUEST);
+
+        var genresList = genresName.stream()
+                .map(genreRepository::findAllByTitle)
+                .toList();
+        Set<Book> books = new HashSet<>();
+
+        for (var genres : genresList) {
+            for (var genre : genres) {
+                if (genre.getRemoved() == null) {
+                    var booksGenre = genre.getBooks().stream()
+                            .map(this::convertToDto)
+                            .collect(Collectors.toSet());
+                    books.addAll(booksGenre);
+                }
+            }
+        }
+
+        return books.stream().toList();
     }
 
     @Override

@@ -52,4 +52,9 @@ public class AuthorRestController implements AuthorApiResponse {
     public List<Author> findAuthorByFullName(String name, String surname, String patronymic) {
         return service.findAuthorByFIO(name, surname, patronymic);
     }
+
+    @Override
+    public List<Author> findAuthorsByGenres(List<String> genresName) throws BusinessException {
+        return service.findAuthorsByGenres(genresName);
+    }
 }

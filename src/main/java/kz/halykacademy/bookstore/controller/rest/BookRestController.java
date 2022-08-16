@@ -50,4 +50,9 @@ public class BookRestController implements BookApiResponse {
     public List<Book> findBookByName(String name) {
         return service.findBookByName(name);
     }
+
+    @Override
+    public List<Book> findBooksByGenres(List<String> genresName) throws BusinessException {
+        return service.findBooksByGenres(genresName);
+    }
 }

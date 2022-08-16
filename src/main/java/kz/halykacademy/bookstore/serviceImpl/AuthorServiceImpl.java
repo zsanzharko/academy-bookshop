@@ -6,6 +6,7 @@ import kz.halykacademy.bookstore.entity.BookEntity;
 import kz.halykacademy.bookstore.exceptions.businessExceptions.BusinessException;
 import kz.halykacademy.bookstore.repository.AuthorRepository;
 import kz.halykacademy.bookstore.repository.BookRepository;
+import kz.halykacademy.bookstore.repository.GenreRepository;
 import kz.halykacademy.bookstore.service.AuthorService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,11 +25,13 @@ public class AuthorServiceImpl extends BaseService<Author, AuthorEntity, AuthorR
         implements AuthorService {
 
     private final BookRepository bookRepository;
+    private final GenreRepository genreRepository;
 
     @Autowired
-    public AuthorServiceImpl(AuthorRepository repository, BookRepository bookRepository) {
+    public AuthorServiceImpl(AuthorRepository repository, BookRepository bookRepository, GenreRepository genreRepository) {
         super(AuthorEntity.class, Author.class, repository);
         this.bookRepository = bookRepository;
+        this.genreRepository = genreRepository;
     }
 
     @Override
@@ -36,6 +40,25 @@ public class AuthorServiceImpl extends BaseService<Author, AuthorEntity, AuthorR
         return authorList.stream()
                 .filter(author -> author.getRemoved() == null)
                 .map(this::convertToDto).toList();
+    }
+
+    @Override
+    public List<Author> findAuthorsByGenres(List<String> genresName) throws BusinessException {
+        if (genresName.size() == 0) throw new BusinessException("Invalid input on genres name", HttpStatus.BAD_REQUEST);
+        var genresList = genresName.stream()
+                .map(genreRepository::findAllByTitle)
+                .toList();
+
+        Set<Author> authors = new HashSet<>();
+
+        genresList.forEach(genres -> genres.stream()
+                .filter(genreEntity -> genreEntity.getRemoved() == null)
+                .forEach(genre -> genre.getBooks().stream()
+                .map(BookEntity::getAuthors)
+                .forEach(authorEntities -> authors.addAll(authorEntities.stream()
+                        .map(this::convertToDto).collect(Collectors.toSet())))));
+
+        return authors.stream().toList();
     }
 
     @Override

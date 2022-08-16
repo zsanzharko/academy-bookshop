@@ -14,13 +14,11 @@ public class Genre implements Serializable, DTOs {
     private Long id;
     private String title;
     private Set<Long> books;
-    private Set<Long> authors;
 
     @Builder
-    public Genre(Long id, String title, Set<Long> books, Set<Long> authors) {
+    public Genre(Long id, String title, Set<Long> books) {
         this.id = id;
         this.title = title;
         this.books = books;
-        this.authors = authors;
     }
 }

@@ -21,7 +21,6 @@ public class GenreRestController implements GenreApiResponse {
         this.service = service;
     }
 
-
     @Override
     public Genre create(Genre genre) throws BusinessException {
         return service.create(genre);
