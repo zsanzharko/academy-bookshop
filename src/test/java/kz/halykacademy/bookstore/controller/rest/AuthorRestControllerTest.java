@@ -1,6 +1,7 @@
 package kz.halykacademy.bookstore.controller.rest;
 
 import kz.halykacademy.bookstore.controller.AbstractTestController;
+import kz.halykacademy.bookstore.exceptions.businessExceptions.BusinessException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,7 +12,7 @@ class AuthorRestControllerTest extends AbstractTestController {
     private final String uri = "http://localhost:8080";
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws BusinessException {
         super.setUp();
     }
 

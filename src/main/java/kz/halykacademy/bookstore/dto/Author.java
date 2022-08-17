@@ -1,9 +1,9 @@
 package kz.halykacademy.bookstore.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import kz.halykacademy.bookstore.entity.AuthorEntity;
-import kz.halykacademy.bookstore.serviceImpl.DTOs;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,6 +31,7 @@ public class Author implements Serializable, DTOs {
     private String name;
     private String surname;
     private String patronymic;
+    @JsonFormat(pattern="dd/MM/yyyy")
     private Date birthday;
     private Set<Long> writtenBooks;
 
@@ -41,7 +42,7 @@ public class Author implements Serializable, DTOs {
         this.surname = surname;
         this.patronymic = patronymic;
         this.birthday = birthday;
-        this.writtenBooks = writtenBooks;
+        this.writtenBooks = writtenBooks == null ? new HashSet<>(): writtenBooks;
     }
 
     public Author(String name, String surname, String patronymic, Date birthday) {

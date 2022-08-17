@@ -3,6 +3,7 @@ package kz.halykacademy.bookstore.service;
 import kz.halykacademy.bookstore.dto.Author;
 import kz.halykacademy.bookstore.dto.Book;
 import kz.halykacademy.bookstore.dto.Publisher;
+import kz.halykacademy.bookstore.exceptions.businessExceptions.BusinessException;
 import kz.halykacademy.bookstore.serviceImpl.AuthorServiceImpl;
 import kz.halykacademy.bookstore.serviceImpl.BookServiceImpl;
 import kz.halykacademy.bookstore.serviceImpl.PublisherServiceImpl;
@@ -33,19 +34,20 @@ class BookServiceImplTest {
     private AuthorServiceImpl authorService;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws BusinessException {
         assertNotNull(bookService, "Provider did not autowired in test");
-        bookService.read().stream()
-                .map(Book::getId)
-                .forEach(bookService::delete);
-        publisherService.read().stream()
-                .map(Publisher::getId)
-                .forEach(bookService::delete);
+
+        for (Book book : bookService.read())
+            bookService.delete(book.getId());
+        for (Publisher publisher : publisherService.read())
+            publisherService.delete(publisher.getId());
+//        for (Author author : authorService.read())
+//            authorService.delete(author.getId());
     }
 
     @Test
     @DisplayName("Save book")
-    void save() {
+    void save() throws BusinessException {
         val publisher = publisherService.create(new Publisher("Some Publisher"));
 
         Book book = new Book(null, new BigDecimal(990), null, publisher.getId(), "Title", 100, new Date());
@@ -57,7 +59,7 @@ class BookServiceImplTest {
 
     @Test
     @DisplayName("Save book with author")
-    void saveWithAuthor() {
+    void saveWithAuthor() throws BusinessException {
         val publisher = publisherService.create(new Publisher("Some Publisher"));
 
         Book book = new Book(null, new BigDecimal(990), null, publisher.getId(), "Title", 100, new Date());
@@ -74,7 +76,7 @@ class BookServiceImplTest {
 
     @Test
     @DisplayName("Save all books")
-    void saveAll() {
+    void saveAll() throws BusinessException {
         val publisher = publisherService.create(new Publisher("Some Publisher with all books"));
 
         var books = List.of(
@@ -83,14 +85,20 @@ class BookServiceImplTest {
                 new Book(null, new BigDecimal(990), null, publisher.getId(), "Title 3", 100, new Date())
         );
 
-        var dbBooks = books.stream().map(book -> bookService.create(book));
+        var dbBooks = books.stream().map(book -> {
+            try {
+                return bookService.create(book);
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         assertNotNull(dbBooks);
     }
 
     @Test
     @DisplayName("Save and flush book")
-    void saveAndFlush() {
+    void saveAndFlush() throws BusinessException {
         val publisher = publisherService.create(new Publisher("Some Publisher with updating data book"));
         Book book = new Book(null, new BigDecimal(990), null, publisher.getId(), "Title 4", 100, new Date());
 
@@ -108,10 +116,10 @@ class BookServiceImplTest {
 
     @Test
     @DisplayName("Remove all books")
-    void removeAll() {
-        bookService.read().stream()
-                .map(Book::getId)
-                .forEach(bookService::delete);
+    void removeAll() throws BusinessException {
+        for (Book book : bookService.read()) {
+            bookService.delete(book.getId());
+        }
 
         var books = bookService.read();
 
@@ -120,7 +128,7 @@ class BookServiceImplTest {
 
     @Test
     @DisplayName("Remove book by id")
-    void removeById() {
+    void removeById() throws BusinessException {
         val publisher = publisherService.create(new Publisher("Some Publisher to remove book"));
         Book book = new Book(null, new BigDecimal(990), null, publisher.getId(), "Title 4", 100, new Date());
 
@@ -130,12 +138,42 @@ class BookServiceImplTest {
 
         bookService.delete(dbBook.getId());
 
-        assertNull(bookService.read(dbBook.getId()));
+        try {
+            bookService.read(dbBook.getId());
+        } catch (BusinessException businessException) {
+            assertTrue(true);
+            return;
+        }
+        fail();
+    }
+
+    @Test
+    @DisplayName("Remove book with author by id")
+    void removeWithAuthorById() throws BusinessException {
+        val publisher = publisherService.create(new Publisher("Some Publisher to remove book"));
+        Book book = new Book(null, new BigDecimal(990), null, publisher.getId(), "Title 4", 100, new Date());
+
+        var author = authorService.create(new Author("Name", "Surname", new Date()));
+        book.setAuthors(Set.of(author.getId()));
+
+        var dbBook = bookService.create(book);
+
+        assertNotNull(dbBook);
+
+        bookService.delete(dbBook.getId());
+
+        try {
+            bookService.read(dbBook.getId());
+        } catch (BusinessException businessException) {
+            assertTrue(true);
+            return;
+        }
+        fail();
     }
 
     @Test
     @DisplayName("Find book by id")
-    void findById() {
+    void findById() throws BusinessException {
         val publisher = publisherService.create(new Publisher("Some Publisher to find a book"));
         Book book = new Book(null, new BigDecimal(990), null, publisher.getId(), "Title 4", 100, new Date());
 
@@ -151,7 +189,7 @@ class BookServiceImplTest {
 
     @Test
     @DisplayName("Get all books")
-    void getAll() {
+    void getAll() throws BusinessException {
         val publisher = publisherService.create(new Publisher("Some Publisher to get all books"));
         Book book = new Book(null, new BigDecimal(990), null, publisher.getId(), "Title 4", 100, new Date());
 

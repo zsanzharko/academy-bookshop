@@ -1,6 +1,8 @@
 package kz.halykacademy.bookstore.entity;
 
 import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -31,12 +33,13 @@ public class BookEntity extends AbstractEntity implements Serializable {
     @Column(name = "price")
     private BigDecimal price;
 
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "writtenBookList", targetEntity = AuthorEntity.class)
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "writtenBookList", targetEntity = AuthorEntity.class)
+    @Fetch(FetchMode.JOIN)
     @ToString.Exclude
     private Set<AuthorEntity> authors;
 
     @ManyToOne(targetEntity = PublisherEntity.class)
-    @JoinColumn(name = "publisher_id")
+    @JoinColumn(name = "publisher_id", referencedColumnName = "id")
     @ToString.Exclude
     private PublisherEntity publisher;
 

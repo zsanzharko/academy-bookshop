@@ -4,6 +4,7 @@ import kz.halykacademy.bookstore.config.ApplicationContextProvider;
 import kz.halykacademy.bookstore.dto.Author;
 import kz.halykacademy.bookstore.dto.Book;
 import kz.halykacademy.bookstore.dto.Publisher;
+import kz.halykacademy.bookstore.exceptions.businessExceptions.BusinessException;
 import kz.halykacademy.bookstore.serviceImpl.AuthorServiceImpl;
 import kz.halykacademy.bookstore.serviceImpl.BookServiceImpl;
 import kz.halykacademy.bookstore.serviceImpl.PublisherServiceImpl;
@@ -34,29 +35,47 @@ class AuthorServiceImplTest {
     private PublisherServiceImpl publisherService;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws BusinessException {
         assertNotNull(service, "Provider did not autowired in test");
         bookService.read().stream()
                 .map(Book::getId)
-                .forEach(bookService::delete);
+                .forEach(id -> {
+                    try {
+                        bookService.delete(id);
+                    } catch (BusinessException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
     }
 
     @AfterAll
-    public static void clean() {
+    public static void clean() throws BusinessException {
         val bookService = ApplicationContextProvider.getApplicationContext().getBean(BookServiceImpl.class);
         val service = ApplicationContextProvider.getApplicationContext().getBean(AuthorServiceImpl.class);
         service.read().stream()
                 .map(Author::getId)
-                .forEach(service::delete);          // deleting all in authors
+                .forEach(id -> {
+                    try {
+                        service.delete(id);
+                    } catch (BusinessException e) {
+                        throw new RuntimeException(e);
+                    }
+                });          // deleting all in authors
         bookService.read().stream()
                 .map(Book::getId)
-                .forEach(bookService::delete);      // deleting all in books
+                .forEach(id -> {
+                    try {
+                        bookService.delete(id);
+                    } catch (BusinessException e) {
+                        throw new RuntimeException(e);
+                    }
+                });      // deleting all in books
     }
 
 
     @Test
     @DisplayName("Save author without book")
-    void saveWithoutBook() {
+    void saveWithoutBook() throws BusinessException {
         var author = new Author("Sanzhar", "Zhanibekov", new Date());
 
         var dbAuthor = service.create(author);
@@ -67,7 +86,7 @@ class AuthorServiceImplTest {
 
     @Test
     @DisplayName("Save author with book")
-    void saveWithBook() {
+    void saveWithBook() throws BusinessException {
         var authorWithBook = new Author("Sanzhar", "Not Zhanibekov", new Date());
         var publisher = publisherService.create(new Publisher("Publisher author to book"));
         var title = "Book to save with author 1";
@@ -96,7 +115,13 @@ class AuthorServiceImplTest {
                 new Author("Another Another Sanzhar", "Another Another Zhanibekov", new Date())
         );
 
-        var dbAuthors = authors.stream().map(author -> service.create(author)).toList();
+        var dbAuthors = authors.stream().map(author -> {
+            try {
+                return service.create(author);
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        }).toList();
 
         assertNotNull(dbAuthors);
         assertEquals(authors.size(), dbAuthors.size());
@@ -104,7 +129,7 @@ class AuthorServiceImplTest {
 
     @Test
     @DisplayName("Save all authors with books")
-    void saveAllWithBooks() {
+    void saveAllWithBooks() throws BusinessException {
         val authors = List.of(
                 new Author("Sanzhar", "Zhanibekov", new Date()),
                 new Author("Another Sanzhar", "Another Zhanibekov", new Date()),
@@ -117,12 +142,24 @@ class AuthorServiceImplTest {
                 new Book(new BigDecimal(1990), publisher.getId(), "title", new Date()),
                 new Book(new BigDecimal(1990), publisher.getId(), "title", new Date()),
                 new Book(new BigDecimal(1990), publisher.getId(), "title", new Date())
-        ).map(book -> bookService.create(book)).toList();
+        ).map(book -> {
+            try {
+                return bookService.create(book);
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        }).toList();
 
         for (int i = 0; i < 3; i++)
             authors.get(i).setWrittenBooks(Set.of(books.get(i).getId()));
 
-        val dbAuthorsWithBooks = authors.stream().map(author -> service.create(author)).toList();
+        val dbAuthorsWithBooks = authors.stream().map(author -> {
+            try {
+                return service.create(author);
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        }).toList();
 
         assertNotNull(dbAuthorsWithBooks);
         assertEquals(authors.size(), dbAuthorsWithBooks.size());
@@ -136,7 +173,7 @@ class AuthorServiceImplTest {
 
     @Test
     @DisplayName("Save and flush author without books")
-    void updateWithoutBooks() {
+    void updateWithoutBooks() throws BusinessException {
         val oldName = "Old Sanzhar";
         val newName = "New Sanzhar";
         var author = service.create(new Author(oldName, "Zhanibekov", new Date()));
@@ -150,7 +187,7 @@ class AuthorServiceImplTest {
 
     @Test
     @DisplayName("Update author with books")
-    void updateWithBooks() {
+    void updateWithBooks() throws BusinessException {
         val oldName = "Old old Sanzhar";
         val newName = "New new Sanzhar";
         var author = service.create(new Author(oldName, "Zhanibekov", new Date()));
@@ -176,7 +213,7 @@ class AuthorServiceImplTest {
 
     @Test
     @DisplayName("Remove all authors without books ")
-    void removeAllWithoutBooks() {
+    void removeAllWithoutBooks() throws BusinessException {
 
         service.create(new Author("Sanzhar", "Zhanibekov", new Date()));
         service.create(new Author("Another Sanzhar", "Zhanibekov", new Date()));
@@ -186,14 +223,20 @@ class AuthorServiceImplTest {
 
         bookService.read().stream()
                 .map(Book::getId)
-                .forEach(bookService::delete);
+                .forEach(id -> {
+                    try {
+                        bookService.delete(id);
+                    } catch (BusinessException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
 
         assertEquals(0, service.read().size());
     }
 
     @Test
     @DisplayName("Remove all authors with books ")
-    void removeAllWithBooks() {
+    void removeAllWithBooks() throws BusinessException {
         clean();
         val authors = List.of(
                 new Author("Sanzhar", "Zhanibekov", new Date()),
@@ -206,20 +249,34 @@ class AuthorServiceImplTest {
                 new Book(new BigDecimal(1990), publisher.getId(), "title", new Date()),
                 new Book(new BigDecimal(1990), publisher.getId(), "title", new Date()),
                 new Book(new BigDecimal(1990), publisher.getId(), "title", new Date())
-        )).map(book -> bookService.create(book)).toList();
+        )).map(book -> {
+            try {
+                return bookService.create(book);
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        }).toList();
 
         for (int i = 0; i < 3; i++) authors.get(i).setWrittenBooks(Set.of(books.get(i).getId()));
 
-        val dbAuthors = authors.stream().map(author -> service.create(author)).toList();
+        val dbAuthors = authors.stream().map(author -> {
+            try {
+                return service.create(author);
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        }).toList();
 
         assertEquals(3, service.read().size());
         dbAuthors.forEach(author ->
                 assertEquals(1, author.getWrittenBooks().size())); // assert books size each author
 
 
-        bookService.read().stream()
-                .map(Book::getId)
-                .forEach(bookService::delete);
+        BookServiceImpl bookService1 = bookService;
+        for (Book book : bookService.read()) {
+            Long id = book.getId();
+            bookService1.delete(id);
+        }
 
         assertEquals(0, service.read().size());
         assertEquals(0, bookService.read().size(),

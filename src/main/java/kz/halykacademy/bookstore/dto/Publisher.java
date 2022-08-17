@@ -2,7 +2,6 @@ package kz.halykacademy.bookstore.dto;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import kz.halykacademy.bookstore.serviceImpl.DTOs;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +9,6 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,18 +31,15 @@ public class Publisher implements Serializable, DTOs {
     private Long id;
     private String title;
     private List<Long> books;
-    private Date removed;
 
     public Publisher(String title, List<Long> books) {
         this.title = title;
         this.books = books;
-        this.removed = null;
     }
 
     public Publisher(String title) {
         this.title = title;
-        this.books = new ArrayList<>(4);
-        this.removed = null;
+        this.books = new ArrayList<>();
     }
 
     @Override

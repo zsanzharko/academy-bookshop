@@ -1,16 +1,18 @@
 package kz.halykacademy.bookstore.controller.rest;
 
+import kz.halykacademy.bookstore.controller.rest.response.BookApiResponse;
 import kz.halykacademy.bookstore.dto.Book;
-import kz.halykacademy.bookstore.service.BookService;
+import kz.halykacademy.bookstore.exceptions.businessExceptions.BusinessException;
 import kz.halykacademy.bookstore.serviceImpl.BookServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/books")
-public class BookRestController implements BookService {
+public class BookRestController implements BookApiResponse {
 
     private final BookServiceImpl service;
 
@@ -20,37 +22,37 @@ public class BookRestController implements BookService {
     }
 
     @Override
-    @PostMapping
-    public Book create(@RequestBody Book book) {
+    public Book create(Book book) throws BusinessException {
         return service.create(book);
     }
 
     @Override
-    @GetMapping
-    public List<Book> read() {
+    public List<Book> read() throws BusinessException {
         return service.read();
     }
 
     @Override
-    @GetMapping("/{id}")
-    public Book read(@PathVariable Long id) {
+    public Book read(Long id) throws BusinessException {
         return service.read(id);
     }
 
     @Override
-    @PostMapping("/update")
-    public Book update(@RequestBody Book book) {
-        return service.update(book);
+    public void update(Book book) throws BusinessException {
+        service.update(book);
     }
 
     @Override
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public void delete(Long id) throws BusinessException {
         service.delete(id);
     }
 
     @Override
     public List<Book> findBookByName(String name) {
         return service.findBookByName(name);
+    }
+
+    @Override
+    public List<Book> findBooksByGenres(List<String> genresName) throws BusinessException {
+        return service.findBooksByGenres(genresName);
     }
 }

@@ -3,13 +3,16 @@ package kz.halykacademy.bookstore.serviceImpl;
 import kz.halykacademy.bookstore.dto.Book;
 import kz.halykacademy.bookstore.entity.AuthorEntity;
 import kz.halykacademy.bookstore.entity.BookEntity;
-import kz.halykacademy.bookstore.entity.PublisherEntity;
+import kz.halykacademy.bookstore.exceptions.businessExceptions.BusinessException;
 import kz.halykacademy.bookstore.repository.AuthorRepository;
 import kz.halykacademy.bookstore.repository.BookRepository;
+import kz.halykacademy.bookstore.repository.GenreRepository;
 import kz.halykacademy.bookstore.repository.PublisherRepository;
 import kz.halykacademy.bookstore.service.BookService;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -24,55 +27,75 @@ public class BookServiceImpl extends BaseService<Book, BookEntity, BookRepositor
 
     private final PublisherRepository publisherRepository;
     private final AuthorRepository authorRepository;
+    private final GenreRepository genreRepository;
+
     @Autowired
     public BookServiceImpl(BookRepository repository,
-                           PublisherRepository publisherRepository, AuthorRepository authorRepository) {
+                           PublisherRepository publisherRepository, AuthorRepository authorRepository, GenreRepository genreRepository) {
         super(BookEntity.class, Book.class, repository);
         this.publisherRepository = publisherRepository;
         this.authorRepository = authorRepository;
+        this.genreRepository = genreRepository;
     }
 
     @Override
     public List<Book> findBookByName(String name) {
-        List<BookEntity> bookEntities = repository.findAllByTitle(name);
+        List<BookEntity> bookEntities = repository.findAllByTitle(name).stream()
+                .filter(book -> book.getRemoved() == null).toList();
 
         return bookEntities.stream().map(this::convertToDto).toList();
     }
 
     @Override
-    public Book create(Book book) {
+    public List<Book> findBooksByGenres(@NonNull List<String> genresName) throws BusinessException {
+        if (genresName.size() == 0) throw new BusinessException("Invalid input on genres name", HttpStatus.BAD_REQUEST);
+
+        var genresList = genresName.stream()
+                .map(genreRepository::findAllByTitle)
+                .toList();
+        Set<Book> books = new HashSet<>();
+
+        for (var genres : genresList) {
+            for (var genre : genres) {
+                if (genre.getRemoved() == null) {
+                    var booksGenre = genre.getBooks().stream()
+                            .map(this::convertToDto)
+                            .collect(Collectors.toSet());
+                    books.addAll(booksGenre);
+                }
+            }
+        }
+
+        return books.stream().toList();
+    }
+
+    @Override
+    public Book create(Book book) throws BusinessException {
         var bookEntity = convertToEntity(book);
-        if (bookEntity == null) return null;
 
         return save(bookEntity);
     }
 
     @Override
-    public List<Book> read() {
+    public List<Book> read() throws BusinessException {
         return super.getAll();
     }
 
     @Override
-    public Book read(Long id) {
+    public Book read(Long id) throws BusinessException {
         return super.findById(id);
     }
 
     @Override
-    public Book update(Book book) {
+    public Book update(Book book) throws BusinessException {
         var bookEntity = convertToEntity(book);
-        if (bookEntity == null) return null;
 
-        if (bookEntity.getAuthors() != null) {
-            bookEntity.getAuthors().forEach(author -> {
-//                if (author == null || author.geta
-            });
-        }
-        return saveAndFlush(bookEntity);
+        return update(bookEntity);
     }
 
     @Override
-    public void delete(Long id) {
-        removeById(id);
+    public void delete(Long id) throws BusinessException {
+        this.removeById(id);
     }
 
     @Override
@@ -89,23 +112,41 @@ public class BookServiceImpl extends BaseService<Book, BookEntity, BookRepositor
     }
 
     @Override
-    protected BookEntity convertToEntity(Book book) {
-        if (book.getPublisher() == null) return null;
+    protected BookEntity convertToEntity(Book book) throws BusinessException {
+        if (book == null) throw new NullPointerException("Book can not be null");
+        if (book.getPublisher() == null)
+            throw new BusinessException("Publisher in books can not be null", HttpStatus.BAD_REQUEST);
 
-        PublisherEntity publisherEntity = publisherRepository.findById(book.getPublisher()).orElse(null);
-        if(publisherEntity == null) return null;
+        var publisher = publisherRepository.findById(book.getPublisher())
+                .orElseThrow(() -> new BusinessException("Publsher can not found", HttpStatus.NOT_FOUND));
 
         Set<AuthorEntity> authorEntities = null;
         if (book.getAuthors() != null && !book.getAuthors().isEmpty())
             authorEntities = new HashSet<>(authorRepository.findAllById(book.getAuthors()));
+
         return BookEntity.builder()
-                        .id(book.getId())
-                        .price(book.getPrice())
-                        .title(book.getTitle())
-                        .authors(authorEntities)
-                        .numberOfPage(book.getNumberOfPage())
-                        .publisher(publisherEntity)
-                        .releaseDate(book.getReleaseDate())
-                        .build();
+                .id(book.getId())
+                .price(book.getPrice())
+                .title(book.getTitle())
+                .authors(authorEntities)
+                .numberOfPage(book.getNumberOfPage())
+                .publisher(publisher)
+                .releaseDate(book.getReleaseDate())
+                .build();
+    }
+
+    @Override
+    protected void removeById(Long id) throws BusinessException {
+        var book = repository.findById(id).orElseThrow(() -> new BusinessException("Can not find book by id", HttpStatus.NOT_FOUND));
+        var authors = authorRepository.findAllById(
+                book.getAuthors().stream()
+                .map(AuthorEntity::getId)
+                .toList()
+        );
+
+        for (var author : authors) author.removeBook(book);
+        authorRepository.saveAll(authors);
+
+        super.removeById(id);
     }
 }

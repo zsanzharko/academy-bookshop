@@ -2,6 +2,7 @@ package kz.halykacademy.bookstore.service;
 
 import kz.halykacademy.bookstore.dto.Book;
 import kz.halykacademy.bookstore.dto.Publisher;
+import kz.halykacademy.bookstore.exceptions.businessExceptions.BusinessException;
 import kz.halykacademy.bookstore.serviceImpl.BookServiceImpl;
 import kz.halykacademy.bookstore.serviceImpl.PublisherServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -31,13 +32,11 @@ class PublisherServiceImplTest {
     private BookServiceImpl bookService;
 
     @BeforeEach
-    void clean() {
-        service.read().stream()
-                .map(Publisher::getId)
-                .forEach(bookService::delete);
-        bookService.read().stream()
-                .map(Book::getId)
-                .forEach(bookService::delete);
+    void clean() throws BusinessException {
+        for (Publisher publisher : service.read())
+            service.delete(publisher.getId());
+        for (Book book : bookService.read())
+            bookService.delete(book.getId());
     }
 
     @Test
@@ -48,7 +47,7 @@ class PublisherServiceImplTest {
 
     @Test
     @DisplayName("Save publisher")
-    void save() {
+    void save() throws BusinessException {
         // Create object to save
         var publisher = new Publisher("Publisher test save");
 
@@ -62,7 +61,7 @@ class PublisherServiceImplTest {
 
     @Test
     @DisplayName("Save publisher with books")
-    void saveWithBooks() {
+    void saveWithBooks() throws BusinessException {
         var publisher = new Publisher("Publisher with books");
 
         // pre-operation
@@ -75,7 +74,13 @@ class PublisherServiceImplTest {
                 new Book(new BigDecimal(990), publisher.getId(), "Book to save with publisher 4", new Date())
         );
 
-        var dbBook = books.stream().map(book -> bookService.create(book)).toList();
+        var dbBook = books.stream().map(book -> {
+            try {
+                return bookService.create(book);
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        }).toList();
 
         publisher.setBooks(dbBook.stream().map(Book::getId).toList());
 
@@ -100,7 +105,13 @@ class PublisherServiceImplTest {
         );
 
         // operation
-        var dbPublishers = publishersTestSave.stream().map(publisher -> service.create(publisher)).toList();
+        var dbPublishers = publishersTestSave.stream().map(publisher -> {
+            try {
+                return service.create(publisher);
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        }).toList();
 
         var publishersListTitles = publishersTestSave.stream().map(Publisher::getTitle).toList();
         var dbPublishersListTitles = dbPublishers.stream().map(Publisher::getTitle).toList();
@@ -137,7 +148,13 @@ class PublisherServiceImplTest {
 
         // operation
         var dbPublishersTestSave2 = publishers.stream()
-                .map(publisher -> service.create(publisher)).toList();
+                .map(publisher -> {
+                    try {
+                        return service.create(publisher);
+                    } catch (BusinessException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).toList();
 
         // assertion
         assertNotNull(dbPublishersTestSave2);
@@ -153,7 +170,7 @@ class PublisherServiceImplTest {
 
     @Test
     @DisplayName("Save and flush publisher")
-    void saveAndFlush() {
+    void saveAndFlush() throws BusinessException {
         // pre req
         final String changeTitle = "Change title on publisher";
 
@@ -177,13 +194,12 @@ class PublisherServiceImplTest {
 
     @Test
     @DisplayName("Save and flush publisher with books")
-    void saveAndFlushWithBooks() {
+    void saveAndFlushWithBooks() throws BusinessException {
         // Create object to save
         var publisher = service.create(new Publisher("Publisher 2 test flush update"));
 
-        Stream.of(new Book(
-                        new BigDecimal(1990), publisher.getId(), "Old Book in Publisher", new Date()))
-                .forEach(book -> bookService.create(book));
+        bookService.create(new Book(
+                new BigDecimal(1990), publisher.getId(), "Old Book in Publisher", new Date()));
 
         publisher = service.read(publisher.getId());
 
@@ -192,13 +208,22 @@ class PublisherServiceImplTest {
 
 //        publisher.setBooks(books.stream().map(Book::getId).toList()); // set old books
 
-
         // operation
-        final var changeBooks = List.of(
-                new Book(new BigDecimal(990), publisher.getId(), "Change Book in Publisher", new Date()));
+        final var changeBooks = Stream.of(
+                new Book(new BigDecimal(990), publisher.getId(), "Change Book in Publisher", new Date()),
+                new Book(new BigDecimal(990), publisher.getId(), "AOWFNAOIFNAOEIn", new Date()),
+                new Book(new BigDecimal(990), publisher.getId(), "apifhqifhqeifhqef", new Date()))
+                .map(book -> {
+                    try {
+                        return bookService.create(book);
+                    } catch (BusinessException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).map(Book::getId)
+                .toList();
 
 
-        publisher.setBooks(changeBooks.stream().map(Book::getId).toList());
+        publisher.setBooks(changeBooks);
 
         publisher = service.update(publisher);
 
@@ -211,7 +236,7 @@ class PublisherServiceImplTest {
 
     @Test
     @DisplayName("Remove all publishers")
-    void removeAll() {
+    void removeAll() throws BusinessException {
 
         final String testTitle1 = ("Publisher test save1");
         final String testTitle2 = ("Publisher test save2");
@@ -222,19 +247,23 @@ class PublisherServiceImplTest {
         var dbPublisher2 = service.create(new Publisher(testTitle2));
         var dbPublisher3 = service.create(new Publisher(testTitle3));
 
+        for (Publisher publisher : service.read()) {
+            service.delete(publisher.getId());
+        }
 
-        service.read().stream()
-                .map(Publisher::getId)
-                .forEach(bookService::delete);
-
-        Assertions.assertNull(service.read(dbPublisher1.getId()));
-        Assertions.assertNull(service.read(dbPublisher2.getId()));
-        Assertions.assertNull(service.read(dbPublisher3.getId()));
+        try {
+            service.read(dbPublisher1.getId());
+            service.read(dbPublisher2.getId());
+            service.read(dbPublisher3.getId());
+        } catch (BusinessException e) {
+            return;
+        }
+        Assertions.fail();
     }
 
     @Test
     @DisplayName("Remove publisher by id")
-    void removeById() {
+    void removeById() throws BusinessException {
 
         final String testTitle1 = ("Publisher test save1");
 
@@ -246,7 +275,7 @@ class PublisherServiceImplTest {
 
     @Test
     @DisplayName("Find publisher by id")
-    void findById() {
+    void findById() throws BusinessException {
 
         final String testTitle1 = ("Publisher test find by id");
 
@@ -262,7 +291,7 @@ class PublisherServiceImplTest {
 
     @Test
     @DisplayName("Get all publishers")
-    void getAll() {
+    void getAll() throws BusinessException {
 
         final String testTitle1 = ("Publisher test save1");
         final String testTitle2 = ("Publisher test save2");

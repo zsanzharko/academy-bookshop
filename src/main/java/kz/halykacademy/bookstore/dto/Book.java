@@ -1,8 +1,8 @@
 package kz.halykacademy.bookstore.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import kz.halykacademy.bookstore.serviceImpl.DTOs;
 import lombok.*;
 
 import java.io.Serializable;
@@ -32,6 +32,7 @@ public class Book implements Serializable, DTOs {
     private Long publisher;
     private String title;
     private Integer numberOfPage;
+    @JsonFormat(pattern = "dd/mm/yyyy")
     private Date releaseDate;
 
     public Book(BigDecimal price, @NonNull Set<Long> authors, @NonNull Long publisher, String title, Integer numberOfPage, Date releaseDate) {

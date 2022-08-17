@@ -1,16 +1,20 @@
 package kz.halykacademy.bookstore.controller.rest;
 
+import kz.halykacademy.bookstore.controller.rest.response.AuthorApiResponse;
 import kz.halykacademy.bookstore.dto.Author;
-import kz.halykacademy.bookstore.service.AuthorService;
+import kz.halykacademy.bookstore.exceptions.businessExceptions.BusinessException;
 import kz.halykacademy.bookstore.serviceImpl.AuthorServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/authors")
-public class AuthorRestController implements AuthorService {
+@Slf4j
+public class AuthorRestController implements AuthorApiResponse {
 
     private final AuthorServiceImpl service;
 
@@ -20,37 +24,37 @@ public class AuthorRestController implements AuthorService {
     }
 
     @Override
-    @PostMapping
-    public Author create(@RequestBody Author author) {
+    public Author create(Author author) throws BusinessException {
         return service.create(author);
     }
 
     @Override
-    @GetMapping
-    public List<Author> read() {
+    public List<Author> read() throws BusinessException {
         return service.read();
     }
 
     @Override
-    @GetMapping("/{id}")
-    public Author read(@PathVariable Long id) {
+    public Author read(Long id) throws BusinessException {
         return service.read(id);
     }
 
     @Override
-    @PostMapping("/update")
-    public Author update(@RequestBody Author author) {
-        return service.update(author);
+    public void update(Author author) throws BusinessException {
+        service.update(author);
     }
 
     @Override
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public void delete(Long id) throws BusinessException {
         service.delete(id);
     }
 
     @Override
-    public List<Author> findAuthorByFIO(String name, String surname, String patronymic) {
-        return null;
+    public List<Author> findAuthorByFullName(String name, String surname, String patronymic) {
+        return service.findAuthorByFIO(name, surname, patronymic);
+    }
+
+    @Override
+    public List<Author> findAuthorsByGenres(List<String> genresName) throws BusinessException {
+        return service.findAuthorsByGenres(genresName);
     }
 }
