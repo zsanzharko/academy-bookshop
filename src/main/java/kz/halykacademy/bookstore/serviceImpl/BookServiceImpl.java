@@ -32,7 +32,7 @@ public class BookServiceImpl extends BaseService<Book, BookEntity, BookRepositor
     @Autowired
     public BookServiceImpl(BookRepository repository,
                            PublisherRepository publisherRepository, AuthorRepository authorRepository, GenreRepository genreRepository) {
-        super(BookEntity.class, Book.class, repository);
+        super(repository);
         this.publisherRepository = publisherRepository;
         this.authorRepository = authorRepository;
         this.genreRepository = genreRepository;

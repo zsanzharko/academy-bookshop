@@ -25,23 +25,13 @@ public abstract class BaseService<
         E extends AbstractEntity,
         R extends CommonRepository<E>> {
 
-    protected final Class<E> entityClass;
-    protected final Class<P> dtoClass;
-
     @Getter
     protected final R repository;
 
-
     /**
-     * @param entityClass Entity
-     * @param dtoClass    DTO class
      * @param repository  repository for provider
      */
-    public BaseService(@NonNull Class<E> entityClass,
-                       @NonNull Class<P> dtoClass,
-                       @NonNull R repository) {
-        this.entityClass = entityClass;
-        this.dtoClass = dtoClass;
+    public BaseService(@NonNull R repository) {
         this.repository = repository;
     }
 

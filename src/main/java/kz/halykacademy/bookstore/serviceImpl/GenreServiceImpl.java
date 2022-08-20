@@ -26,7 +26,7 @@ public class GenreServiceImpl extends BaseService<Genre, GenreEntity, GenreRepos
      * @param bookRepository   repository for work with books
      */
     public GenreServiceImpl(GenreRepository repository, BookRepository bookRepository) {
-        super(GenreEntity.class, Genre.class, repository);
+        super(repository);
         this.bookRepository = bookRepository;
     }
 

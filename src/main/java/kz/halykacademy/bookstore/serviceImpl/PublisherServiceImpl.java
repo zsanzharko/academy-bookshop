@@ -23,7 +23,7 @@ public class PublisherServiceImpl extends BaseService<Publisher, PublisherEntity
 
     @Autowired
     public PublisherServiceImpl(PublisherRepository repository, BookRepository bookRepository) {
-        super(PublisherEntity.class, Publisher.class, repository);
+        super(repository);
         this.bookRepository = bookRepository;
     }
 

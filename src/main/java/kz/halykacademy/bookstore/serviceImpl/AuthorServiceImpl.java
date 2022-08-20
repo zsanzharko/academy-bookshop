@@ -29,7 +29,7 @@ public class AuthorServiceImpl extends BaseService<Author, AuthorEntity, AuthorR
 
     @Autowired
     public AuthorServiceImpl(AuthorRepository repository, BookRepository bookRepository, GenreRepository genreRepository) {
-        super(AuthorEntity.class, Author.class, repository);
+        super(repository);
         this.bookRepository = bookRepository;
         this.genreRepository = genreRepository;
     }

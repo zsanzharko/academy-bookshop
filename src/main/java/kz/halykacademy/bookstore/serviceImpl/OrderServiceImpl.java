@@ -29,7 +29,7 @@ public class OrderServiceImpl extends BaseService<Order, OrderEntity, OrderRepos
      */
     @Autowired
     public OrderServiceImpl(OrderRepository repository, UserServiceImpl userService, BookServiceImpl bookService) {
-        super(OrderEntity.class, Order.class, repository);
+        super(repository);
         this.userService = userService;
         this.bookService = bookService;
     }

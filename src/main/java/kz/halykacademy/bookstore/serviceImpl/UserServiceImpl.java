@@ -26,7 +26,7 @@ public class UserServiceImpl extends BaseService<User, UserEntity, UserRepositor
      */
     @Autowired
     public UserServiceImpl(UserRepository repository, OrderRepository orderRepository) {
-        super(UserEntity.class, User.class, repository);
+        super(repository);
         this.orderRepository = orderRepository;
     }
 
